@@ -1,0 +1,64 @@
+name: VCF Check Interop Data Build
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: VCF.Check
+    env:
+      INTEROPMATRIX_X_AUTH_KEY: ${{ secrets.INTEROPMATRIX_X_AUTH_KEY }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch and rebuild interop data
+        shell: pwsh
+        run: ./InternalTools/Update-VcfInteropMatrixData.ps1
+
+      - name: Check for data changes
+        id: diff
+        shell: pwsh
+        run: |
+          $changed = (git status --porcelain VcfCheck/Data/Interoperability) -ne $null
+          "changed=$($changed.ToString().ToLower())" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Build release artifact
+        if: steps.diff.outputs.changed == 'true'
+        shell: pwsh
+        run: |
+          $stagingDir = 'interop-release'
+          New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
+          Copy-Item -Path 'VcfCheck/Data/Interoperability' -Destination "$stagingDir/interop-data" -Recurse
+
+          $version = Get-Date -Format 'yyyy.MM.dd-HHmmss'
+          $manifest = [Ordered]@{
+            version      = $version
+            buildDate    = (Get-Date -AsUTC).ToString('o')
+            sourceCommit = $env:GITHUB_SHA
+          }
+          $manifest | ConvertTo-Json | Set-Content -Path "$stagingDir/interop-data/manifest.json" -Encoding UTF8
+
+          $zipPath = 'interop-data.zip'
+          Compress-Archive -Path "$stagingDir/interop-data/*" -DestinationPath $zipPath -Force
+          (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLower() | Set-Content -Path "$zipPath.sha256" -Encoding UTF8 -NoNewline
+
+          $manifest.zipUrl = "pending-upload"
+          $manifest.sha256 = (Get-Content "$zipPath.sha256")
+          $manifest | ConvertTo-Json | Set-Content -Path 'manifest.json' -Encoding UTF8
+
+      - name: Create draft release
+        if: steps.diff.outputs.changed == 'true'
+        shell: pwsh
+        run: |
+          $version = (Get-Content 'manifest.json' | ConvertFrom-Json).version
+          gh release create "interop-data-$version" `
+            --draft `
+            --title "Interop Data $version" `
+            --notes "Automated interop data update. Review Data/Interoperability diff before publishing." `
+            'interop-data.zip' 'interop-data.zip.sha256' 'manifest.json'
