@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/badge/License-Broadcom-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-2.0.0.1006-orange.svg)](CHANGELOG.md)
-[![Downloads](https://img.shields.io/github/downloads/vmware/vcfcheck/total?label=Release%20Downloads)
+[![Downloads]](https://img.shields.io/github/downloads/vmware/vcfcheck/total?label=Release%20Downloads)
 
 # VCF Check
 
