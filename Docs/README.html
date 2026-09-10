@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>VCF Check Documentation</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --border: #e2e5ea;
+      --text: #1f2430;
+      --muted: #5b6472;
+      --accent: #2f6fed;
+      --code-bg: #eef1f5;
+    }
+    html { scroll-behavior: smooth; }
+    h1.title { display: none; }
+    body {
+      margin: 0;
+      max-width: 1180px;
+      padding: 32px 24px 80px 304px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    h1, h2, h3, h4 { line-height: 1.3; scroll-margin-top: 16px; }
+    h2 {
+      margin-top: 2.5rem;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 { margin-top: 2rem; color: var(--text); }
+    h4 {
+      margin-top: 1.5rem;
+      padding: 6px 10px;
+      background: var(--code-bg);
+      border-radius: 6px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      background: var(--code-bg);
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: .9em;
+    }
+    pre {
+      background: var(--code-bg);
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    pre code { background: none; padding: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      text-align: left;
+    }
+    th { background: var(--code-bg); }
+    ul, ol { padding-left: 1.4rem; }
+    li { margin: 4px 0; }
+    blockquote {
+      margin: 1rem 0;
+      padding: 8px 16px;
+      border-left: 3px solid var(--accent);
+      color: var(--muted);
+      background: var(--panel);
+    }
+    #TOC {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 24px 20px 40px;
+    }
+    #TOC::before {
+      content: "Table of Contents";
+      display: block;
+      font-weight: 700;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    #TOC ul { list-style: none; padding-left: 1rem; }
+    #TOC > ul { padding-left: 0; }
+    #TOC li { margin: 2px 0; }
+    #TOC a {
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-block;
+      padding: 1px 0;
+    }
+    #TOC a:hover { text-decoration: underline; }
+    #TOC > ul > li > a { font-weight: 600; }
+    @media (max-width: 900px) {
+      body { max-width: 860px; padding: 32px 24px 80px; }
+      #TOC {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow-y: visible;
+        border: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        border-radius: 8px;
+        margin: 0 0 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">VCF Check Documentation</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#vcf-check" id="toc-vcf-check">VCF Check</a>
+<ul>
+<li><a href="#installation" id="toc-installation">Installation</a>
+<ul>
+<li><a href="#prerequisites"
+id="toc-prerequisites">Prerequisites</a></li>
+<li><a href="#offline-zip" id="toc-offline-zip">Offline Zip</a></li>
+<li><a href="#powershell-gallery" id="toc-powershell-gallery">PowerShell
+Gallery</a></li>
+</ul></li>
+<li><a href="#quick-start" id="toc-quick-start">Quick Start</a></li>
+<li><a href="#using-vcf-check" id="toc-using-vcf-check">Using VCF
+Check</a>
+<ul>
+<li><a href="#creating-an-environment"
+id="toc-creating-an-environment">Creating an Environment</a></li>
+</ul></li>
+<li><a href="#run-scan" id="toc-run-scan">Run Scan</a>
+<ul>
+<li><a href="#select-environments" id="toc-select-environments">Select
+Environment(s)</a></li>
+<li><a href="#discover-workload-domains-optional"
+id="toc-discover-workload-domains-optional">Discover Workload Domains
+(Optional)</a></li>
+<li><a href="#health-checks" id="toc-health-checks">Health
+Checks</a></li>
+<li><a href="#run-check" id="toc-run-check">Run Check</a></li>
+<li><a href="#export-reports" id="toc-export-reports">Export
+(Reports)</a></li>
+<li><a href="#collect-logs" id="toc-collect-logs">Collect Logs</a></li>
+<li><a href="#dark--light-mode" id="toc-dark--light-mode">Dark / Light
+mode</a></li>
+</ul></li>
+<li><a href="#check-details" id="toc-check-details">Check
+Details</a></li>
+<li><a href="#general-notes" id="toc-general-notes">General Notes</a>
+<ul>
+<li><a href="#aria" id="toc-aria">Aria</a></li>
+<li><a href="#esx" id="toc-esx">ESX</a></li>
+<li><a href="#sddc-manager" id="toc-sddc-manager">SDDC Manager</a></li>
+<li><a href="#vcenter" id="toc-vcenter">vCenter</a></li>
+<li><a href="#nsx" id="toc-nsx">NSX</a></li>
+<li><a href="#vsan" id="toc-vsan">vSAN</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="vcf-check">VCF Check</h1>
+<p>A lightweight PowerShell module that runs pre-upgrade health checks
+against VMware Cloud Foundation (VCF) 5.2 and later environments, paired
+with a bundled local Python web-based user interface. These checks are
+used to ascertain if any remediation is required before launching a VCF
+9.x upgrade.</p>
+<p>VCF Check does not support VCF releases earlier than 5.2. When it
+connects to SDDC Manager, it checks the reported VCF version and stops
+the run with an explanatory error if the environment is older than
+5.2.</p>
+<h2 id="installation">Installation</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li><a
+href="https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell">PowerShell
+7.4+</a></li>
+<li><a href="https://developer.broadcom.com/powercli">VCF.PowerCLI
+9.0+</a> — if VMware.PowerCLI is already installed, uninstall it first
+(<code>Uninstall-Module VMware.PowerCLI -AllVersions</code>); the two
+modules conflict and cannot coexist.</li>
+<li>Python 3.13+ (see <a href="#installing-python">Installing Python</a>
+below)</li>
+<li>macOS/Linux/Windows system with HTTPS network access to SDDC
+Manager, vCenter, and vRSLCM (if installed)</li>
+<li>An SSO account on SDDC Manager with ADMIN-level access.</li>
+<li>Modern web browser (to access the web interface of pre-check
+utility). Chrome-based recommended (Firefox, Safari should work; IE will
+not).</li>
+</ul>
+<h4 id="installing-python">Installing Python</h4>
+<p>Python 3 is included by default on macOS and most Linux
+distributions. On Windows, install it using one of the following:</p>
+<ul>
+<li><p><strong>winget (preferred):</strong></p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode Powershell"><code class="sourceCode powershell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>winget install <span class="op">--</span>id Python<span class="op">.</span><span class="fu">Python</span><span class="op">.</span><span class="dv">3.13</span> <span class="op">-</span>e</span></code></pre></div></li>
+<li><p><strong>Microsoft Store:</strong> search for "Python 3.13"
+(Windows 10/11 only, not Windows Server).</p></li>
+<li><p><strong>Official installer:</strong> download from the <a
+href="https://www.python.org/downloads/windows/">Python Windows
+downloads page</a> and select the installer matching your system
+architecture.</p></li>
+</ul>
+<h3 id="offline-zip">Offline Zip</h3>
+<ol type="1">
+<li><p>Copy <code>VcfCheck-&lt;version&gt;.zip</code> to the script
+execution system.</p></li>
+<li><p>Expand it into a <code>VcfCheck</code> folder under one of your
+<code>$env:PSModulePath</code> locations, for example, your user module
+path:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">$userModulePath</span> <span class="op">=</span> <span class="op">(</span><span class="va">$env</span><span class="op">:</span><span class="va">PSModulePath</span> <span class="op">-split</span> <span class="op">[</span>IO<span class="op">.</span><span class="fu">Path</span><span class="op">]::</span>PathSeparator<span class="op">)[</span><span class="dv">0</span><span class="op">]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">$destination</span> <span class="op">=</span> <span class="fu">Join-Path</span> <span class="op">-</span>Path <span class="va">$userModulePath</span> <span class="op">-</span>ChildPath <span class="st">&#39;VcfCheck&#39;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Expand-Archive <span class="op">-</span>Path <span class="st">&#39;./VcfCheck-&lt;version&gt;.zip&#39;</span> <span class="op">-</span>DestinationPath <span class="va">$destination</span> <span class="op">-</span>Force</span></code></pre></div>
+<p>On Linux, <code>Expand-Archive</code> may not be recognized as the
+PowerShell module that installs it,
+<code>Microsoft.PowerShell.Archive</code> module, may not be installed
+by default on all distributions. If the command above fails, either
+install it first:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Install-Module <span class="op">-</span>Name Microsoft<span class="op">.</span><span class="fu">PowerShell</span><span class="op">.</span><span class="fu">Archive</span> <span class="op">-</span>Scope AllUsers</span></code></pre></div>
+<p>or extract the archive with <code>unzip</code> instead:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> VcfCheck-<span class="op">&lt;</span>version<span class="op">&gt;</span>.zip <span class="at">-d</span> /path/to/Modules/VcfCheck</span></code></pre></div>
+<p>The archive's top-level folder is already named after the module
+version, so this produces
+<code>&lt;...&gt;/Modules/VcfCheck/&lt;version&gt;/VcfCheck.psd1</code>,
+matching the layout PowerShell expects for versioned modules.</p></li>
+<li><p>If this PowerShell session was already open before you ran the
+steps above, start a new session before continuing. A running session
+caches the module autoload table at startup, so it will not see a module
+dropped into <code>$env:PSModulePath</code> afterward, and
+<code>Get-Module -ListAvailable</code> will report nothing until the
+session is restarted.</p></li>
+<li><p>Verify and import:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Get-Module</span> <span class="op">-</span>ListAvailable VcfCheck</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Import-Module</span> VcfCheck</span></code></pre></div></li>
+</ol>
+<h3 id="powershell-gallery">PowerShell Gallery</h3>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode Powershell"><code class="sourceCode powershell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Install-Module <span class="op">-</span>Name VcfCheck <span class="op">-</span>Scope CurrentUser</span></code></pre></div>
+<h2 id="quick-start">Quick Start</h2>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Initialize-VcfCheck                        <span class="co"># (One time) sets up your configuration files and environment.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>Start-VcfCheckServer                       <span class="co"># Launches the web-based configuration utility.</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>Stop-VcfCheckServer                        <span class="co"># Stops the web-based configuration utility.</span></span></code></pre></div>
+<p>HTML and JSON reports are automatically saved to
+<code>$env:VcfCheckBaseDirectory/Findings/&lt;environment name&gt;</code>.</p>
+<p>If port 8766 is already in use by a leftover process,
+<code>Start-VcfCheckServer</code> throws instead of binding to it. Run
+<code>Start-VcfCheckServer -Force</code> to stop whatever is holding the
+port first and then start normally. Use <code>-Background</code> to run
+detached (stop it later with <code>Stop-VcfCheckServer</code>) and
+<code>-Port &lt;n&gt;</code> to use a different port.</p>
+<h2 id="using-vcf-check">Using VCF Check</h2>
+<ul>
+<li>After launching <code>Start-VcfCheckServer</code> from a PowerShell
+terminal, the <code>VCF Check</code> web page will appear at
+<code>http://127.0.0.1:&lt;unused_port&gt;</code>. For security, the web
+server will not bind to a public port and thus may only be accessed from
+your local system.</li>
+</ul>
+<h3 id="creating-an-environment">Creating an Environment</h3>
+<h4 id="creating-your-first-environment">Creating your first
+environment</h4>
+<ol type="1">
+<li><p>Navigate to Settings &amp; Environments -&gt; Environments -&gt;
+<code>Add Environment</code>.</p></li>
+<li><p>Enter a friendly name for your VCF environment in the
+<code>Name</code> field.</p></li>
+<li><p>Enter the SDDC Manager Fully Qualified Domain Name (FQDN) or IP
+address in the "SDDC Manager FQDN" field. (e.g.,
+<code>sddcm.example.com</code> or <code>192.168.1.100</code>).</p></li>
+<li><p>Enter your SSO username in the "Username" field (example:
+<code>administrator@vsphere.local</code>). Please note: This user must
+have ADMIN-level permissions to SDDC Manager.</p></li>
+<li><p>The checkbox
+<code>Enable SDDC Manager root-credential checks (VMware Tools guest operations)</code>
+should remain checked unless one or more of the following conditions are
+met:</p>
+<ul>
+<li>SDDC Manager and vCenter do not and cannot run VMware Tools for
+security or policy reasons.</li>
+<li>You do not have <code>root</code> shell credentials for the SDDC
+Manager.</li>
+<li>You have specific organization policies against the use of
+<code>Invoke-VMScript</code> to run shell operations on virtual
+appliances.</li>
+</ul></li>
+</ol>
+<p>To view checks that require <code>root</code> credentials, expand
+"Health checks" and click on the filter "Needs Root Credentials".</p>
+<h4 id="adding-aria-components-optional">Adding Aria Components
+(optional)</h4>
+<p>Under <code>Aria Components (optional)</code>, you may register
+endpoints such as Aria Operations for API-level checks (adapter status,
+certificate expiration, licensing, collector health, and so on).</p>
+<ul>
+<li>These checks connect directly to each component's own API. They do
+not go through, and do not require, vRealize Suite Lifecycle Manager
+(vRSLCM).</li>
+<li>Add an endpoint here regardless of whether that component happens to
+be managed by vRSLCM, or whether vRSLCM is deployed in the environment
+at all - VCF Check has no dependency on vRSLCM to run these checks.</li>
+<li>If you don't add a component here, its checks are simply skipped for
+that environment.</li>
+</ul>
+<h4 id="creating-a-subsequent-environment">Creating a subsequent
+environment</h4>
+<ol type="1">
+<li>Click the <code>Settings &amp; Environments</code> pane to expand
+it.</li>
+<li>Click <code>Add Environment</code>.</li>
+<li>Complete steps 3-5 from the <code>First environment</code> setup
+steps.</li>
+</ol>
+<h4 id="modifying-an-environment">Modifying an environment</h4>
+<ol type="1">
+<li>Click the <code>Settings &amp; Environments</code> pane to expand
+it.</li>
+<li>Click <code>Edit</code> to the right of the environment name in
+question to modify it, or <code>Delete</code> to remove it.</li>
+<li>If you are editing the environment, you may modify its friendly
+name, <code>SDDC Manager FQDN</code>, <code>Username</code>, or toggle
+<code>Root-Credential</code> checks.</li>
+<li>Click <code>Save</code> to complete your changes.</li>
+</ol>
+<h4 id="updating-display-settings-optional">Updating display settings
+(optional)</h4>
+<ul>
+<li>Under <code>Settings &amp; Environments</code> there is a section
+called <code>Advanced Settings</code>.</li>
+<li><code>Live log detail</code> controls the level of detail displayed
+during a health check run. The default <code>INFO</code> is typically
+sufficient, but you may turn it down to <code>WARNING</code> (to display
+less information) or up to <code>DEBUG</code> (to display more
+information) as the situation dictates. All of this data (unfiltered) is
+available in <code>$env:VcfCheckBaseDirectory/Logs</code> with
+date-stamped files for later analysis.
+<ul>
+<li><strong>Note</strong> : If you update the log level during a check
+run, the changes take effect immediately.</li>
+</ul></li>
+<li><code>TCP connection timeout (seconds)</code> controls the timeout
+value for connections to endpoints (like SDDC Manager, vCenter, and
+vRSLCM).</li>
+<li><code>VCF destination release</code> controls the compatibility
+checks for <code>Aria Suite Component Version Check</code> and
+<code>VCF Bill of Materials Upgrade Readiness Check</code>. If you are
+planning to upgrade to a version less than the latest version of VCF
+9.x, you may change the selected release here.</li>
+<li><code>SDDC Manager Health Summary poll budget</code> and
+<code>SDDC Manager Pre-Upgrade Check-Set poll budget</code> control how
+long the <code>SDDC Manager Health Summary</code> and
+<code>SDDC Manager Pre-Upgrade Check-Set Assessment</code> checks,
+respectively, will keep polling SDDC Manager before giving up - both can
+take several minutes on a live environment since SDDC Manager runs a
+multi-step task in the background for each. The
+<code>SDDC Manager Health Summary</code> check also abandons polling on
+its own once SDDC Manager stops making progress, so raising its budget
+only helps a genuinely slow (not stuck) run.</li>
+<li>Whether connections to all endpoints (via SDK or REST) accept
+untrusted/self-signed certificates is controlled by PowerCLI's own
+<code>Set-PowerCLIConfiguration -InvalidCertificateAction</code> setting
+- there is no separate VcfCheck-specific toggle. Run
+<code>Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore</code>
+for lab environments with self-signed certificates, or leave it at its
+default (<code>Fail</code>/<code>Warn</code>) for production. Check the
+current value with <code>Get-PowerCLIConfiguration</code>. The
+<code>Insecure TLS Settings</code> line in this Settings panel is a
+read-only reflection of that PowerCLI setting, not a control - change it
+via <code>Set-PowerCLIConfiguration</code>, then reload the page to see
+the update.</li>
+</ul>
+<h2 id="run-scan">Run Scan</h2>
+<h3 id="select-environments">Select Environment(s)</h3>
+<ol type="1">
+<li>Click one or more environments you wish to check.</li>
+<li>Enter your credentials for your SSO user and the root user (if
+<code>root</code> checks are enabled).</li>
+</ol>
+<h3 id="discover-workload-domains-optional">Discover Workload Domains
+(Optional)</h3>
+<ul>
+<li><p>By default, <code>Run Check</code> scans every workload domain in
+the selected environment(s). Click
+<code>Discover Workload Domains</code> to customize which ones are
+scanned instead.</p></li>
+<li><p>This step performs the following:</p>
+<ul>
+<li>Validates SDDC Manager and vCenter TCP/443 reachability.</li>
+<li>Validates vRSLCM (if deployed) TCP/443 reachability.</li>
+<li>Validates SSO user credentials for SDDC Manager.</li>
+<li>Validates root credentials for SDDC Manager through a multi-step
+authentication and VM identification process.</li>
+<li>Loads the list of workload domains for the selected environment(s)
+into the <code>Domain</code> selector.</li>
+</ul></li>
+<li><p>Once the domains load, deselect any you do not wish to scan. Your
+selection carries forward into <code>Run Check</code>.</p></li>
+<li><p>The four-stage checks will be displayed under
+<code>Credential Check</code> with any errors surfaced to the right of
+the check name. A <code>Live Log</code> will appear beneath with
+additional detail.</p></li>
+</ul>
+<h3 id="health-checks">Health Checks</h3>
+<ul>
+<li><p>Click on <code>Health Check</code> to view or customize the list
+of checks run against your environments. By default, all are
+selected.</p></li>
+<li><p>Each check is accompanied by a short description (longer
+descriptions are available in this document). These descriptions also
+accompany the completed checks.</p></li>
+<li><p>Checks may be excluded / included individually or by Component
+category.</p>
+<ul>
+<li>To disable an entire Component category, deselect the component
+under <code>Components</code> or above the list of checks.</li>
+</ul></li>
+<li><p>Checks for which failure is known to block a VCF 9.x upgrade are
+prefaced with a <strong>[B]</strong>.</p></li>
+<li><p>Checks that require <code>root</code> credentials to SDDC Manager
+are prefaced with an <strong>[R]</strong>.</p></li>
+</ul>
+<h3 id="run-check">Run Check</h3>
+<ul>
+<li>The check workflow validates connectivity and credentials for the
+selected environment(s) automatically before proceeding with the checks
+themselves - the same validation <code>Discover Workload Domains</code>
+performs (see <code>Discover Workload Domains (Optional)</code> for
+details), so running it first is optional.</li>
+<li>A Progress Bar will appear, showing how many checks out of the total
+have completed, the time elapsed, and details on the running check.</li>
+<li>You may scroll down to see details on the checks that have
+completed; a floating "mini progress bar" will keep you apprised of the
+overall scan progress.</li>
+<li>You may apply post-check filters in real time, filtering out
+statuses or components at will. These will be dynamically applied to
+your view and will not impact the underlying data.</li>
+<li>The check results will dynamically reorder themselves with higher
+priority issues (blocking failures for example) rising to the top.</li>
+<li>One check result will appear per workload domain.</li>
+<li>Click the <code>i</code> icon to view a description of the
+check.</li>
+<li>You may view more details on any check by clicking on it. Once
+expanded, you'll see the following:
+<ul>
+<li>The target (such as vCenter: vcenter.example.com).</li>
+<li>(Optional) Information: extra information about the check.</li>
+<li>Validation Criteria: what the check is looking for.</li>
+<li>Results / Details: status of the check results.</li>
+<li>(Conditional) Remediation: if the check does not pass, how to
+resolve the condition.</li>
+</ul></li>
+<li>Checks skipped due to missing optional components can be reviewed in
+detail by clicking on the summary bar to view individual skipped checks
+and why they were skipped.</li>
+<li><code>Info-only</code> badge. This badge indicates that there is no
+check criteria. The data is presented as informational only.</li>
+</ul>
+<h3 id="export-reports">Export (Reports)</h3>
+<ul>
+<li><p>Once your report is complete, it becomes available for
+export.</p></li>
+<li><p>Scroll up to the top of the screen and in the top right corner
+choose one of the following:</p>
+<ul>
+<li>HTML: Filterable static HTML page (Downloads to your default
+download directory)</li>
+<li>ZIP: a zip file containing the HTML file and a JSON version of the
+data (Downloads to your default download directory)</li>
+<li>PDF: a PDF version of the report, available to print or save as a
+PDF.</li>
+</ul></li>
+<li><p>Note: Each time you run a check, a copy of the JSON and HTML is
+automatically saved to your
+<code>$env:VcfCheckBaseDirectory/Findings/&lt;environment name&gt;</code>
+folder as a backup in case you close your browser in error.</p>
+<ul>
+<li>While a run is in progress, these files are named after an internal
+run ID (e.g. <code>VCF52-df248dbfd49b-findings.json</code>), so every
+check that finishes overwrites the same pair of files instead of
+creating a new one.</li>
+<li>Once the run completes, both files are renamed to use the completion
+timestamp instead (e.g.
+<code>VCF52-20260910-204036-findings.json</code>), giving a
+human-friendly, sortable name for looking the run up later.</li>
+<li>If a run is interrupted (browser closed, PowerShell process killed,
+etc.) before it completes, the rename never happens - the JSON and HTML
+files for that run are left named with the run ID rather than a
+timestamp.</li>
+<li><code>latest.json</code> in the same folder always holds a copy of
+the most recent run's data, under that fixed name, regardless of whether
+the run completed or was interrupted.</li>
+</ul></li>
+</ul>
+<h3 id="collect-logs">Collect Logs</h3>
+<ul>
+<li>If you need technical support, you may click on
+<code>Collect Logs</code> in the upper-right corner of the screen at any
+time.</li>
+<li>This log bundle contains:
+<ul>
+<li><code>$env:VcfCheckBaseDirectory/Findings/*</code></li>
+<li><code>$env:VcfCheckBaseDirectory/Logs/*</code></li>
+<li><code>$env:VcfCheckBaseDirectory/Config/*</code></li>
+</ul></li>
+<li>Notes
+<ul>
+<li>No passwords are stored in this data.</li>
+<li>You will be prompted to accept a warning that this data does contain
+FQDNs and other details about your environment.</li>
+<li>If you need to sanitize FQDN or other details about your
+environment, manually collect the data from the aforementioned
+directories and transform accordingly.</li>
+</ul></li>
+</ul>
+<h3 id="dark--light-mode">Dark / Light mode</h3>
+<ul>
+<li>The UI supports Dark and Light mode. Light mode is the default.</li>
+</ul>
+<h2 id="check-details">Check Details</h2>
+<ul>
+<li>74 checks total</li>
+</ul>
+<h2 id="general-notes">General Notes</h2>
+<ul>
+<li>Expirations dates for password and certificates are presented in
+YYYY-MM-DD in the HTML. For further granularity, please review the JSON
+export.</li>
+</ul>
+<h3 id="aria">Aria</h3>
+<ul>
+<li><strong>Number of checks:</strong> 12</li>
+</ul>
+<h4 id="aria-lifecycle-manager-disk-space-report">Aria Lifecycle Manager
+Disk Space Report</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that the vRealize Suite Lifecycle
+Manager (vRSLCM) root volume has at least 3 GB of free space available
+for upgrades.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>A vRSLCM upgrade is only necessary in the rare instance that an Aria
+appliance requires it prior to upgrading to VCF 9.x.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-adapter-collection-status-check">Aria Operations
+Adapter Collection Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Enumerates every configured Aria
+Operations adapter instance and inspects the monitored resources tied to
+it, flagging any adapter instance where none of its resources report a
+<code>DATARECEIVING</code>/<code>OLDDATARECEIVING</code> status — the
+condition that indicates Aria Operations has silently stopped collecting
+data from that source. Adapter instances with no associated resources
+are reported separately (<code>Unknown</code>) rather than counted as a
+failure, since an adapter with nothing configured to monitor isn't
+itself broken.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+<li>Reports each adapter instance's Name, AdapterKindKey, ResourceCount,
+and Status.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-certificate-expiration-check">Aria Operations
+Certificate Expiration Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Scans every certificate registered with
+Aria Operations (Administration &gt; Certificates), flagging any that
+are already expired or expiring within the configurable warning
+threshold (default 30 days).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+<li>A certificate whose expiration date can't be parsed is also flagged
+as a Warning rather than silently passed.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-collector-status-check">Aria Operations
+Collector Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Connects directly to Aria Operations
+(independent of vRSLCM) and verifies that every registered collector —
+the primary appliance as well as any remote collectors or collector
+groups — reports an <code>UP</code> State, since a collector that has
+gone <code>DOWN</code> stops delivering the metrics/alerts that
+operators rely on both before and after the upgrade. Reports each
+collector's Name, HostName, State, and LastHeartbeat for
+drill-down.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+<li>Connects to a standalone Aria Operations endpoint declared on the
+environment (<code>Integrations</code>), not through vRSLCM.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-collector-type-inventory">Aria Operations
+Collector Type Inventory</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports the deployment Type
+(<code>INTERNAL</code>, <code>REMOTE</code>, <code>CLOUD_PROXY</code>,
+<code>AAP</code>, <code>OTHER</code>) of every Aria Operations collector
+for reviewer visibility.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+<li>No failure condition; reports each collector's Name, HostName, and
+Type for drill-down.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-licensing-check">Aria Operations Licensing
+Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports Aria Operations' license
+entitlement — expiration date, capacity, usage, edition, license type,
+and statuses — flagging a non-permanent license that is already expired
+or expiring within the configurable warning threshold (default 30
+days).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+<li>A <code>PERMANENT</code> license is never flagged, even though Aria
+Operations still reports a numeric expiration date for it.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-lifecycle-status-check">Aria Operations
+Lifecycle Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Validates Aria Operations' own reported
+version against Broadcom's public Interop Matrix upgrade-path status for
+the selected VCF destination release, falling back to a minimum-version
+floor comparison when the Interop Matrix has no resolvable verdict for
+the installed/destination pair.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-open-alerts">Aria Operations Open Alerts</h4>
+<ul>
+<li><strong>Purpose:</strong> Queries Aria Operations for any active
+alert at <code>CRITICAL</code> or <code>IMMEDIATE</code> criticality,
+surfacing unresolved issues on monitored resources so they can be
+triaged before proceeding with the upgrade rather than being discovered
+afterward.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+<li>Reports each matching alert's definition name, resource name
+(resolved from the resource ID, falling back to the raw ID if lookup
+fails), criticality, status, and start time.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-sizing-overview">Aria Operations Sizing
+Overview</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports Aria Operations' own
+self-monitored CPU, memory, disk, network, and object-count metrics for
+reviewer visibility, and warns if any self-monitoring resource reports
+no sizing-related metrics.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations isn't deployed in the environment.</li>
+<li>No exact <code>StatKey</code> names are hardcoded — metrics are
+pulled from Aria Operations' self-monitoring adapter with no
+<code>-StatKey</code> filter, then filtered by name pattern
+(CPU/memory/disk/network/storage/object/latency/capacity) since no live
+instance was available to confirm the exact key set.</li>
+<li>Lists each self-monitoring resource with a Pass/Warning status.
+<code>Warning</code> (and an overall <code>Warning</code> result) if any
+resource reports zero sizing-related metrics; <code>Pass</code>
+otherwise.</li>
+</ul></li>
+</ul>
+<h4 id="aria-suite-appliance-disk-space-report">Aria Suite Appliance
+Disk Space Report</h4>
+<ul>
+<li><strong>Purpose:</strong> Monitors disk space utilization on
+<code>/</code>, <code>/storage/db</code>, <code>/storage/core</code>,
+and <code>/storage/log</code> across all deployed Aria Suite appliances
+(Operations, Operations for Logs, Automation, and Workspace ONE Access).
+Generates a warning as usage approaches capacity thresholds and blocks
+operations if any mount reaches 100%.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Only checks Aria components deployed using vRSLCM.</li>
+</ul></li>
+</ul>
+<h4 id="aria-suite-component-root-password-expiry">Aria Suite Component
+Root Password Expiry</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks root account password expiration
+for Aria Suite appliances:
+<ul>
+<li><strong>Pass:</strong> Password expires in more than 30 days (or is
+set to never expire).</li>
+<li><strong>Warn:</strong> Password expires within 30 days.</li>
+<li><strong>Fail:</strong> Password is already expired.</li>
+</ul></li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Only checks Aria components deployed using vRSLCM.</li>
+</ul></li>
+</ul>
+<h4 id="aria-suite-component-version-check">Aria Suite Component Version
+Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that Aria Suite Lifecycle Manager
+and its registered products are compatible with the target VCF 9.x
+version.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Uses an offline copy of the Broadcom Interoperability Matrix as a
+data source.</li>
+<li>Only checks Aria components deployed using vRSLCM.</li>
+</ul></li>
+</ul>
+<h4 id="aria-suite-lifecycle-manager-certificate-expiration-check">Aria
+Suite Lifecycle Manager Certificate Expiration Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Scans all certificates in the Aria Suite
+Lifecycle Manager locker—including Lifecycle Manager and registered
+products (VRLI, vROps, vRA, and WSA)—flagging any that are expired or
+expiring within 30 days.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Only checks Aria components deployed using vRSLCM.</li>
+</ul></li>
+</ul>
+<h3 id="esx">ESX</h3>
+<ul>
+<li><strong>Number of checks:</strong> 4</li>
+</ul>
+<h4 id="esx-execinstalledonly-enforcement">ESX execInstalledOnly
+Enforcement</h4>
+<ul>
+<li><strong>Purpose:</strong> This check reports the status of
+VMkernel.Boot.execInstalledOnly across all ESX hosts in a workload
+domain. This vSphere security setting ensures only digitally signed,
+installed executables can run.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Rolls up host-level results per cluster when non-unique.</li>
+</ul></li>
+</ul>
+<h4 id="esx-hardware-summary-and-cpu-compatibility-check">ESX Hardware
+Summary and CPU Compatibility Check</h4>
+<ul>
+<li><strong>Purpose:</strong> This check details the BIOS version,
+hardware vendor/model, CPU, vSAN storage, network adapters, HBAs, and
+SCSI devices for every host in a workload domain, and flags any host CPU
+that is not found on Broadcom's server/CPU Hardware Compatibility Guide,
+or is deprecated/discontinued per Broadcom's CPU support removal
+timeline, for the target ESX release.</li>
+<li><strong>Blocks upgrade?</strong> Yes, if any host's CPU is unlisted
+on the Hardware Compatibility Guide or discontinued. A deprecated CPU
+reports a non-blocking warning.</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>CPU compatibility is checked against a shipped, offline snapshot of
+<a
+href="https://compatibilityguide.broadcom.com">https://compatibilityguide.broadcom.com</a>;
+CPU deprecation/discontinuation status is checked against a shipped,
+offline snapshot of <a
+href="https://knowledge.broadcom.com/external/article/318697">https://knowledge.broadcom.com/external/article/318697</a>.</li>
+</ul></li>
+</ul>
+<h4 id="esx-image-profile">ESX Image Profile</h4>
+<ul>
+<li><strong>Purpose:</strong> Generates cluster-level reports on host
+ESX builds, applied image profiles, and vLCM details (add-ons,
+components, firmware, and drivers) to catch image mismatches prior to
+upgrading to VCF 9.x.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Rolls up host-level results per cluster when non-unique.</li>
+</ul></li>
+</ul>
+<h4 id="esx-lockdown-mode">ESX Lockdown mode</h4>
+<ul>
+<li><strong>Purpose:</strong> Lockdown mode restricts ESX host
+management exclusively to vCenter, disabling direct root and local API
+access. This check verifies that every host with Lockdown mode enabled
+includes its VCF service account
+(<code>svc-vcf-&lt;host_shortname&gt;</code>) in its Exception Users
+list. Without this exception, SDDC Manager cannot connect to the host to
+perform upgrades.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Rolls up host-level results per cluster when non-unique.</li>
+<li>Does not show <code>svc-vcf-&lt;host_shortname&gt;</code> status
+when Lockdown mode is disabled.</li>
+</ul></li>
+</ul>
+<h3 id="sddc-manager">SDDC Manager</h3>
+<ul>
+<li><strong>Number of checks:</strong> 15</li>
+</ul>
+<h4 id="hotfix-sddc-manager-async-patch-upgrade-history">Hotfix SDDC
+Manager Async-Patch Upgrade History</h4>
+<ul>
+<li><strong>Purpose:</strong> This check verifies SDDC Manager's
+appliance logs for any record of an out-of-band async-patch having been
+applied, flagging it so it can be reviewed with Broadcom support before
+proceeding with the upgrade.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="hotfix-version-alias-coverage">Hotfix Version Alias
+Coverage</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags any vCenter, ESX host, or NSX
+Manager whose installed build doesn't match the current release's BOM
+version and isn't covered by a registered SDDC Manager version alias —
+the condition that trips LCM's upgrade-path validation mid-upgrade.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Rolls up host-level results per cluster when non-unique.</li>
+</ul></li>
+</ul>
+<h4 id="management-domain-resource-utilization">Management Domain
+Resource Utilization</h4>
+<ul>
+<li><strong>Purpose:</strong> Validates that you have sufficient
+resources in your primary cluster in the Management (MGMT) workload
+domain for a VCF 9.1.1 upgrade.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="sddc-manager-appliance-disk-space">SDDC Manager Appliance Disk
+Space</h4>
+<ul>
+<li><strong>Purpose:</strong> This check reports the free/used disk
+space per filesystem on the SDDC Manager appliance.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check uses <code>Invoke-VMScript</code> to inspect the file
+system on the SDDC Manager appliance.</li>
+</ul></li>
+</ul>
+<h4 id="sddc-manager-depot-account-status">SDDC Manager Depot Account
+Status</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies both the online and offline
+software depot accounts are configured and actively connected. If one is
+improperly configured, it relays the reason why.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="sddc-manager-failed-tasks">SDDC Manager Failed Tasks</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks SDDC Manager's most recent tasks
+for any with a <code>Failed</code> status, rolling up repeated
+occurrences by task name (with counts and timestamps) and their failing
+sub-tasks, so operators can spot and resolve underlying issues before
+upgrading.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Failed tasks are not necessarily blocking; they simply require
+review before proceeding.</li>
+<li>The check rolls up repeated occurrences of failed tasks to improve
+the signal-to-noise ratio.</li>
+</ul></li>
+</ul>
+<h4 id="sddc-manager-health-summary">SDDC Manager Health Summary</h4>
+<ul>
+<li><strong>Purpose:</strong> Polls SDDC Manager's own built-in
+health-summary for 11 categories (DNS, NTP, certificates, passwords,
+services, storage, connectivity, compute, hardware compatibility,
+general, version) and reports its pass/fail verdict.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Unlike previous versions of this check, it does not process an SOS
+bundle, and thus data is derived from SDDC Manager's status endpoint
+only.</li>
+<li>Sub-task details are included.</li>
+<li>If the check detects a prior task is running
+(OPERATION_IN_PROGRESS), it will self-heal, and poll that task, rather
+than start a superfluous new task.</li>
+</ul></li>
+</ul>
+<h4 id="sddc-manager-lcm-manifest-polling">SDDC Manager LCM Manifest
+Polling</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that SDDC Manager's LCM manifest
+polling setting (lcm.core.enableManifestPolling) is enabled, which is
+required for LCM to display all available download bundles.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check uses <code>Invoke-VMScript</code> to inspect
+configuration files on the SDDC Manager VM using its root
+credentials.</li>
+</ul></li>
+</ul>
+<h4 id="sddc-manager-platform-lock-table">SDDC Manager Platform Lock
+Table</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks whether SDDC Manager's internal
+platform.lock database table is empty — a non-empty table means an LCM
+operation is (or was) in progress or became stuck, which blocks further
+platform operations.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check uses <code>Invoke-VMScript</code> to run
+<code>psql</code> commands on the SDDC Manager VM using its root
+credentials.</li>
+</ul></li>
+</ul>
+<h4 id="sddc-manager-pre-upgrade-check-set-assessment">SDDC Manager
+Pre-Upgrade Check-Set Assessment</h4>
+<ul>
+<li><strong>Purpose:</strong> Runs SDDC Manager's own pre-upgrade
+check-set assessment and reports any failing or warning checks per
+resource.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="sddc-manager-vxrail-manager-table">SDDC Manager VxRail Manager
+Table</h4>
+<ul>
+<li><strong>Purpose:</strong> Queries VxRail-based SDDC Manager's
+internal platform.vx_manager table for any row reporting an ERROR
+status.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check is skipped in VSRN environments.</li>
+<li>This check uses <code>Invoke-VMScript</code> to run
+<code>psql</code> commands on the SDDC Manager VM using its root
+credentials.</li>
+</ul></li>
+</ul>
+<h4 id="vcenter-core-and-tib-report">vCenter Core and TiB Report</h4>
+<ul>
+<li><strong>Purpose:</strong> This informational check reports total CPU
+core counts and vSAN storage capacity (in TiB) per vCenter and domain,
+to assist with license estimation for VCF 9.x.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This data is not linked to your actual license utilization, but is
+simply a reflection of your capacity in licensing terms. There is no
+connection to the Broadcom license portal.</li>
+</ul></li>
+</ul>
+<h4 id="vcf-bill-of-materials-upgrade-readiness-check">VCF Bill of
+Materials Upgrade Readiness Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies each VCF component's Bill of
+Materials version is compatible and current before an upgrade, flagging
+any BOM mismatches that could block the process.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Utilizes offline copies of the interoperability matrix for vCenter,
+ESX, NSX, and SDDC Manager to ascertain upgrade blockers (including <a
+href="https://knowledge.broadcom.com/external/article/448135/upgrade-failure-for-vcenter-80-u3j-esxi.html">back
+in time</a> issues).</li>
+</ul></li>
+</ul>
+<h4 id="vcf-license-key-expiration">VCF License Key Expiration</h4>
+<ul>
+<li><strong>Purpose:</strong> Fails on any already-expired VCF-managed
+license key and warns on keys expiring within the configured threshold
+(default 30 days), listing every key's status and days remaining.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This data is based on what's known to the local SDDC Manager, rather
+than the Broadcom licensing portal.</li>
+</ul></li>
+</ul>
+<h4 id="vsphere-lifecycle-management-vlcm-enablement">vSphere Lifecycle
+Management (vLCM) Enablement</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks each cluster to see if it's managed
+by vLCM baselines (VUM) or vLCM Images. vLCM Image management is
+required to complete an upgrade to ESX 9.0 or later.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h3 id="vcenter">vCenter</h3>
+<ul>
+<li><strong>Number of checks:</strong> 28</li>
+</ul>
+<h4 id="datastore-free-space">Datastore Free Space</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports free space on every datastore and
+warns when one is inaccessible or nearing capacity (80% for vSAN, 90%
+for others), so storage headroom can be confirmed before upgrading.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="distributed-virtual-switch-version">Distributed Virtual Switch
+Version</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags distributed virtual switches below
+version 7.0, since vCenter Server 9.0 requires that minimum for
+compatibility.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="drs-affinityanti-affinity-rules">DRS Affinity/Anti-Affinity
+Rules</h4>
+<ul>
+<li><strong>Purpose:</strong> Displays DRS affinity/anti-affinity rules
+and whether or not they are enabled/disabled,
+mandatory/best-effort.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Only mandatory rules have the potential to impact an upgrade and
+should be evaluated.</li>
+</ul></li>
+</ul>
+<h4 id="esx-host-memory-utilization">ESX Host Memory Utilization</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports each ESX host's memory usage
+against RED (≥95%)/YELLOW (≥80%)/GREEN thresholds, flagging any host
+approaching capacity before the upgrade proceeds.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="esx-host-power-state">ESX Host Power State</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every ESX host managed by
+the vCenter is powered on and connected, flagging any host that is
+powered off or disconnected before an upgrade proceeds.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="hcx-plugin-detection">HCX Plugin Detection</h4>
+<ul>
+<li><strong>Purpose:</strong> Detects the HCX plugin across every
+vCenter attached to SDDC Manager and, when found, parses its version to
+warn — with a specific remediation citing the VCF 9.1 HCX compatibility
+KB — only when it's below the HCX 9.1 minimum required for VCF 9.1
+(passing silently if already compliant).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if the plugins are
+not detected.</li>
+</ul></li>
+</ul>
+<h4 id="ipfixnetflow-configuration-consistency">IPFIX/NetFlow
+Configuration Consistency</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags distributed virtual switches on any
+attached vCenter that have inconsistent IPFIX/NetFlow configuration
+(enabled on some, disabled on others).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="legacy-plugin-detection">Legacy Plugin Detection</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags EOL services (Site Recovery Manager,
+Dell RecoveryPoint) with a Warning and upgrade-transition guidance
+before you proceed to VCF 9.x.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if the plugins are
+not detected.</li>
+</ul></li>
+</ul>
+<h4 id="management-appliance-snapshot-size">Management Appliance
+Snapshot Size</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags SDDC Manager, vCenter, and vRSLCM
+VMs running on oversized snapshots (&gt;5GB warning, &gt;50GB blocking)
+that should be cleared before upgrade.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="multiwriter-enabled-virtual-disks">Multiwriter-Enabled Virtual
+Disks</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags VMs across every attached vCenter
+with a multiwriter-enabled virtual disk, since it can block Storage
+vMotion and host-evacuation steps during the upgrade.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-and-esx-certificate-expiration">vCenter and ESX
+Certificate Expiration</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks the vCenter machine SSL certificate
+and managed ESX host certificates for expiration across all vCenter
+domains, flagging any that are already expired or expiring within the
+configurable warning threshold (default 30 days).</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-appliance-disk-space-inode-and-heap-dump-check">vCenter
+Appliance Disk Space, Inode, and Heap Dump Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies every filesystem on the vCenter
+appliance is below 80% disk space and inode utilization and that no
+.hprof (Java heap dump) files are present.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check uses <code>Invoke-VMScript</code> to check disk-space,
+inode data, and search for heap files on the appropriate vCenter VM
+using its root credentials.</li>
+</ul></li>
+</ul>
+<h4 id="vcenter-appliance-health-endpoints">vCenter Appliance Health
+Endpoints</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks each vCenter Appliance VAMI health
+endpoint's actual traffic-light value (mapping red→Fail,
+yellow/orange/gray→Warning) and, for any non-green item, surfaces VAMI's
+own descriptive message/resolution text as the row detail and
+remediation.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-appliance-outbound-proxy-configuration">vCenter
+Appliance Outbound Proxy Configuration</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags any vCenter with an outbound proxy
+configured as a Warning and points to KB guidance to verify its health
+before starting the upgrade.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-appliance-root-password-expiration">vCenter Appliance
+Root Password Expiration</h4>
+<ul>
+<li><strong>Purpose:</strong> Alerts when the vCenter appliance root
+account password is about to expire or automatic rotation is disabled,
+either of which could lock out access mid-upgrade.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-appliance-sizing-check">vCenter Appliance Sizing
+Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that each vCenter appliance in
+the environment is appropriately sized for its live host and VM
+inventory, and that its disk configuration matches a supported VCSA
+preset.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-appliance-storage-usage-detail">vCenter Appliance
+Storage Usage Detail</h4>
+<ul>
+<li><strong>Purpose:</strong> Shows per-partition storage usage across
+every vCenter appliance attached to SDDC Manager, for capacity
+planning.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+</ul>
+<h4 id="vcenter-enhanced-linked-mode-elm-compatibility">vCenter Enhanced
+Linked Mode (ELM) Compatibility</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags vCenters participating in Enhanced
+Linked Mode (ELM) and verifies vmdir replication health, since VCF 9.x
+SSO does not support ELM.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-lookup-service-ssl-trust-mismatch">vCenter Lookup
+Service SSL Trust Mismatch</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies every :443 service registered
+with vCenter's Lookup Service presents the SSL certificate the Lookup
+Service has on file for it, flagging live cert/trust drift before an
+upgrade.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-service-status">vCenter Service Status</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags any vCenter appliance service
+reporting an unknown state.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-sso-administrator-password-expiry">vCenter SSO
+Administrator Password Expiry</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies SSO administrator (PSC/SYSTEM)
+credential(s) are neither expired nor due to expire within 30 days.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Checks whether the password(s) will expire within 30 days.</li>
+</ul></li>
+</ul>
+<h4 id="vcenter-trusted-root-crl-accumulation-check">vCenter Trusted
+Root CRL Accumulation Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks whether the vCenter appliance's
+TRUSTED_ROOT_CRLS VECS store has accumulated an excessive number of
+certificate revocation list entries (≥1000), which can crash the
+appliance's certificate-management service and disrupt upgrades.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-vmafd-machine-id">vCenter VMAFD Machine ID</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies the vCenter appliance's identity
+service (VMAFD) hasn't become corrupted, as a bad machine ID can block a
+VCF upgrade.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vcenter-vmdir-database-file-size">vCenter VMDir Database File
+Size</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks the vCenter appliance's vmdir
+database file for corruption (zero-byte) and for approaching or
+exceeding the default 1024 MB VMDIR size limit that causes
+license/SSO-user storage errors.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check uses <code>Invoke-VMScript</code> to check the file size
+of this database file on the vCenter VM using its root credentials.</li>
+</ul></li>
+</ul>
+<h4 id="vcenter-vmdir-health-state">vCenter VMDir Health State</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies the vCenter appliance's local
+VMDir replication state is "Normal" via retry on transient errors and
+remediation guidance for abnormal states.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check uses <code>Invoke-VMScript</code> to check the
+replication status using the commands <code>vdcrepadmin</code> and
+<code>dir-cli</code> on the vCenter VM using its root credentials.</li>
+</ul></li>
+</ul>
+<h4 id="vsphere-supervisor-cluster-detection">vSphere Supervisor Cluster
+Detection</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports whether any vSphere Supervisor
+(Workload Management) cluster is enabled, warning when a
+Supervisor-enabled cluster is still vLCM baseline (VUM) managed since it
+can't transition to vLCM images until its vCenter is upgraded to
+9.0.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if no vSphere
+Supervisors are enabled on any cluster in this vCenter.</li>
+</ul></li>
+</ul>
+<h4 id="vsphere-supervisor-cluster-kubernetes-versions">vSphere
+Supervisor Cluster Kubernetes Versions</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports the current Kubernetes version of
+each vSphere Supervisor cluster.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if no vSphere
+Supervisors are enabled on any cluster in this vCenter.</li>
+</ul></li>
+</ul>
+<h4 id="vsphere-supervisor-namespaces">vSphere Supervisor
+Namespaces</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports every vSphere Namespace on
+Supervisor-enabled vCenters, its backing cluster, and config
+status.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if no vSphere
+Supervisors are enabled on any cluster in this vCenter.</li>
+</ul></li>
+</ul>
+<h3 id="nsx">NSX</h3>
+<ul>
+<li><strong>Number of checks:</strong> 10</li>
+</ul>
+<h4 id="nsx-application-platform-napp-registration">NSX Application
+Platform (NAPP) Registration</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies every NSX Application Platform
+(NAPP) cluster registered with NSX Manager is connected, flagging NAPP
+for migration to Security Services Platform (SSP) since it is no longer
+supported.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if NSX Application
+Platform is not detected.</li>
+</ul></li>
+</ul>
+<h4 id="nsx-compute-manager-registration-status">NSX Compute Manager
+Registration Status</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every vCenter registered as
+an NSX Manager compute manager remains registered and connected,
+flagging any that have lost registration or connectivity.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="nsx-federation-configuration">NSX Federation Configuration</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags whether NSX Federation is configured
+on the management NSX Manager, warning that federated environments
+require extra steps when upgrading NSX in VCF 9.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if NSX Federation
+is not detected.</li>
+</ul></li>
+</ul>
+<h4 id="nsx-latency-profile-pnic-latency-stats">NSX Latency Profile
+(pNIC Latency Stats)</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that no NSX latency-monitoring
+profile has pNIC latency stats enabled on an NSX Manager older than
+4.2.1.2, since that combination is a known upgrade blocker (KB
+376769).</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="nsx-manager-and-edge-password-expiration">NSX Manager and Edge
+Password Expiration</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks the admin/audit/root account
+password expiration on NSX Manager and every NSX Edge transport node,
+flagging accounts that are already expired or expiring within 30
+days.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="nsx-manager-api-rate-limits">NSX Manager API Rate Limits</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks that NSX Manager's API limits match
+the default values.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="nsx-manager-backup-history">NSX Manager Backup History</h4>
+<ul>
+<li><strong>Purpose:</strong> Confirms NSX Manager has a recent
+successful backup before upgrading.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="nsx-manager-node-installupgrade-service">NSX Manager Node
+Install/Upgrade Service</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that NSX Manager's node
+install/upgrade service is enabled and bound to a literal IPv4 address
+(not a hostname/FQDN).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="nsx-manager-open-alarms">NSX Manager Open Alarms</h4>
+<ul>
+<li><strong>Purpose:</strong> Queries the NSX Manager Alarm/Event
+Framework for open alarms and flags any at CRITICAL/HIGH severity, so
+unresolved issues (e.g. remote logging not configured) surface before an
+upgrade instead of passing silently.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="nsx-transport-node-disk-space">NSX Transport Node Disk
+Space</h4>
+<ul>
+<li><strong>Purpose:</strong> Checks disk space utilization on every NSX
+transport node filesystem, warning when usage exceeds the threshold (95%
+for vsantraces, 75% for others).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h3 id="vsan">vSAN</h3>
+<ul>
+<li><strong>Number of checks:</strong> 5</li>
+</ul>
+<h4 id="vsan-cluster-health">vSAN Cluster Health</h4>
+<ul>
+<li><strong>Purpose:</strong> Confirms every vSAN-enabled cluster
+reports overall green Skyline Health, with a full per-cluster,
+worst-first breakdown of every health sub-test (network, limits, disk
+balance/health, encryption, HCL, daemon liveness, and more) for
+drill-down without leaving the report.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vsan-disk-format-compatibility">vSAN Disk Format
+Compatibility</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies every vSAN-enabled cluster's
+on-disk format meets the minimum version required for a vSphere 9.x
+upgrade.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vsan-disk-group-mount-status">vSAN Disk Group Mount Status</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies every vSAN disk group across all
+workload domains is mounted, with per-disk tier, format, and
+cluster-level dedup/compression/encryption detail.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vsan-inaccessible-objects">vSAN Inaccessible Objects</h4>
+<ul>
+<li><strong>Purpose:</strong> Flags vSAN objects with unhealthy or
+policy-noncompliant status across every vCenter attached to SDDC
+Manager, pointing to the affected cluster and a KB for remediation.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vsan-witness-host-version">vSAN Witness Host Version</h4>
+<ul>
+<li><strong>Purpose:</strong> Confirms a stretched cluster's witness
+host is running the same ESX build as its data hosts, flagging any
+missing witness or version mismatch.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>This check will be skipped with no call to action if a stretched
+cluster is not detected.</li>
+</ul></li>
+</ul>
+</body>
+</html>

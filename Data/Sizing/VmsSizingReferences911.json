@@ -1,0 +1,779 @@
+{
+  "sddcManager": {
+    "cpuCores": {
+      "standard": 4
+    },
+    "memoryGb": {
+      "standard": 16
+    },
+    "storageGb": {
+      "standard": 914
+    }
+  },
+  "supervisor": {
+    "cpuCores": {
+      "tiny": 2,
+      "small": 4,
+      "medium": 8,
+      "large": 16,
+      "xlarge": 32
+    },
+    "memoryGb": {
+      "tiny": 8,
+      "small": 16,
+      "medium": 24,
+      "large": 32,
+      "xlarge": 64
+    },
+    "storageGb": {
+      "tiny": 48,
+      "small": 48,
+      "medium": 48,
+      "large": 48,
+      "xlarge": 48
+    }
+  },
+  "aviLoadBalancer": {
+    "cpuCores": {
+      "small": 6,
+      "large": 16,
+      "xlarge": 16
+    },
+    "memoryGb": {
+      "small": 32,
+      "large": 48,
+      "xlarge": 64
+    },
+    "storageGb": {
+      "small": 512,
+      "large": 1400,
+      "xlarge": 1750
+    }
+  },
+  "securityServicesPlatform": {
+    "cpuCores": {
+      "medium": 64,
+      "large": 96,
+      "xlarge": 160
+    },
+    "memoryGb": {
+      "medium": 222,
+      "large": 350,
+      "xlarge": 606
+    },
+    "storageGb": {
+      "medium": 3260,
+      "large": 3600,
+      "xlarge": 6120
+    },
+    "sspiCpuCores": {
+      "medium": 4,
+      "large": 4,
+      "xlarge": 4
+    },
+    "sspiMemoryGb": {
+      "medium": 6,
+      "large": 6,
+      "xlarge": 6
+    },
+    "sspiStorageGb": {
+      "medium": 400,
+      "large": 400,
+      "xlarge": 400
+    },
+    "controllerNodeCount": {
+      "medium": 3,
+      "large": 3,
+      "xlarge": 3
+    },
+    "workerNodeCount": {
+      "medium": 2,
+      "large": 4,
+      "xlarge": 8
+    }
+  },
+  "identityBroker": {
+    "cpuCores": {
+      "small": 1.5,
+      "small_ha": 3,
+      "medium": 5,
+      "large": 10
+    },
+    "memoryGb": {
+      "small": 2,
+      "small_ha": 5,
+      "medium": 5,
+      "large": 20
+    },
+    "storageGb": {
+      "small": 20,
+      "small_ha": 60,
+      "medium": 60,
+      "large": 120
+    }
+  },
+  "vcenter": {
+    "cpuCores": {
+      "tiny": 2,
+      "small": 4,
+      "medium": 8,
+      "large": 16,
+      "xlarge": 24
+    },
+    "memoryGb": {
+      "tiny": 14,
+      "small": 21,
+      "medium": 30,
+      "large": 39,
+      "xlarge": 58
+    },
+    "storageGb": {
+      "tinyDefault": 619,
+      "tinyLStorage": 2059,
+      "tinyXLStorage": 4319,
+      "smallDefault": 734,
+      "smallLStorage": 2084,
+      "smallXLStorage": 4344,
+      "mediumDefault": 933,
+      "mediumLStorage": 2233,
+      "mediumXLStorage": 4493,
+      "largeDefault": 1383,
+      "largeLStorage": 2283,
+      "largeXLStorage": 4543,
+      "xlargeDefault": 2308,
+      "xlargeLStorage": 2408,
+      "xlargeXLStorage": 4668
+    },
+    "storageGbLegacy80": {
+      "tinyDefault": 579,
+      "tinyLStorage": 2019,
+      "tinyXLStorage": 4279,
+      "smallDefault": 694,
+      "smallLStorage": 2044,
+      "smallXLStorage": 4304,
+      "mediumDefault": 908,
+      "mediumLStorage": 2208,
+      "mediumXLStorage": 4468,
+      "largeDefault": 1358,
+      "largeLStorage": 2258,
+      "largeXLStorage": 4518,
+      "xlargeDefault": 2283,
+      "xlargeLStorage": 2383,
+      "xlargeXLStorage": 4643
+    }
+  },
+  "nsx": {
+    "cpuCores": {
+      "small": 4,
+      "medium": 6,
+      "large": 12,
+      "xlarge": 24
+    },
+    "memoryGb": {
+      "small": 16,
+      "medium": 24,
+      "large": 48,
+      "xlarge": 96
+    },
+    "storageGb": {
+      "small": 300,
+      "medium": 300,
+      "large": 300,
+      "xlarge": 400
+    }
+  },
+  "vcfOperationsFleetManagement": {
+    "cpuCores": {
+      "standard": 4
+    },
+    "memoryGb": {
+      "standard": 12
+    },
+    "storageGb": {
+      "standard": 170
+    }
+  },
+  "vcfAutomation": {
+    "cpuCores": {
+      "small": 24,
+      "medium": 24,
+      "large": 32
+    },
+    "memoryGb": {
+      "small": 96,
+      "medium": 96,
+      "large": 128
+    },
+    "storageGb": {
+      "small": 600,
+      "medium": 900,
+      "large": 1200
+    },
+    "ipCount": {
+      "small": 5,
+      "medium": 5,
+      "large": 5
+    },
+    "ipCountLimit": {
+      "small": 256,
+      "medium": 256,
+      "large": 256
+    }
+  },
+  "vcfOperations": {
+    "cpuCores": {
+      "xsmall": 2,
+      "small": 4,
+      "medium": 8,
+      "large": 16,
+      "xlarge": 24
+    },
+    "memoryGb": {
+      "xsmall": 8,
+      "small": 16,
+      "medium": 32,
+      "large": 48,
+      "xlarge": 128
+    },
+    "storageGb": {
+      "xsmall": 274,
+      "small": 274,
+      "medium": 274,
+      "large": 274,
+      "xlarge": 274
+    }
+  },
+  "vcfOperationsCollector": {
+    "cpuCores": {
+      "small": 4,
+      "standard": 8
+    },
+    "memoryGb": {
+      "small": 16,
+      "standard": 48
+    },
+    "storageGb": {
+      "small": 264,
+      "standard": 264
+    }
+  },
+  "licenseServer": {
+    "cpuCores": {
+      "standard": 2
+    },
+    "memoryGb": {
+      "standard": 4
+    },
+    "storageGb": {
+      "standard": 12
+    }
+  },
+  "vspClusterFleet": {
+    "cpuCores": {
+      "small": 4,
+      "small_ha": 4,
+      "medium": 4,
+      "large": 8
+    },
+    "memoryGb": {
+      "small": 10,
+      "small_ha": 10,
+      "medium": 10,
+      "large": 14
+    },
+    "storageGb": {
+      "small": 2700,
+      "small_ha": 967,
+      "medium": 1100,
+      "large": 1334
+    },
+    "ipCount": {
+      "small": 12,
+      "small_ha": 12,
+      "medium": 12,
+      "large": 12
+    },
+    "ipCountLimit": {
+      "small": 256,
+      "small_ha": 256,
+      "medium": 256,
+      "large": 256
+    },
+    "ipCountRecommended": {
+      "small": 30,
+      "small_ha": 30,
+      "medium": 30,
+      "large": 30
+    },
+    "workersCount": {
+      "small": 2,
+      "small_ha": 3,
+      "medium": 3,
+      "large": 4
+    }
+  },
+  "vspClusterInstance": {
+    "cpuCores": {
+      "small": 4,
+      "small_ha": 4,
+      "medium": 4,
+      "large": 8
+    },
+    "memoryGb": {
+      "small": 10,
+      "small_ha": 10,
+      "medium": 10,
+      "large": 14
+    },
+    "storageGb": {
+      "small": 900,
+      "small_ha": 367,
+      "medium": 434,
+      "large": 500
+    },
+    "ipCount": {
+      "small": 12,
+      "small_ha": 12,
+      "medium": 12,
+      "large": 12
+    },
+    "ipCountLimit": {
+      "small": 256,
+      "small_ha": 256,
+      "medium": 256,
+      "large": 256
+    },
+    "ipCountRecommended": {
+      "small": 30,
+      "small_ha": 30,
+      "medium": 30,
+      "large": 30
+    },
+    "workersCount": {
+      "small": 1,
+      "small_ha": 2,
+      "medium": 2,
+      "large": 2
+    }
+  },
+  "vspClusterVvf": {
+    "cpuCores": {
+      "small": 4,
+      "small_ha": 4,
+      "medium": 4,
+      "large": 8
+    },
+    "memoryGb": {
+      "small": 10,
+      "small_ha": 10,
+      "medium": 10,
+      "large": 14
+    },
+    "storageGb": {
+      "small": 900,
+      "small_ha": 367,
+      "medium": 434,
+      "large": 500
+    },
+    "ipCount": {
+      "small": 10,
+      "small_ha": 10,
+      "medium": 10,
+      "large": 10
+    },
+    "ipCountLimit": {
+      "small": 256,
+      "small_ha": 256,
+      "medium": 256,
+      "large": 256
+    },
+    "ipCountRecommended": {
+      "small": 30,
+      "small_ha": 30,
+      "medium": 30,
+      "large": 30
+    },
+    "workersCount": {
+      "small": 2,
+      "small_ha": 2,
+      "medium": 2,
+      "large": 2
+    }
+  },
+  "vspWorker": {
+    "cpuCores": {
+      "small": 12,
+      "small_ha": 10,
+      "medium": 12,
+      "large": 16
+    },
+    "memoryGb": {
+      "small": 24,
+      "small_ha": 16,
+      "medium": 24,
+      "large": 32
+    },
+    "storageGb": {
+      "small": 100,
+      "small_ha": 100,
+      "medium": 100,
+      "large": 100
+    }
+  },
+  "opsDataPlatform": {
+    "cpuCores": {
+      "simplesmall": 16,
+      "highavailabilitysmall": 16,
+      "highavailabilitymedium": 31,
+      "highavailabilitylarge": 47
+    },
+    "memoryGb": {
+      "simplesmall": 20,
+      "highavailabilitysmall": 20,
+      "highavailabilitymedium": 41,
+      "highavailabilitylarge": 62
+    },
+    "storageGb": 205,
+    "ipCount": {
+      "small": 6,
+      "medium": 6,
+      "large": 6
+    }
+  },
+  "vrni": {
+    "cpuCores": {
+      "small": 4,
+      "medium": 8,
+      "large": 12,
+      "extra_large": 16,
+      "double_extra_large": 24
+    },
+    "memoryGb": {
+      "small": 16,
+      "medium": 32,
+      "large": 48,
+      "extra_large": 64,
+      "double_extra_large": 128
+    },
+    "storageGb": {
+      "small": 1024,
+      "medium": 1024,
+      "large": 2048,
+      "extra_large": 2048,
+      "double_extra_large": 3072
+    },
+    "ipCount": {
+      "small": 0,
+      "medium": 0,
+      "large": 0,
+      "extra_large": 0,
+      "double_extra_large": 0
+    }
+  },
+  "vrniCollector": {
+    "cpuCores": {
+      "small": 2,
+      "medium": 4,
+      "large": 8,
+      "extra_large": 8,
+      "double_extra_large": 16
+    },
+    "memoryGb": {
+      "small": 4,
+      "medium": 12,
+      "large": 16,
+      "extra_large": 24,
+      "double_extra_large": 48
+    },
+    "storageGb": {
+      "small": 250,
+      "medium": 250,
+      "large": 250,
+      "extra_large": 250,
+      "double_extra_large": 300
+    },
+    "ipCount": {
+      "small": 0,
+      "medium": 0,
+      "large": 0,
+      "extra_large": 0,
+      "double_extra_large": 0
+    }
+  },
+  "vidb": {
+    "cpuCores": {
+      "small": 1.5,
+      "medium": 1.6667,
+      "large": 3.3333
+    },
+    "memoryGb": {
+      "small": 2,
+      "medium": 1.6667,
+      "large": 6.6667
+    },
+    "storageGb": {
+      "small": 20,
+      "medium": 20,
+      "large": 40
+    },
+    "ipCount": {
+      "small": 1,
+      "medium": 3,
+      "large": 3
+    }
+  },
+  "fleetLcm": {
+    "cpuCores": {
+      "small": 2.5
+    },
+    "memoryGb": {
+      "small": 3.5
+    },
+    "storageGb": {
+      "small": 90
+    }
+  },
+  "sddcLcm": {
+    "cpuCores": {
+      "small": 2.5
+    },
+    "memoryGb": {
+      "small": 3.5
+    },
+    "storageGb": {
+      "small": 90
+    }
+  },
+  "fleetDepot": {
+    "cpuCores": {
+      "small": 2,
+      "medium": 3,
+      "large": 4
+    },
+    "memoryGb": {
+      "small": 2,
+      "medium": 3,
+      "large": 6
+    },
+    "storageGb": {
+      "small": 1500,
+      "medium": 1500,
+      "large": 1500
+    },
+    "ipCount": {
+      "small": 0,
+      "medium": 0,
+      "large": 0
+    }
+  },
+  "saltMaster": {
+    "cpuCores": {
+      "small": 0.7,
+      "medium": 1.5,
+      "large": 2.5
+    },
+    "memoryGb": {
+      "small": 1.2,
+      "medium": 2.5,
+      "large": 4.5
+    },
+    "storageGb": {
+      "small": 5,
+      "medium": 10,
+      "large": 20
+    },
+    "ipCount": {
+      "small": 0,
+      "medium": 0,
+      "large": 0
+    }
+  },
+  "saltRaas": {
+    "cpuCores": {
+      "small": 1.15,
+      "medium": 4.5,
+      "large": 7.0
+    },
+    "memoryGb": {
+      "small": 2.6,
+      "medium": 6.0,
+      "large": 9.0
+    },
+    "storageGb": {
+      "small": 100,
+      "medium": 200,
+      "large": 400
+    },
+    "ipCount": {
+      "small": 0,
+      "medium": 0,
+      "large": 0
+    }
+  },
+  "opsLogs": {
+    "cpuCores": {
+      "small": 8,
+      "medium": 16,
+      "large": 32
+    },
+    "memoryGb": {
+      "small": 16,
+      "medium": 32,
+      "large": 64
+    },
+    "storageGb": {
+      "small": 575,
+      "medium": 575,
+      "large": 575
+    },
+    "maxInstances": {
+      "small": 19,
+      "medium": 19,
+      "large": 19
+    },
+    "minInstances": {
+      "small": 1,
+      "medium": 3,
+      "large": 3
+    },
+    "workerNodeRequirement": {
+      "small": "large",
+      "medium": "xlarge",
+      "large": "xlarge"
+    },
+    "ipCount": {
+      "small": 6,
+      "medium": 6,
+      "large": 6
+    }
+  },
+  "telemetryAcceptor": {
+    "cpuCores": {
+      "small": 2
+    },
+    "memoryGb": {
+      "small": 2.4
+    },
+    "storageGb": {
+      "small": 2
+    },
+    "ipCount": {
+      "small": 0
+    }
+  },
+  "vdefendAndAviLicensingHub": {
+    "cpuCores": {
+      "standard": 6
+    },
+    "memoryGb": {
+      "standard": 12
+    },
+    "storageGb": {
+      "standard": 256
+    }
+  },
+  "vcdMigrator": {
+    "cpuCores": {
+      "small": 8
+    },
+    "memoryGb": {
+      "small": 8
+    },
+    "storageGb": {
+      "small": 20
+    },
+    "ipCount": {
+      "small": 0
+    }
+  },
+  "vcfServicesRuntimeControlNode": {
+    "nodeCount": {
+      "simple": 1,
+      "highavailability": 3
+    },
+    "cpuCores": {
+      "small": 4,
+      "smallha": 4,
+      "medium": 4,
+      "large": 8
+    },
+    "memoryGb": {
+      "small": 10,
+      "smallha": 10,
+      "medium": 10,
+      "large": 14
+    },
+    "storageGb": {
+      "small": 100,
+      "smallha": 100,
+      "medium": 100,
+      "large": 100
+    }
+  },
+  "vcfServicesRuntimeWorkerNode": {
+    "nodeCount": {
+      "firstinstancesimplesmall": 2,
+      "firstinstancehighavailabilitysmall": 3,
+      "firstinstancehighavailabilitymedium": 3,
+      "firstinstancehighavailabilitylarge": 3,
+      "additionalinstancesimplesmall": 1,
+      "additionalinstancehighavailabilitysmall": 3,
+      "additionalinstancehighavailabilitymedium": 3,
+      "additionalinstancehighavailabilitylarge": 3
+    },
+    "cpuCores": {
+      "firstinstancesimplesmall": 12,
+      "firstinstancehighavailabilitysmall": 10,
+      "firstinstancehighavailabilitymedium": 12,
+      "firstinstancehighavailabilitylarge": 16,
+      "additionalinstancesimplesmall": 12,
+      "additionalinstancehighavailabilitysmall": 10,
+      "additionalinstancehighavailabilitymedium": 12,
+      "additionalinstancehighavailabilitylarge": 16
+    },
+    "memoryGb": {
+      "firstinstancesimplesmall": 24,
+      "firstinstancehighavailabilitysmall": 16,
+      "firstinstancehighavailabilitymedium": 24,
+      "firstinstancehighavailabilitylarge": 32,
+      "additionalinstancesimplesmall": 24,
+      "additionalinstancehighavailabilitysmall": 16,
+      "additionalinstancehighavailabilitymedium": 24,
+      "additionalinstancehighavailabilitylarge": 32
+    },
+    "storageGb": {
+      "firstinstancesimplesmall": 2900,
+      "firstinstancehighavailabilitysmall": 2800,
+      "firstinstancehighavailabilitymedium": 3300,
+      "firstinstancehighavailabilitylarge": 4002,
+      "additionalinstancesimplesmall": 1000,
+      "additionalinstancehighavailabilitysmall": 1000,
+      "additionalinstancehighavailabilitymedium": 1202,
+      "additionalinstancehighavailabilitylarge": 1500
+    }
+  },
+  "vcfmsDayZeroBaseline": {
+    "cpuCores": {
+      "firstinstancesimplesmall": 9.85,
+      "firstinstancehighavailabilitysmall": 12.35,
+      "firstinstancehighavailabilitymedium": 20,
+      "firstinstancehighavailabilitylarge": 29.5,
+      "additionalinstancesimplesmall": 3.2,
+      "additionalinstancehighavailabilitysmall": 3.7,
+      "additionalinstancehighavailabilitymedium": 5,
+      "additionalinstancehighavailabilitylarge": 6
+    },
+    "memoryGb": {
+      "firstinstancesimplesmall": 16.1,
+      "firstinstancehighavailabilitysmall": 20.1,
+      "firstinstancehighavailabilitymedium": 26.5,
+      "firstinstancehighavailabilitylarge": 52.5,
+      "additionalinstancesimplesmall": 6.5,
+      "additionalinstancehighavailabilitysmall": 7.0,
+      "additionalinstancehighavailabilitymedium": 9.0,
+      "additionalinstancehighavailabilitylarge": 14.0
+    },
+    "ramBufferMultiplier": 1.2,
+    "cpuBufferMultiplier": 1.09
+  }
+}

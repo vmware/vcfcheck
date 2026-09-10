@@ -1,0 +1,1210 @@
+{
+  "id": "140",
+  "name": "VMware Workspace ONE® Access",
+  "upgradeProducts": [
+    {
+      "id": 2793,
+      "version": "3.3",
+      "gaDate": 1537228800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 3288,
+      "version": "19.03",
+      "gaDate": 1555372800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 3700,
+      "version": "3.3.1",
+      "gaDate": 1570060800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.1 to target version 19.03 is not supported, as the source version's release date (2019-10-03) is after the target version's release date (2019-04-16), making it a newer release."
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 3708,
+      "version": "20.01.0.0",
+      "gaDate": 1580342400000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 4060,
+      "version": "3.3.2",
+      "gaDate": 1586822400000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.2 to target version 19.03 is not supported, as the source version's release date (2020-04-14) is after the target version's release date (2019-04-16), making it a newer release."
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.2 to target version 20.01.0.0 is not supported, as the source version's release date (2020-04-14) is after the target version's release date (2020-01-30), making it a newer release."
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 4660,
+      "version": "3.3.3",
+      "gaDate": 1605139200000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.3 to target version 19.03 is not supported, as the source version's release date (2020-11-12) is after the target version's release date (2019-04-16), making it a newer release."
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.3 to target version 20.01.0.0 is not supported, as the source version's release date (2020-11-12) is after the target version's release date (2020-01-30), making it a newer release."
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.3 to target version 20.10.0.0 is not supported, as the source version's release date (2020-11-12) is after the target version's release date (2020-11-03), making it a newer release."
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 4661,
+      "version": "20.10.0.0",
+      "gaDate": 1604361600000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 5303,
+      "version": "3.3.4",
+      "gaDate": 1612396800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.4 to target version 19.03 is not supported, as the source version's release date (2021-02-04) is after the target version's release date (2019-04-16), making it a newer release."
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.4 to target version 20.01.0.0 is not supported, as the source version's release date (2021-02-04) is after the target version's release date (2020-01-30), making it a newer release."
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.4 to target version 20.10.0.0 is not supported, as the source version's release date (2021-02-04) is after the target version's release date (2020-11-03), making it a newer release."
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 5566,
+      "version": "3.3.5",
+      "gaDate": 1621468800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.5 to target version 19.03 is not supported, as the source version's release date (2021-05-20) is after the target version's release date (2019-04-16), making it a newer release."
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.5 to target version 20.01.0.0 is not supported, as the source version's release date (2021-05-20) is after the target version's release date (2020-01-30), making it a newer release."
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.5 to target version 20.10.0.0 is not supported, as the source version's release date (2021-05-20) is after the target version's release date (2020-11-03), making it a newer release."
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 5685,
+      "version": "21.08.0.0",
+      "gaDate": 1630972800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 6765,
+      "version": "21.08.0.1",
+      "gaDate": 1639008000000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 6808,
+      "version": "3.3.6",
+      "gaDate": 1642464000000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.6 to target version 19.03 is not supported, as the source version's release date (2022-01-18) is after the target version's release date (2019-04-16), making it a newer release."
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.6 to target version 20.01.0.0 is not supported, as the source version's release date (2022-01-18) is after the target version's release date (2020-01-30), making it a newer release."
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.6 to target version 20.10.0.0 is not supported, as the source version's release date (2022-01-18) is after the target version's release date (2020-11-03), making it a newer release."
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.6 to target version 21.08.0.0 is not supported, as the source version's release date (2022-01-18) is after the target version's release date (2021-09-07), making it a newer release."
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.6 to target version 21.08.0.1 is not supported, as the source version's release date (2022-01-18) is after the target version's release date (2021-12-09), making it a newer release."
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 7971,
+      "version": "3.3.7",
+      "gaDate": 1674691200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.7 to target version 19.03 is not supported, as the source version's release date (2023-01-26) is after the target version's release date (2019-04-16), making it a newer release."
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.7 to target version 20.01.0.0 is not supported, as the source version's release date (2023-01-26) is after the target version's release date (2020-01-30), making it a newer release."
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.7 to target version 20.10.0.0 is not supported, as the source version's release date (2023-01-26) is after the target version's release date (2020-11-03), making it a newer release."
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.7 to target version 21.08.0.0 is not supported, as the source version's release date (2023-01-26) is after the target version's release date (2021-09-07), making it a newer release."
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.7 to target version 21.08.0.1 is not supported, as the source version's release date (2023-01-26) is after the target version's release date (2021-12-09), making it a newer release."
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.7 to target version 22.09 is not supported, as the source version's release date (2023-01-26) is after the target version's release date (2022-09-27), making it a newer release."
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": 2,
+          "footnotes": "Upgrading VMware Workspace ONE® Access from source version 3.3.7 to target version 22.09.1.0 is not supported, as the source version's release date (2023-01-26) is after the target version's release date (2022-12-13), making it a newer release."
+        }
+      ]
+    },
+    {
+      "id": 7972,
+      "version": "22.09",
+      "gaDate": 1664236800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3288,
+          "version": "19.03",
+          "gaDate": 1555372800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3708,
+          "version": "20.01.0.0",
+          "gaDate": 1580342400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4661,
+          "version": "20.10.0.0",
+          "gaDate": 1604361600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5303,
+          "version": "3.3.4",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5566,
+          "version": "3.3.5",
+          "gaDate": 1621468800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5685,
+          "version": "21.08.0.0",
+          "gaDate": 1630972800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6765,
+          "version": "21.08.0.1",
+          "gaDate": 1639008000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6808,
+          "version": "3.3.6",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7971,
+          "version": "3.3.7",
+          "gaDate": 1674691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7972,
+          "version": "22.09",
+          "gaDate": 1664236800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9719,
+          "version": "22.09.1.0",
+          "gaDate": 1670889600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    }
+  ]
+}

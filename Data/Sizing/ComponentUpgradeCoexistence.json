@@ -1,0 +1,230 @@
+{
+  "_comment": "Per-component treatment for the 5.2->9.1.1 brownfield worst-case resource delta calculation. 'excluded' components contribute zero to the delta and must not be summed into the worst-case estimate. Default rule (decided 2026-08-19): every component is 'netNew' (a brand-new 9.1.1 appliance with no 5.2 equivalent to coexist with, counted once, permanently) unless explicitly overridden. vCenter is the only confirmed exception - it is 'temporaryDouble' because the reduced-downtime upgrade path deploys a new appliance alongside the old one before cutover. If a future component turns out to also be a genuine old+new coexistence case, override it explicitly here rather than changing the default.",
+  "components": {
+    "sddcManager": {
+      "displayName": "SDDC Manager",
+      "treatment": "excluded",
+      "reason": "inPlaceUpgrade",
+      "notes": "SDDC Manager is upgraded in place via LCM; no parallel appliance is ever deployed."
+    },
+    "managementDomainNsxManager": {
+      "displayName": "Management Domain NSX Managers (Local / Global)",
+      "treatment": "excluded",
+      "reason": "inPlaceUpgrade",
+      "notes": "NSX Manager (Local/Global) upgrade is a rolling in-place node upgrade, not a deploy-new-then-cutover."
+    },
+    "managementDomainNsxEdge": {
+      "displayName": "Management Domain NSX Edges",
+      "treatment": "excluded",
+      "reason": "inPlaceUpgrade",
+      "notes": "NSX Edge upgrade is in-place, same mechanism as NSX Manager."
+    },
+    "workloadDomainNsxManager": {
+      "displayName": "Workload Domain NSX Managers (Local / Global)",
+      "treatment": "excluded",
+      "reason": "inPlaceUpgrade",
+      "notes": "Same in-place upgrade mechanism as the management domain's NSX Manager, applies per workload domain."
+    },
+    "managementDomainVirtualNetworkAppliance": {
+      "displayName": "Management Domain Virtual Network Appliances",
+      "treatment": "excluded",
+      "reason": "postUpgradeOnly",
+      "notes": "VNA is a 9.1.1 construct that does not get provisioned until after the domain is already on 9.1.1, so it never coexists with anything during the upgrade transition window."
+    },
+    "managementDomainVcenter": {
+      "displayName": "Management Domain vCenter",
+      "treatment": "temporaryDouble",
+      "referenceKey": "vcenter",
+      "reason": "reducedDowntimeUpgrade",
+      "sizeConstraint": "derivedFromLiveInventoryCount",
+      "requiresUserPrompt": true,
+      "promptFields": ["hostCount", "virtualMachineCount", "isCustomSized"],
+      "notes": "vCenter's reduced-downtime upgrade deploys a new appliance alongside the existing one, then cuts over and decommissions the old one - so old and new coexist temporarily. The new appliance's size is NOT simply carried over from the source vCenter 8.x instance and is NOT a free user choice either: the installer inspects the live inventory (host count, VM count) at upgrade time and maps it to the standard vCenter 9 tier table (see vcenterSizeThresholds below). If the environment has grown since the source vCenter was originally sized, the upgrade can size upward even though the old appliance's allocation never changed. Custom-sized appliances (manually increased disk/memory) are a documented exception - the upgrade generally preserves the VM's actual allocated resources rather than downsizing to the tier the inventory count would otherwise map to. VCDB storage size (small/large/x-large) is re-evaluated separately from the compute tier and is not derived from the same host/VM count mapping. IMPORTANT: unlike the real vCenter 9 upgrade wizard, our estimator runs standalone, ahead of and separate from that wizard - there is no installer screen for the user to read the derived tier off of, so we cannot passively rely on 'what the wizard will show them.' The estimator's own UI must actively prompt for hostCount, virtualMachineCount, and whether the deployment is known to be custom-sized (falling back to the appliance's actual current allocation if so), then derive the tier itself from vcenterSizeThresholds - or auto-detect these counts live via PowerCLI (Get-VMHost/Get-VM against the source vCenter) as a convenience default, with the prompt as the fallback/override path."
+    },
+    "workloadDomainVcenter": {
+      "displayName": "Workload Domain vCenter",
+      "treatment": "temporaryDouble",
+      "referenceKey": "vcenter",
+      "reason": "reducedDowntimeUpgrade",
+      "sizeConstraint": "derivedFromLiveInventoryCount",
+      "requiresUserPrompt": true,
+      "promptFields": ["hostCount", "virtualMachineCount", "isCustomSized"],
+      "notes": "Same reduced-downtime upgrade mechanism, tier-derivation-from-inventory-count logic, custom-size exception, and estimator-must-prompt-directly requirement as managementDomainVcenter, applies per workload domain."
+    },
+    "managementDomainSupervisor": {
+      "displayName": "Management Domain Supervisor",
+      "treatment": "netNew",
+      "referenceKey": "supervisor",
+      "requiresUserPrompt": false,
+      "detection": {
+        "checkId": "vcenter_detect_vsphere_supervisor",
+        "function": "Test-VcfVcenterDetectSupervisor",
+        "notes": "Presence (and, if the check exposes it, current size) is auto-detected by reusing this existing check's logic rather than prompting - no new detection code needed here."
+      }
+    },
+    "managementDomainAviLoadBalancer": {
+      "displayName": "Management Domain AVI Load Balancer",
+      "treatment": "netNew",
+      "referenceKey": "aviLoadBalancer",
+      "requiresUserPrompt": true,
+      "promptFields": ["applianceSize"],
+      "notes": "No existing check detects whether an AVI Load Balancer is already deployed; size must be a manual dropdown input for now."
+    },
+    "workloadDomainAviLoadBalancer": {
+      "displayName": "Workload Domain AVI Load Balancer",
+      "treatment": "netNew",
+      "referenceKey": "aviLoadBalancer",
+      "requiresUserPrompt": true,
+      "promptFields": ["applianceSize"],
+      "notes": "Same manual-input limitation as managementDomainAviLoadBalancer, applies per workload domain."
+    },
+    "managementDomainSecurityServicesPlatform": {
+      "displayName": "Management Domain Security Services Platform",
+      "treatment": "netNew",
+      "referenceKey": "securityServicesPlatform",
+      "requiresUserPrompt": true,
+      "promptFields": ["applianceSize"],
+      "notes": "No existing check detects whether the Security Services Platform is already deployed; size must be a manual dropdown input for now."
+    },
+    "workloadDomainSecurityServicesPlatform": {
+      "displayName": "Workload Domain Security Services Platform",
+      "treatment": "netNew",
+      "referenceKey": "securityServicesPlatform",
+      "requiresUserPrompt": true,
+      "promptFields": ["applianceSize"],
+      "notes": "Same manual-input limitation as managementDomainSecurityServicesPlatform, applies per workload domain."
+    },
+    "vdefendAndAviLicensingHub": {
+      "displayName": "vDefend and AVI Licensing Hub",
+      "treatment": "netNew",
+      "referenceKey": "vdefendAndAviLicensingHub",
+      "requiresUserPrompt": true,
+      "promptFields": ["inclusionState"],
+      "notes": "No existing check detects this; Include/Exclude is a manual toggle for now. vCPU/RAM/Disk sourced from the workbook's 'Static Reference Tables' sheet, 'SSP License' block (B309:C312) - a single fixed size, no tiers."
+    },
+    "vcfOperations": {
+      "displayName": "VCF Operations",
+      "treatment": "netNew",
+      "referenceKey": "vcfOperations",
+      "requiresUserPrompt": true,
+      "promptFields": ["inclusionState", "applianceSize"],
+      "notes": "Workbook allows Exclude/Include/Existing. 'Existing' means already deployed elsewhere and out of scope for this domain's delta - no size prompt needed in that case."
+    },
+    "vcfOperationsCollector": {
+      "displayName": "Cloud Proxy",
+      "treatment": "netNew",
+      "referenceKey": "vcfOperationsCollector",
+      "requiresUserPrompt": true,
+      "promptFields": ["inclusionState", "applianceSize"],
+      "notes": "Despite the componentKey/referenceKey name, this maps to the workbook's 'Cloud Proxy' row (G25/B33) and 'VCF Operations Proxy' static reference table (Small/Standard) - not the Operations-for-networks collector, which is the separate vcfOperationsForNetworksCollector component below. Auto-included whenever VCF Operations is Included/deploying per the workbook, but still needs inclusionState surfaced since VCF Operations can also be 'Existing' (cloud proxy still required in that case)."
+    },
+    "vcfOperationsForNetworks": {
+      "displayName": "VCF Operations for networks",
+      "treatment": "netNew",
+      "referenceKey": "vrni",
+      "requiresUserPrompt": true,
+      "promptFields": ["inclusionState", "applianceSize"]
+    },
+    "vcfOperationsForNetworksCollector": {
+      "displayName": "VCF Operations for networks collector",
+      "treatment": "netNew",
+      "referenceKey": "vrniCollector",
+      "requiresUserPrompt": true,
+      "promptFields": ["inclusionState", "applianceSize"]
+    },
+    "vcfAutomation": {
+      "displayName": "VCF Automation",
+      "treatment": "netNew",
+      "referenceKey": "vcfAutomation",
+      "requiresUserPrompt": true,
+      "promptFields": ["inclusionState", "applianceSize"],
+      "notes": "Workbook allows Exclude/Include/Existing, same as vcfOperations."
+    },
+    "licenseServer": {
+      "displayName": "License Server",
+      "treatment": "netNew",
+      "referenceKey": "licenseServer",
+      "requiresUserPrompt": true,
+      "promptFields": ["inclusionState"]
+    },
+    "vcfServicesRuntimeControlNodes": {
+      "displayName": "VCF services runtime control nodes",
+      "treatment": "netNew",
+      "referenceKey": "vcfServicesRuntimeControlNode",
+      "requiresUserPrompt": true,
+      "promptFields": ["instanceModel", "availabilityModel", "applianceSize"],
+      "derivedFrom": "vcfInstanceProfile",
+      "notes": "Node count comes from table_vcfms_control_nodes keyed on Availability Model alone (Simple=1, High Availability=3); cpu/ram/disk come from table_vcfms_control_cpu/ram/disk keyed on Size alone, with a distinct 'smallha' key from 'small' for cpu/ram/disk. Values transcribed directly from the VCF 9.1.x Planning and Preparation Workbook's Static Reference Tables (table_vcfms_control_*) on 2026-08-20, superseding the earlier vspClusterFleet approximation."
+    },
+    "vcfServicesRuntimeWorkerNodes": {
+      "displayName": "VCF services runtime worker nodes",
+      "treatment": "netNew",
+      "referenceKey": "vcfServicesRuntimeWorkerNode",
+      "requiresUserPrompt": true,
+      "promptFields": ["instanceModel", "availabilityModel", "applianceSize"],
+      "derivedFrom": "vcfInstanceProfile",
+      "notes": "Node count and cpu/ram/disk all come from table_vcfms_worker_* keyed on CONCATENATE(Instance Model, Availability Model, Size). Simple availability only has a Small size row in the workbook - Medium/Large must be disabled in the UI whenever Availability Model is Simple. Values transcribed directly from the workbook's Static Reference Tables on 2026-08-20, superseding the earlier vspWorker approximation (which had a flat, incorrect 100 GB disk figure for every tier)."
+    },
+    "sddcLcm": {
+      "treatment": "netNew",
+      "referenceKey": "sddcLcm",
+      "requiresUserPrompt": false,
+      "derivedFrom": "vcfInstanceProfile"
+    },
+    "fleetLcm": {
+      "treatment": "netNew",
+      "referenceKey": "fleetLcm",
+      "requiresUserPrompt": false,
+      "derivedFrom": "vcfInstanceProfile"
+    },
+    "softwareDepot": {
+      "treatment": "netNew",
+      "referenceKey": "fleetDepot",
+      "requiresUserPrompt": false,
+      "derivedFrom": "vcfInstanceProfile",
+      "notes": "referenceKey is 'fleetDepot' in the reference JSON, not 'softwareDepot' - naming mismatch carried over from how that file was originally built."
+    },
+    "identityBroker": {
+      "treatment": "netNew",
+      "referenceKey": "identityBroker",
+      "requiresUserPrompt": false,
+      "derivedFrom": "vcfInstanceProfile"
+    },
+    "saltMaster": {
+      "treatment": "netNew",
+      "referenceKey": "saltMaster",
+      "requiresUserPrompt": false,
+      "derivedFrom": "vcfInstanceProfile"
+    },
+    "saltRaas": {
+      "treatment": "netNew",
+      "referenceKey": "saltRaas",
+      "requiresUserPrompt": false,
+      "derivedFrom": "vcfInstanceProfile"
+    },
+    "telemetryAcceptor": {
+      "treatment": "netNew",
+      "referenceKey": "telemetryAcceptor",
+      "requiresUserPrompt": false,
+      "derivedFrom": "vcfInstanceProfile"
+    },
+    "logManagement": {
+      "displayName": "Log Management",
+      "treatment": "netNew",
+      "referenceKey": "opsLogs",
+      "requiresUserPrompt": true,
+      "promptFields": ["applianceSize"],
+      "notes": "Workbook treats this as its own Exclude/Small/Medium/Large choice, separate from the vcfInstanceProfile group, with replica count derived from the chosen size."
+    }
+  },
+  "vcenterSizeThresholds": {
+    "_comment": "Management capacity and resource requirement per vCenter Server appliance size tier, used to derive the vCenter 9 upgrade target tier from the live environment's host/VM count - NOT a user-selectable size dropdown for the vCenter upgrade path. A given tier is the smallest tier whose maxHosts/maxVirtualMachines ceiling both cover the live counts. Source: corrected vCenter Server sizing guidance screenshot provided 2026-08-19. Cross-checked against the workbook: cpuCores/memoryGb match table_vcenter_appliance_cpu/table_vcenter_appliance_ram exactly; storageGb matches the workbook's 'Large' VCDB-storage-size column specifically (table_vcenter_disk_gb '<Size>Large' entries) - it does NOT represent the Default or XLarge VCDB storage options, which are re-evaluated separately per the sizeConstraint note on managementDomainVcenter/workloadDomainVcenter above.",
+    "tiers": [
+      { "size": "Tiny", "cpuCores": 2, "memoryGb": 14, "storageGb": 2059, "maxHosts": 10, "maxVirtualMachines": 100 },
+      { "size": "Small", "cpuCores": 4, "memoryGb": 21, "storageGb": 2084, "maxHosts": 100, "maxVirtualMachines": 1000 },
+      { "size": "Medium", "cpuCores": 8, "memoryGb": 30, "storageGb": 2233, "maxHosts": 400, "maxVirtualMachines": 4000 },
+      { "size": "Large", "cpuCores": 16, "memoryGb": 39, "storageGb": 2283, "maxHosts": 1000, "maxVirtualMachines": 10000 },
+      { "size": "XLarge", "cpuCores": 24, "memoryGb": 58, "storageGb": 2408, "maxHosts": 2000, "maxVirtualMachines": 35000 }
+    ]
+  }
+}

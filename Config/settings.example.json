@@ -1,0 +1,5 @@
+{
+  "SddcManagerFqdn": "sfo-vcf01-sddcmgr01.sfo.rainpole.io",
+  "SddcManagerUser": "administrator@vsphere.local",
+  "Theme": "dark"
+}
