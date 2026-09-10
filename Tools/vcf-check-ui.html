@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VcfCheck Report</title>
+<script>
+(function () {
+    var isIE = !!document.documentMode || /Trident\/|MSIE /.test(navigator.userAgent);
+    if (isIE) {
+        document.write(
+            "<!DOCTYPE html><html><head><meta charset=\"UTF-8\">" +
+            "<title>VcfCheck Report - Unsupported Browser</title></head>" +
+            "<body style=\"font-family: sans-serif; background: #0f1115; color: #e6e8eb; padding: 48px; text-align: center;\">" +
+            "<h1>Unsupported Browser</h1>" +
+            "<p>VCF Check does not support Internet Explorer.</p>" +
+            "<p>Please open this page in Google Chrome (or another modern browser such as Edge or Firefox) instead.</p>" +
+            "</body></html>"
+        );
+        if (typeof window.stop === "function") {
+            window.stop();
+        } else if (document.execCommand) {
+            document.execCommand("Stop");
+        }
+        throw new Error("Unsupported browser: Internet Explorer");
+    }
+})();
+</script>
+<style>
+    :root {
+        --bg: #0f1115;
+        --panel: #171a21;
+        --border: #2a2e37;
+        --text: #e6e8eb;
+        --muted: #9aa1ac;
+        --accent: #4da3ff;
+        --pass: #33c17a;
+        --warning: #e0a13a;
+        --fail: #e0473e;
+        --error: #a06bff;
+        --skipped: #6b7280;
+        --pass-text: var(--pass);
+        --warning-text: var(--warning);
+        --component-text: var(--muted);
+        --component-border: var(--border);
+    }
+    body.light {
+        --bg: #f6f7f9;
+        --panel: #ffffff;
+        --border: #dfe3e8;
+        --text: #14161a;
+        --muted: #5b6270;
+        --pass-text: #1f8f57;
+        --warning-text: #b97a1f;
+        --component-text: #3f4653;
+        --component-border: #9aa3b2;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+    }
+    .hidden { display: none !important; }
+    header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+    }
+    .header-title { display: flex; align-items: baseline; gap: 8px; }
+    header h1 { font-size: 18px; margin: 0; }
+    .version-badge { font-family: monospace; font-size: 11px; color: var(--muted); }
+    .controls { display: flex; gap: 8px; align-items: center; }
+    #export-actions {
+        display: flex;
+        align-items: stretch;
+        margin-right: 8px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    #export-actions .export-label {
+        display: flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text);
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        padding: 0 10px;
+        background: var(--border);
+    }
+    #export-actions button {
+        border: none;
+        border-radius: 0;
+        border-left: 1px solid var(--border);
+    }
+    select, button {
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    button:not(:disabled):active { transform: scale(0.97); filter: brightness(0.92); }
+    #theme-toggle { display: inline-flex; align-items: center; gap: 4px; }
+    #theme-toggle svg { display: block; }
+    main { padding: 24px; max-width: 1100px; margin: 0 auto; }
+    .tiles-intro { margin: 0 0 14px; font-size: 14px; font-weight: 500; color: var(--text); }
+    .total-run-time {
+        display: inline-block;
+        margin: 0 0 14px;
+        padding: 4px 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        background: rgba(77, 163, 255, 0.12);
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+    }
+    .error-banner {
+        background: rgba(224, 71, 62, 0.12);
+        border: 1px solid var(--fail);
+        color: var(--text);
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+    .error-banner strong { color: var(--fail); }
+    .error-banner code { background: rgba(224, 161, 58, 0.2); padding: 2px 6px; border-radius: 3px; }
+    .tiles-section { margin-bottom: 20px; }
+    #toggle-all-tiles-button { display: block; margin: -8px 0 16px; font-size: 12px; }
+    .tiles-section-label { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+    .tiles-total-count { font-size: 10px; font-weight: 400; text-transform: none; letter-spacing: normal; color: var(--muted); opacity: .75; }
+    .tiles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+    .tile {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 76px;
+    }
+    .tile .count { font-size: 24px; font-weight: 700; line-height: 1.1; }
+    .tile .label { font-size: 12px; font-weight: 600; color: var(--muted); margin-top: 4px; }
+    .tile.blocking .count { color: var(--fail); }
+    .tile-fail .count { color: var(--fail); }
+    .tile-warning .count { color: var(--warning-text); }
+    .tile-error .count { color: var(--error); }
+    .tile-skipped .count { color: var(--skipped); }
+    .tile-pass .count { color: var(--pass-text); }
+    .tile.filter-tile { cursor: pointer; user-select: none; position: relative; transition: opacity .1s, border-color .1s, box-shadow .1s; }
+    .tile.filter-tile:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .tile.filter-tile.filter-off { opacity: .38; }
+    .tile.filter-tile .filter-check { position: absolute; top: 6px; right: 8px; font-size: 11px; color: var(--accent); }
+    .filter-hidden-summary { font-size: 12px; color: var(--muted); margin: -12px 0 16px; }
+    .filter-hidden-summary summary { cursor: pointer; }
+    .filter-hidden-summary ul { margin: 6px 0 0; padding-left: 18px; }
+    .result-row.filter-hidden { display: none; }
+    .result-row {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+    .result-summary {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        cursor: pointer;
+    }
+    .badge {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: none;
+        padding: 3px 8px;
+        border-radius: 4px;
+        color: #0f1115;
+        flex-shrink: 0;
+        max-width: 320px;
+        white-space: normal;
+    }
+    .badge.Pass { background: var(--pass); }
+    .badge.Warning { background: var(--warning); }
+    .badge.Fail { background: var(--fail); color: #fff; }
+    .badge.Error { background: var(--error); color: #fff; }
+    .badge.Skipped { background: var(--skipped); color: #fff; }
+    .result-skip-reason {
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: var(--skipped);
+        color: #fff;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+    .blocking-tag {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--fail);
+        border: 1px solid var(--fail);
+        border-radius: 4px;
+        padding: 2px 6px;
+        flex-shrink: 0;
+    }
+    .result-info-icon {
+        flex-shrink: 0;
+        display: inline-flex;
+        position: relative;
+        color: #2a7de1;
+        cursor: pointer;
+    }
+    dt .result-info-icon, h3 .result-info-icon { margin-left: 8px; }
+    .result-info-icon svg { display: block; }
+    .result-info-icon[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 6px;
+        width: max-content;
+        max-width: 280px;
+        background: #eceef1;
+        color: #14161a;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.4;
+        padding: 6px 10px;
+        border-radius: 4px;
+        white-space: normal;
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 100ms ease 80ms;
+        pointer-events: none;
+    }
+    .result-info-icon[data-tooltip]:hover::after,
+    .result-info-icon[data-tooltip]:focus-visible::after {
+        opacity: 1;
+        visibility: visible;
+    }
+    .result-name { flex: 1; font-size: 14px; min-width: 0; display: flex; align-items: center; gap: 8px; }
+    .result-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .result-area { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+    .result-detail {
+        display: none;
+        padding: 0 14px 14px 14px;
+        border-top: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--muted);
+    }
+    .result-detail.open { display: block; padding-top: 12px; }
+    .result-detail dt { color: var(--text); font-weight: 600; margin-top: 8px; }
+    .result-detail dd { margin: 2px 0 0 0; white-space: pre-wrap; }
+    .result-domain {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: var(--panel);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        margin-left: 8px;
+        flex-shrink: 0;
+    }
+    .result-domain-management {
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+    .result-domain-workload {
+        color: var(--pass);
+        border-color: var(--pass);
+    }
+    .result-domain-component {
+        color: var(--component-text);
+        border-color: var(--component-border);
+    }
+    .result-summary:hover { background: var(--hover, rgba(255, 255, 255, 0.04)); }
+    .result-chevron {
+        font-size: 10px;
+        color: var(--muted);
+        transition: transform 0.2s;
+        flex-shrink: 0;
+        margin-left: 4px;
+    }
+    .result-chevron.open { transform: rotate(180deg); }
+    #results { padding-bottom: 70px; }
+    .skip-group { border-style: dashed; }
+    .skip-group > .result-summary .result-name-text { color: var(--muted); }
+    .skip-group-count {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--muted);
+        flex-shrink: 0;
+    }
+    .skip-group-body { display: none; padding: 0 14px 14px 14px; border-top: 1px solid var(--border); }
+    .skip-group-body.open { display: block; padding-top: 12px; }
+    .skip-group-body .result-row:last-child { margin-bottom: 0; }
+    .check-duration-badge {
+        text-align: right;
+        font-size: 11px;
+        font-style: italic;
+        color: var(--muted);
+        margin-top: 10px;
+    }
+    .result-info-only {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: var(--panel);
+        color: var(--muted);
+        border: 1px solid var(--muted);
+        margin-left: 8px;
+        flex-shrink: 0;
+    }
+    .rows-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 12.5px; }
+    .rows-table th, .rows-table td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+    .rows-table th { color: var(--muted); font-weight: 600; }
+    .rows-table .cell-pass, .host-detail-summary .cell-pass { color: var(--pass); }
+    .rows-table .cell-warning, .host-detail-summary .cell-warning { color: var(--warning); }
+    .rows-table .cell-fail, .host-detail-summary .cell-fail { color: var(--fail); }
+    .rows-table .cell-error, .host-detail-summary .cell-error { color: var(--error); }
+    .rows-table .cell-skipped, .host-detail-summary .cell-skipped { color: var(--skipped); }
+    .error-message-list { margin: 0; padding-left: 18px; }
+    .error-message-list li { margin: 2px 0; }
+    .host-details { border: 1px solid var(--border); border-radius: 6px; margin: 8px 0; }
+    .host-details summary { cursor: pointer; padding: 8px 12px; font-weight: 600; }
+    .host-details summary .badge, .host-cluster-group summary .badge { margin-left: 8px; }
+    .host-details[open] summary { border-bottom: 1px solid var(--border); }
+    .host-details .host-details-body { padding: 4px 14px 12px; }
+    .host-details h4 { margin: 14px 0 4px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .host-detail-summary { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .host-detail-summary th, .host-detail-summary td { padding: 4px 8px; border-bottom: 1px solid var(--border); }
+    .host-detail-summary th { text-align: left; color: var(--muted); font-weight: 600; }
+    .host-detail-summary td { text-align: left; }
+    .cluster-badge, .cpu-status-badge { display: inline-block; margin-left: 8px; padding: 4px 10px; font-size: 12px; font-weight: 600; background-color: rgba(51, 193, 122, 0.15); color: var(--pass-text); border: 1px solid var(--pass); border-radius: 16px; }
+    .cluster-badge.neutral { background-color: rgba(154, 161, 172, 0.15); color: var(--muted); border-color: var(--muted); }
+    .cluster-badge.compatible, .cpu-status-badge.compatible { background-color: rgba(51, 193, 122, 0.15); color: var(--pass-text); border-color: var(--pass); }
+    .cluster-badge.deprecated, .cpu-status-badge.deprecated { background-color: rgba(224, 161, 58, 0.15); color: var(--warning-text); border-color: var(--warning); }
+    .cluster-badge.unsupported, .cpu-status-badge.unsupported { background-color: rgba(224, 71, 62, 0.15); color: var(--fail); border-color: var(--fail); }
+    .host-summary-bar { display: flex; align-items: center; margin: 8px 0 12px; }
+    .host-summary-label { font-weight: 600; font-size: 13px; }
+    .host-cluster-group { border: 1px solid var(--border); border-radius: 6px; margin: 8px 0; }
+    .host-cluster-group summary { cursor: pointer; padding: 8px 12px; font-weight: 600; }
+    .host-cluster-group[open] summary { border-bottom: 1px solid var(--border); }
+    .host-cluster-group .host-cluster-body { padding: 8px 12px; }
+    .host-cluster-group .host-details { margin: 8px 0 0; }
+    .launcher {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+    .launcher h2 { font-size: 16px; font-weight: 600; margin: 0 0 12px 0; }
+    .launcher-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+    .field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+    .field label { font-size: 12px; color: var(--muted); }
+    #domain-field > label { font-size: 13px; font-weight: 700; color: var(--text); }
+    .field input, .field select {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 7px 10px;
+        font-size: 13px;
+    }
+    .chk-mini-link {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 11px;
+        padding: 0;
+        margin-left: 6px;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { width: 100%; padding-right: 64px; }
+    .pw-eye {
+        position: absolute;
+        right: 7px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        padding: 3px;
+        color: var(--muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        border-radius: 3px;
+        line-height: 1;
+    }
+    .pw-eye:hover { color: var(--text); }
+    .pw-eye:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .checkbox-row { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+    }
+    .checkbox-group-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .checkbox-group-empty { color: var(--muted); font-size: 12px; }
+    .empty-state-callout {
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 600;
+        padding: 4px 0;
+    }
+    .card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 16px;
+        flex: 1;
+        min-width: 100%;
+    }
+    .card-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+    .card-header h2 { font-size: 16px; font-weight: 600; margin: 0; }
+    .card-header h3 { font-size: 13px; margin: 0; }
+    .card-header-hint { display: none; font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .card.collapsed .card-header-hint { display: block; }
+    .card-header::after { content: "\25BC"; font-size: 10px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; margin-left: 8px; }
+    #sizingCancelButton { background: var(--panel); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
+    .card.collapsed .card-header::after { transform: rotate(-90deg); }
+    .card.collapsed .card-body { display: none; }
+    .card-body { margin-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .chk-count { font-size: 12px; color: var(--muted); }
+    #domain-scope-summary { font-size: 14px; color: var(--text); font-weight: 600; }
+    .chk-search-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .search-input {
+        flex: 1;
+        min-width: 200px;
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 7px 10px;
+        font-size: 13px;
+    }
+    .search-input:focus { border-color: var(--accent); outline: none; }
+    .filter-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--panel);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 5px 12px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    .filter-chip.active { background: var(--accent); color: #0f1115; border-color: var(--accent); font-weight: 600; }
+    .chk-list, .env-list {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px 70px 12px;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+    .env-list {
+        padding-bottom: 12px;
+    }
+    .chk-area-group { margin-bottom: 12px; }
+    .chk-area-group:last-child { margin-bottom: 0; }
+    .chk-area-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid var(--border);
+        cursor: pointer;
+        user-select: none;
+    }
+    .chk-area-toggle {
+        flex-shrink: 0;
+        font-size: 10px;
+        color: var(--muted);
+        transition: transform 0.15s ease;
+        display: inline-block;
+    }
+    .chk-area-group.collapsed .chk-area-toggle { transform: rotate(-90deg); }
+    .chk-area-group.collapsed .chk-area-items { display: none; }
+    .chk-area-header-count { margin-left: auto; font-weight: 400; font-size: 12px; color: var(--muted); }
+    .chk-area-items { display: flex; flex-direction: column; gap: 2px; }
+    .chk-item-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        padding: 3px 0;
+        min-width: 0;
+    }
+    .chk-item-row .checkbox-group-item {
+        flex-shrink: 0;
+        margin: 0;
+    }
+    .chk-item-description {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 12px;
+        color: var(--muted);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .chk-tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+        font-weight: 700;
+        border-radius: 50%;
+        flex-shrink: 0;
+        cursor: help;
+    }
+    .chk-tag-blocking { color: var(--fail); border: 1px solid var(--fail); }
+    .chk-tag-root { color: var(--warning); border: 1px solid var(--warning); }
+    .chk-root-hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--warning); margin-bottom: 8px; }
+    .chk-header-summary { display: flex; align-items: center; gap: 8px; }
+    .chk-root-excluded-hint { position: relative; font-size: 11px; color: var(--warning); border: 1px solid var(--warning); border-radius: 4px; padding: 2px 6px; }
+    .chk-root-excluded-hint[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 6px;
+        width: max-content;
+        max-width: 280px;
+        background: #eceef1;
+        color: #14161a;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 1.4;
+        padding: 6px 10px;
+        border-radius: 4px;
+        white-space: normal;
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 100ms ease 80ms;
+        pointer-events: none;
+    }
+    .chk-root-excluded-hint[data-tooltip]:hover::after,
+    .chk-root-excluded-hint[data-tooltip]:focus-visible::after {
+        opacity: 1;
+        visibility: visible;
+    }
+    .chk-legend {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        color: var(--muted);
+        font-size: 12px;
+    }
+    .launcher-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .launcher-actions button {
+        background: var(--accent);
+        color: #0f1115;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .launcher-actions button.secondary { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+    .launcher-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #launcher-status { font-size: 12px; color: var(--muted); }
+    #launcher-error, #env-form-error { font-size: 12px; color: var(--fail); margin-top: 8px; display: none; }
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(77, 163, 255, 0.7); }
+        50% { box-shadow: 0 0 0 8px rgba(77, 163, 255, 0); }
+    }
+    #health-check-button.running,
+    #discover-workload-domains-button.cancelling,
+    #sizing-detect-button.running { animation: pulse 1.5s infinite; }
+    #sizing-detect-button,
+    .sizing-step-nav button {
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    #sizing-detect-button,
+    .sizing-step-nav button:not(.secondary) { background: var(--accent); color: #0f1115; }
+    .sizing-step-nav button.secondary { background: var(--panel); color: var(--text); border: 1px solid var(--border); }
+    #sizing-detect-button:disabled,
+    .sizing-step-nav button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        background: var(--panel);
+        border: 2px solid var(--accent);
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--text);
+        animation: statusPulse 1.5s ease-in-out infinite;
+    }
+    .status-box.hidden { display: none; }
+    .status-indicator {
+        width: 10px;
+        height: 10px;
+        background: var(--accent);
+        border-radius: 50%;
+        flex-shrink: 0;
+        margin-top: 2px;
+        animation: statusDot 1.5s ease-in-out infinite;
+    }
+    #launcher-status-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .status-progress-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        font-size: 13px;
+    }
+    .status-progress-bar {
+        height: 6px;
+        background: var(--border);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+    .status-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--pass));
+        transition: width 0.3s ease;
+        border-radius: 3px;
+    }
+    .status-current-check {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 2px;
+    }
+    #sticky-progress-bar {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--panel);
+        border: 1px solid var(--accent);
+        border-radius: 999px;
+        padding: 8px 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        font-size: 12px;
+        color: var(--text);
+        z-index: 500;
+        max-width: calc(100vw - 40px);
+    }
+    #sticky-progress-bar.hidden { display: none; }
+    #sticky-progress-bar .status-indicator { margin-top: 0; }
+    #sticky-progress-bar-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    #sticky-progress-bar-count {
+        color: var(--muted);
+        flex-shrink: 0;
+        border-left: 1px solid var(--border);
+        padding-left: 10px;
+    }
+    @keyframes statusPulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(77, 163, 255, 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(77, 163, 255, 0); }
+    }
+    @keyframes statusDot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
+    }
+    /* ── Upgrade Resource Estimator stepper ─────────────────────────────────── */
+    .stepper { display: flex; align-items: flex-start; margin-bottom: 20px; user-select: none; }
+    .s-connector { display: flex; align-items: center; flex: 1; padding-bottom: 20px; }
+    .s-line { height: 2px; flex: 1; background: var(--border); transition: background .18s; }
+    .s-line.done { background: var(--accent); }
+    .s-step { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+    .s-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .76rem; font-weight: 700; border: 2px solid var(--border); color: var(--muted); background: transparent; transition: all .18s; cursor: default; }
+    .s-dot.active { border-color: var(--accent); color: var(--accent); }
+    .s-dot.done { border-color: var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+    .s-dot.reachable { cursor: pointer; }
+    .s-label { font-size: .71rem; color: var(--muted); margin-top: 4px; text-align: center; max-width: 90px; line-height: 1.25; }
+    .s-label.active { color: var(--accent); font-weight: 600; }
+    .sizing-layout { display: flex; flex-direction: column; gap: 16px; }
+    .sizing-main { min-width: 0; }
+    .sizing-totals { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+    .sizing-totals h4 { margin: 0 0 10px 0; font-size: 13px; }
+    .sizing-totals-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .sizing-totals-table th, .sizing-totals-table td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); }
+    .sizing-totals-table th { color: var(--muted); font-weight: 600; font-size: 12px; }
+    .sizing-totals-table td.num, .sizing-totals-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .sizing-totals-table tbody tr:last-child td { border-bottom: none; }
+    .sizing-totals-table tr.sizing-totals-row td { border-top: 2px solid var(--border); font-weight: 700; }
+    .sizing-totals-table tr.sizing-peak-row td { color: var(--accent); border-top: none; }
+    .sizing-step-panel { display: none; }
+    .sizing-step-panel.active { display: block; }
+    .sizing-step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .env-row {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        margin-bottom: 8px;
+    }
+    .env-row:last-child { margin-bottom: 0; }
+    #env-form-integrations-list .env-row { border-color: var(--muted); }
+    .env-row-header { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+    .env-chevron {
+        background: none;
+        border: none;
+        color: var(--muted);
+        cursor: pointer;
+        font-size: 11px;
+        padding: 2px 4px;
+        transition: transform 0.15s;
+    }
+    .env-chevron.open { transform: rotate(90deg); }
+    .env-name { flex: 1; font-size: 14px; font-weight: 600; }
+    .env-badge {
+        position: relative;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-radius: 3px;
+        padding: 2px 6px;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        flex-shrink: 0;
+    }
+    .env-badge[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 6px;
+        width: max-content;
+        max-width: 280px;
+        background: #eceef1;
+        color: #14161a;
+        font-size: 12px;
+        font-weight: 400;
+        text-transform: none;
+        line-height: 1.4;
+        padding: 0;
+        border-radius: 4px;
+        white-space: normal;
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        max-height: 0;
+        overflow: hidden;
+        transition: opacity 100ms ease 80ms;
+        pointer-events: none;
+    }
+    .env-badge[data-tooltip]:hover::after,
+    .env-badge[data-tooltip]:focus-visible::after {
+        padding: 6px 10px;
+        opacity: 1;
+        visibility: visible;
+        max-height: none;
+        overflow: visible;
+    }
+    .env-row-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .env-row-actions button { padding: 5px 10px; font-size: 12px; }
+    .env-row-actions button.danger { color: var(--fail); border-color: var(--fail); }
+    .integration-endpoint-row .env-row-actions { align-self: flex-end; }
+    .env-row-detail {
+        display: none;
+        padding: 0 12px 12px 12px;
+        border-top: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--muted);
+    }
+    .env-row-detail.open { display: block; padding-top: 10px; }
+    .env-row-detail dt { color: var(--text); font-weight: 600; margin-top: 6px; }
+    .env-row-detail dd { margin: 2px 0 0 0; }
+    .env-row-detail-columns { display: flex; gap: 32px; flex-wrap: wrap; }
+    .env-row-detail-col { flex: 1 1 220px; min-width: 220px; margin: 0; }
+    #environment-form-wrap {
+        border: 1px solid var(--accent);
+        border-radius: 6px;
+        padding: 12px;
+        margin-top: 4px;
+    }
+    #environment-form-wrap h3 { margin: 0 0 10px 0; font-size: 13px; }
+    .run-scan-env-row {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        margin-bottom: 8px;
+        padding: 10px 12px;
+    }
+    .run-scan-env-row:last-child { margin-bottom: 0; }
+    .run-scan-env-row-main { display: flex; align-items: center; gap: 10px; }
+    .run-scan-env-credentials { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+    .run-scan-env-credentials .field { flex: 0 1 auto; }
+    .run-scan-env-credentials .field label { white-space: nowrap; }
+    .queue-strip { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+    .queue-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+    }
+    .queue-item-status {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-radius: 3px;
+        padding: 2px 6px;
+        flex-shrink: 0;
+    }
+    .queue-item-status.pending { color: var(--muted); border: 1px solid var(--muted); }
+    .queue-item-status.running { color: var(--accent); border: 1px solid var(--accent); }
+    .queue-item-status.success { color: var(--pass); border: 1px solid var(--pass); }
+    .queue-item-status.failed { color: var(--fail); border: 1px solid var(--fail); }
+    .queue-item-status.blocked { color: var(--warning); border: 1px solid var(--warning); }
+    .queue-item-name { flex: 1; }
+    .queue-item-progress { color: var(--muted); }
+    .progress-panel { margin-top: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .progress-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .progress-panel-header h4 { margin: 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+    .progress-elapsed-badge { font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px; flex-shrink: 0; }
+    .progress-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 12px; border-top: 1px solid var(--border); }
+    .progress-item:first-child { border-top: none; }
+    .pi-icon { width: 16px; text-align: center; flex-shrink: 0; }
+    .pi-label { font-weight: 600; }
+    .pi-status { color: var(--muted); }
+    .progress-item.pi-success .pi-icon { color: var(--pass); }
+    .progress-item.pi-failed .pi-icon, .progress-item.pi-failed .pi-status { color: var(--fail); }
+    .progress-item.pi-pending .pi-icon, .progress-item.pi-pending .pi-label, .progress-item.pi-pending .pi-status { color: var(--muted); }
+    .spin { display: inline-block; animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .credential-check-group { margin-bottom: 12px; }
+    .credential-check-env-name { font-weight: 700; font-size: 12px; padding: 6px 0; }
+    .credential-check-phases { display: flex; flex-direction: column; gap: 0; margin-left: 8px; border-left: 2px solid var(--border); padding-left: 8px; }
+    .credential-check-phase { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 11px; }
+    .credential-check-phase.pi-pass .pi-icon { color: var(--pass); }
+    .credential-check-phase.pi-fail .pi-icon, .credential-check-phase.pi-fail .pi-status { color: var(--fail); }
+    .credential-check-phase.pi-pending .pi-icon, .credential-check-phase.pi-pending .pi-label { color: var(--muted); }
+    .credential-check-phase.pi-skipped .pi-icon, .credential-check-phase.pi-skipped .pi-status { color: var(--muted); }
+    #credential-log-wrap { margin-top: 12px; }
+    #credential-log-wrap .log-box-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    #credential-log-wrap h3 { font-size: 12px; margin: 0; color: var(--muted); }
+    .log-copy-btn { font-size: 11px; padding: 3px 8px; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; margin-left: auto; }
+    .chk-toggle-all-button {
+        font-size: 11px;
+        padding: 3px 8px;
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 4px;
+    }
+    .chk-toggle-all-button:hover { border-color: var(--accent); color: var(--accent); }
+    #live-log-wrap { margin-top: 12px; }
+    #live-log-wrap h3 { font-size: 12px; margin: 0 0 6px 0; color: var(--muted); }
+    .log-box {
+        background: #0a0c10;
+        color: #c7ccd6;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 11px;
+        line-height: 1.5;
+        max-height: 260px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        margin: 0;
+    }
+    #report-environment-select-wrap { margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    @media print {
+        header, .launcher { display: none; }
+        .result-detail { display: block !important; padding-top: 12px; }
+        .result-row { break-inside: avoid; margin-bottom: 6px; }
+    }
+    /* Exported standalone HTML only (see buildHtmlExportContent) - the live app never renders
+       .export-layout/.export-nav, but this stylesheet is captured verbatim into the export via
+       document.querySelector("style").textContent, so its rules live here rather than being
+       built as a second, separately-maintained CSS string. */
+    .export-layout { display: flex; align-items: flex-start; gap: 16px; }
+    .export-layout main { flex: 1; min-width: 0; order: 2; }
+    .export-nav {
+        order: 1;
+        flex: 0 0 260px;
+        position: sticky;
+        top: 16px;
+        max-height: 100vh;
+        overflow-y: auto;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 0;
+        font-size: 13px;
+    }
+    .export-nav > a { display: block; padding: 4px 16px 10px; font-weight: 600; text-decoration: none; color: inherit; }
+    .export-nav-group-title { padding: 6px 16px; font-size: 11px; text-transform: uppercase; color: var(--muted); letter-spacing: 0.05em; }
+    .export-nav-link { display: block; padding: 4px 16px; text-decoration: none; color: inherit; }
+    .export-nav-link:hover { background: var(--border); }
+    .export-nav-link::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 8px; background: var(--muted); vertical-align: middle; }
+    .export-nav-link.Pass::before { background: var(--pass); }
+    .export-nav-link.Warning::before { background: var(--warning); }
+    .export-nav-link.Fail::before { background: var(--fail); }
+    .export-nav-link.Error::before { background: var(--error); }
+    .export-nav-link.Skipped::before { background: var(--skipped); }
+    @media print {
+        .export-nav { display: none; }
+    }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 9000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 24px 24px 18px; max-width: 480px; width: 90%; }
+    .modal-box h3 { margin: 0 0 12px; font-size: 1rem; font-weight: 700; color: var(--warning); }
+    .modal-box p, .modal-box li { font-size: .88rem; line-height: 1.6; color: var(--muted); }
+    .modal-box ul { margin: 6px 0 8px 1.3rem; padding: 0; }
+    .modal-box .modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<script>
+(function () {
+    var cachedTheme = localStorage.getItem("vcfCheckTheme");
+    if (cachedTheme === "light") {
+        document.body.classList.add("light");
+    }
+})();
+</script>
+<header>
+    <div class="header-title">
+        <h1>VCF Check</h1>
+        <span id="version-badge" class="version-badge"></span>
+    </div>
+    <div class="controls">
+        <div id="export-actions" class="hidden">
+            <span class="export-label">Export</span>
+            <button type="button" id="export-html-button" title="Download this run as a standalone HTML file" disabled>HTML</button>
+            <button type="button" id="export-pdf-button" title="Print this run (choose &quot;Save as PDF&quot; as the destination)" disabled>PDF</button>
+            <button type="button" id="export-zip-button" title="Download this run's JSON, CSV, and HTML bundled into one ZIP file" disabled>ZIP</button>
+        </div>
+        <button type="button" id="documentation-button" title="Open the VCF Check documentation in a new tab">Documentation</button>
+        <button type="button" id="export-logbundle-button" title="Download server logs and findings as a zip, for support/troubleshooting">Collect Logs</button>
+        <button type="button" id="report-issue-button" title="Open the VCF Check issue tracker in a new tab">Report Issue</button>
+        <button type="button" id="theme-toggle" aria-label="Toggle theme"></button>
+    </div>
+</header>
+
+<div class="modal-overlay" id="logbundle-modal-overlay">
+    <div class="modal-box">
+        <h3>⚠ Security Warning</h3>
+        <p>The log bundle contains sensitive infrastructure data:</p>
+        <ul>
+            <li>Endpoint FQDNs and IP addresses (SDDC Manager, vCenter, NSX, etc.)</li>
+            <li>Environment names and configuration topology</li>
+            <li>Service account usernames</li>
+            <li>All log file contents (may include errors exposing configuration)</li>
+        </ul>
+        <p><strong style="color: var(--fail)">Do NOT share this archive with untrusted parties.</strong></p>
+        <p><strong>Best Practices:</strong><br>
+            &bull; Store securely (encrypted storage or password-protected)<br>
+            &bull; Share only with authorized Broadcom personnel<br>
+            &bull; Delete after support review<br>
+            &bull; If compromised, review logs for exposed data</p>
+        <div class="modal-actions">
+            <button type="button" id="logbundle-cancel-button">Cancel</button>
+            <button type="button" id="logbundle-proceed-button">I Understand, Proceed</button>
+        </div>
+    </div>
+</div>
+<main>
+    <section class="launcher">
+        <div class="card collapsed" id="environments-card">
+            <div class="card-header" id="environments-card-header">
+                <div>
+                    <h2>Settings &amp; Environments</h2>
+                    <div class="card-header-hint" id="environments-card-hint">Start here: add at least one VCF 5.2.x environment, then configure optional scan settings</div>
+                </div>
+            </div>
+            <div class="card-body" id="environments-card-body">
+                <div class="chk-search-row">
+                    <h3 style="margin:0;flex:1;">Environments</h3>
+                    <button type="button" id="add-environment-button">+ Add Environment</button>
+                </div>
+                <div class="chk-search-row" id="environment-search-row">
+                    <input type="text" class="search-input" id="environment-search-input" placeholder="Search environments by name or FQDN...">
+                    <button type="button" id="clear-environment-search-button">Clear</button>
+                </div>
+                <div class="env-list" id="environment-list"></div>
+                <div id="environment-form-wrap" class="hidden">
+                    <h3 id="environment-form-title">Add Environment</h3>
+                    <input type="hidden" id="env-form-id">
+                    <div class="launcher-row">
+                        <div class="field">
+                            <label for="env-form-name">Name</label>
+                            <input type="text" id="env-form-name" placeholder="e.g. Production East">
+                        </div>
+                        <div class="field">
+                            <label for="env-form-fqdn">SDDC Manager FQDN</label>
+                            <input type="text" id="env-form-fqdn" spellcheck="false" autocapitalize="none">
+                        </div>
+                        <div class="field">
+                            <label for="env-form-username">Username</label>
+                            <input type="text" id="env-form-username">
+                        </div>
+                    </div>
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="env-form-root-checks" checked>
+                        <label for="env-form-root-checks">Enable SDDC Manager root-credential checks (VMware Tools guest operations)</label>
+                    </div>
+                    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
+                        <div class="chk-search-row">
+                            <h3 style="margin:0;flex:1;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Aria Components (optional)<span class="result-info-icon" id="env-form-integrations-info-icon" tabindex="0" data-tooltip="Note: These checks connect directly to each Aria Component's API are independent of Aria Lifecycle Manager. Add an endpoint here to run its checks; leave it out to skip them."></span></h3>
+                        </div>
+                        <div style="font-size:13px;color:var(--muted);font-style:italic;margin:8px 0;">Note: These checks connect directly to each Aria component's API and are independent of Aria Lifecycle Manager (vRSLCM).</div>
+                        <div id="env-form-integrations-list"></div>
+                        <div class="launcher-row" style="align-items:flex-end;">
+                            <div class="field" style="max-width:220px;">
+                                <label for="env-form-integration-type-select">Add component</label>
+                                <select id="env-form-integration-type-select">
+                                    <option value="AriaOperations">Aria Operations</option>
+                                </select>
+                            </div>
+                            <button type="button" id="env-form-add-integration-button" class="secondary">+ Add component</button>
+                        </div>
+                    </div>
+                    <div class="launcher-actions" style="margin-top:10px;">
+                        <button type="button" id="env-form-save-button">Save</button>
+                        <button type="button" id="env-form-cancel-button" class="secondary">Cancel</button>
+                    </div>
+                    <div id="env-form-error"></div>
+                </div>
+                <details style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
+                    <summary style="cursor:pointer;"><h3 style="display:inline;margin:0;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Advanced Settings</h3></summary>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;max-width:660px;margin-top:12px;">
+                        <div class="field">
+                            <label for="log-view-level-select">Live log detail</label>
+                            <select id="log-view-level-select">
+                                <option value="DEBUG">DEBUG - show everything, including diagnostic detail</option>
+                                <option value="INFO">INFO - show all activity</option>
+                                <option value="WARNING">WARNING - warnings and errors only</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="health-summary-max-poll-attempts-select">SDDC Manager Health Summary poll budget <span class="result-info-icon" id="health-summary-poll-info-icon" tabindex="0" data-tooltip="Caps how long the 'SDDC Manager Health Summary' check waits on SDDC Manager before giving up. It also abandons polling early on its own once SDDC Manager stops making progress, so raising this only matters for a genuinely slow (not stuck) run."></span></label>
+                            <select id="health-summary-max-poll-attempts-select">
+                                <option value="12">12 attempts (~7.5 minutes)</option>
+                                <option value="24">24 attempts (~13.5 minutes, default)</option>
+                                <option value="48">48 attempts (~25.5 minutes)</option>
+                                <option value="60">60 attempts (~31.5 minutes)</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="tcp-timeout-input">TCP connection timeout (seconds)</label>
+                            <input type="number" id="tcp-timeout-input" min="1" max="300" step="1" value="30">
+                        </div>
+                        <div class="field">
+                            <label for="pre-upgrade-check-set-max-poll-attempts-select">SDDC Manager Pre-Upgrade Check-Set poll budget <span class="result-info-icon" id="pre-upgrade-poll-info-icon" tabindex="0" data-tooltip="Caps how long the 'SDDC Manager Pre-Upgrade Check-Set Assessment' check waits for SDDC Manager to finish running its check-set before giving up."></span></label>
+                            <select id="pre-upgrade-check-set-max-poll-attempts-select">
+                                <option value="20">20 attempts (~7 minutes)</option>
+                                <option value="40">40 attempts (~13.8 minutes, default)</option>
+                                <option value="60">60 attempts (~20.5 minutes)</option>
+                                <option value="80">80 attempts (~27.4 minutes)</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="vcf-destination-release-input">VCF Target Release <span class="result-info-icon" id="vcf-destination-release-info-icon" tabindex="0" data-tooltip="Sets the target VCF release used by the 'VCF Bill of Materials Upgrade Readiness Check' and 'Aria Suite Component Version Check' to determine expected component versions."></span></label>
+                            <select id="vcf-destination-release-input"></select>
+                            <div id="vcf-destination-release-hint" class="chk-count" style="margin-top:4px;"></div>
+                        </div>
+                        <div class="field" style="margin-top:16px;">
+                            <span id="powercli-tls-status-label" style="font-size:13px;font-weight:700;color:var(--text);">Insecure TLS Settings: <span id="powercli-tls-status-value">checking...</span> <span class="result-info-icon" id="powercli-tls-status-info-icon" tabindex="0" data-tooltip="Reflects PowerCLI's own InvalidCertificateAction setting (Get-PowerCLIConfiguration), which controls whether untrusted/self-signed certificates on all endpoints are accepted. Change it with Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore|Fail|Warn - VcfCheck has no setting of its own for this."></span></span>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <section class="launcher" id="sizing-section" style="display:none;">
+        <div class="card collapsed" id="sizing-card">
+            <div class="card-header" id="sizing-card-header">
+                <div>
+                    <h2>Management Resources Upgrade Estimator</h2>
+                    <div class="card-header-hint">Optional: expand to estimate whether the management workload domain has sufficient vCPU/RAM/Disk headroom to upgrade to VCF 9</div>
+                </div>
+            </div>
+            <div class="card-body" id="sizing-card-body">
+                <p class="chk-count" style="margin-top:0;">Work through each step to build up the management domain's upgrade configuration. Running totals update as you go.</p>
+                <nav class="stepper" id="sizingStepper" aria-label="Management Resources Upgrade Estimator steps"></nav>
+                <div class="sizing-layout">
+                    <div class="sizing-main">
+                        <div class="sizing-step-panel active" id="sz-step-connect">
+                            <div class="launcher-row" id="sizing-detect-row" style="align-items:flex-end;flex-wrap:wrap;">
+                                <div class="field" style="min-width:200px;">
+                                    <label for="sizing-detect-environment">Environment</label>
+                                    <select id="sizing-detect-environment"></select>
+                                </div>
+                                <div id="sizing-detect-password-wrap"></div>
+                                <button type="button" id="sizing-detect-button">Scan</button>
+                            </div>
+                            <div id="sizing-detect-error" style="color:var(--fail);margin-top:8px;"></div>
+                            <div id="sizing-detect-status" class="chk-count hidden" style="margin-top:8px;"></div>
+                            <div id="sizing-not-evaluated" class="chk-count" style="margin-top:8px;"></div>
+                        </div>
+                        <div class="sizing-step-panel" id="sz-step-vcenter">
+                            <p class="chk-count" style="margin-top:0;">Choose the target size for the Management Domain vCenter and every detected Workload Domain vCenter. Any size can be selected, so long as the target disk size is at least as large as the current one - the notes below just describe what each vCenter is already sized for. See the <a href="https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/9-1/vcenter-installation-and-setup/deploying-the-vcenter-server-appliance/vcenter-server-appliance-requirements.html" target="_blank" rel="noopener">vCenter Server Appliance sizing guidance</a> before sizing down.</p>
+                            <p class="chk-count" style="margin-top:0;">Note: "Tiny" is scoped by Broadcom to proof-of-concept deployments only and is never auto-recommended here - it remains selectable, but choose it deliberately, not for a production management domain.</p>
+                            <p class="chk-count" style="margin-top:0;">Note: sizing selected here is for planning purposes only. To actually deploy a vCenter at a different size than it is today, you must do so via the SDDC Manager API after upgrading SDDC Manager to 9.x. See the steps below.</p>
+                            <details style="margin:4px 0 8px;">
+                                <summary class="chk-count" style="cursor:pointer;">How to change vCenter appliance size via API (post-9.x upgrade)</summary>
+                                <ol class="chk-count" style="margin:8px 0 0 18px; padding:0;">
+                                    <li><code>GET /v1/domains</code> - determine the domain ID for the domain in question.</li>
+                                    <li><code>GET /v1/upgradables/domains/{domainId}</code> - check what's upgradable for the domain.</li>
+                                    <li><code>GET /v1/upgradables/domains/{domainId}/vcenter-upgrade-mechanisms</code> - determine whether InPlace or ReducedDowntimeMigration (RDU) is eligible for this vCenter. Size selection only matters for the RDU path.</li>
+                                    <li><code>GET /v1/upgradables/domains/{domainId}/vcenter-sizing-infos?targetVersion=&lt;version&gt;</code> - fetch available applianceSize/storageSize combos with isRecommended and resource-requirement fields.</li>
+                                    <li><code>POST /v1/upgrades</code> with <code>UpgradeSpec.draftMode = true</code> - stages the upgrade without executing, so it can be precheck'd first.</li>
+                                    <li><code>POST /v1/upgrades/{upgradeId}/prechecks</code> - kicks off precheck validation, returns a Task.</li>
+                                    <li><code>GET /v1/upgrades/{upgradeId}/prechecks/{precheckId}</code> - poll until precheck completes.</li>
+                                    <li><code>PATCH /v1/upgrades/{upgradeId}</code> - commits the DRAFT upgrade to SCHEDULED, actually running it. Alternatively, skip draft mode entirely and call <code>POST /v1/upgrades</code> once with <code>resourceUpgradeSpecs[].upgradeNow: true</code> to run immediately, with no separate precheck/commit step.</li>
+                                    <li><code>GET /v1/upgrades/{upgradeId}</code> or <code>GET /v1/tasks/{id}</code> - poll status.</li>
+                                </ol>
+                                <p class="chk-count" style="margin:8px 0 0;">The sizing choice is carried in <code>vcenterUpgradeUserInputSpecs[].targetVcenterAppliance</code> (<code>applianceSize</code>, <code>storageSize</code>), alongside <code>upgradeMechanism</code>, <code>switchoverType</code>, and a required <code>temporaryNetwork</code> (a temporary IP is needed during appliance switchover).</p>
+                            </details>
+                            <div id="sizing-vcenter-list"></div>
+                        </div>
+                        <div class="sizing-step-panel" id="sz-step-runtime">
+                            <p class="chk-count" style="margin-top:0;">VCF services runtime control and worker nodes are mandatory. Their size follows the VCF Instance Profile below.</p>
+                            <p class="chk-count" style="margin-top:4px;"><strong>Additional Instance</strong> means you'll connect to an existing VCF Operations instance. <strong>First Instance</strong> means you'll create a new VCF Operations instance - choosing it lets you size that instance in Step 5, VCF Fleet Components.</p>
+                            <div class="launcher-row" style="flex-wrap:wrap;">
+                                <div class="field">
+                                    <label for="sizing-runtime-instance">Instance Model</label>
+                                    <select id="sizing-runtime-instance">
+                                        <option value="firstinstance">First Instance</option>
+                                        <option value="additionalinstance">Additional Instance</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-runtime-availability">Availability Model</label>
+                                    <select id="sizing-runtime-availability">
+                                        <option value="simple">Simple</option>
+                                        <option value="highavailability">High Availability</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-runtime-size">Size</label>
+                                    <select id="sizing-runtime-size">
+                                        <option value="small">Small</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="large">Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="sizing-runtime-hint" class="chk-count" style="margin-top:8px;"></div>
+                            <div id="sizing-runtime-breakdown" style="margin-top:12px;"></div>
+                        </div>
+                        <div class="sizing-step-panel" id="sz-step-mgmtservices">
+                            <p class="chk-count" style="margin-top:0;">VCF services runtime is mandatory and sized on the previous step. The components below are optional and run inside that same VCFMS cluster - it scales to accommodate whatever you include here.</p>
+                            <div class="launcher-row" style="flex-wrap:wrap;align-items:flex-end;">
+                                <div class="field">
+                                    <label for="sizing-mgmt-logs">Log Management</label>
+                                    <select id="sizing-mgmt-logs">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="small">Small</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="large">Large</option>
+                                    </select>
+                                </div>
+                                <div class="field" id="sizing-mgmt-logs-replicas-field">
+                                    <label for="sizing-mgmt-logs-replicas">Log Management Replicas</label>
+                                    <input type="number" id="sizing-mgmt-logs-replicas" min="1" max="19" value="1" style="width:80px;">
+                                </div>
+                            </div>
+                            <p class="chk-count" id="sizing-mgmt-logs-help" style="margin-top:0;"><a href="https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-1/design/design-library/vcf-operations-design/vcf-operations-for-logs-deployment-models.html" target="_blank" rel="noopener">See VCF Operations for Logs deployment models</a> for guidance on sizing and replica counts.</p>
+                            <div class="launcher-row" style="flex-wrap:wrap;">
+                                <div class="field">
+                                    <label for="sizing-mgmt-realtime">Real-time Metrics</label>
+                                    <select id="sizing-mgmt-realtime">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include">Include</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-mgmt-depot">Software Depot (Additional Instance)</label>
+                                    <select id="sizing-mgmt-depot">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include">Include</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-mgmt-idbroker">Identity Broker (Additional Instance)</label>
+                                    <select id="sizing-mgmt-idbroker">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include">Include</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="sizing-mgmt-hint" class="chk-count" style="margin-top:8px;"></div>
+                            <div id="sizing-mgmt-breakdown" style="margin-top:12px;"></div>
+                        </div>
+                        <div class="sizing-step-panel" id="sz-step-fleet">
+                            <p class="chk-count" style="margin-top:0;">VCF Fleet Components run inside the same VCFMS cluster sized on earlier steps. VCF Operations cannot be created new for an Additional Instance - it must already exist elsewhere.</p>
+                            <div class="launcher-row" style="flex-wrap:wrap;align-items:flex-end;">
+                                <div class="field">
+                                    <label for="sizing-fleet-vcfops">VCF Operations</label>
+                                    <select id="sizing-fleet-vcfops">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include">Include</option>
+                                        <option value="existing">Existing</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-fleet-vcfops-size">VCF Operations Size</label>
+                                    <select id="sizing-fleet-vcfops-size">
+                                        <option value="xsmall">Extra Small</option>
+                                        <option value="small">Small</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="large">Large</option>
+                                        <option value="xlarge">Extra Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="launcher-row" style="flex-wrap:wrap;align-items:flex-end;">
+                                <div class="field">
+                                    <label for="sizing-fleet-cloudproxy">Cloud Proxy</label>
+                                    <select id="sizing-fleet-cloudproxy">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include">Include</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-fleet-cloudproxy-size">Cloud Proxy Size</label>
+                                    <select id="sizing-fleet-cloudproxy-size">
+                                        <option value="small">Small</option>
+                                        <option value="standard">Standard</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="launcher-row" style="flex-wrap:wrap;align-items:flex-end;">
+                                <div class="field">
+                                    <label for="sizing-fleet-automation">VCF Automation</label>
+                                    <select id="sizing-fleet-automation">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include" selected>Include</option>
+                                        <option value="existing">Existing</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-fleet-automation-size">VCF Automation Size</label>
+                                    <select id="sizing-fleet-automation-size">
+                                        <option value="small">Small</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="large">Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="launcher-row" style="flex-wrap:wrap;align-items:flex-end;">
+                                <div class="field">
+                                    <label for="sizing-fleet-opsnetworks">VCF Operations for networks</label>
+                                    <select id="sizing-fleet-opsnetworks">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include">Include</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-fleet-opsnetworks-size">VCF Operations for networks Size</label>
+                                    <select id="sizing-fleet-opsnetworks-size">
+                                        <option value="small">Small</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="large">Large</option>
+                                        <option value="extra_large">XL</option>
+                                        <option value="double_extra_large">XXL</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="launcher-row" style="flex-wrap:wrap;align-items:flex-end;">
+                                <div class="field">
+                                    <label for="sizing-fleet-licensehub">License Hub for vDefend and Avi</label>
+                                    <select id="sizing-fleet-licensehub">
+                                        <option value="exclude">Exclude</option>
+                                        <option value="include">Include</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="sizing-fleet-hint" class="chk-count" style="margin-top:8px;"></div>
+                            <div id="sizing-fleet-breakdown" style="margin-top:12px;"></div>
+                        </div>
+                        <div class="sizing-step-panel" id="sz-step-more">
+                            <p class="chk-count" style="margin-top:0;">Remaining components (NSX, security/load balancing, optional add-ons) - check the ones to include and choose a size for each. Running totals update in the sidebar as you go.</p>
+                            <p class="chk-count" style="margin-top:0;"><strong>Security Services Platform, AVI Load Balancer, and Supervisor</strong> are sized per domain below, using the domains detected by Scan.</p>
+                            <div id="sizing-platform-list"></div>
+                            <div id="sizing-form-rows"></div>
+                            <div id="sizing-error" style="color:var(--fail);margin-top:8px;"></div>
+                            <div id="sizing-more-breakdown" style="margin-top:12px;"></div>
+                        </div>
+                        <div class="sizing-step-panel" id="sz-step-refine">
+                            <p class="chk-count" style="margin-top:0;">Refine the running total against how your hosts are actually configured. See <a href="https://knowledge.broadcom.com/external/article/414507/calculate-overcommitment-ratio-of-a-host.html" target="_blank" rel="noopener">calculating host overcommitment ratio</a> for guidance on choosing a ratio.</p>
+                            <div class="launcher-row" style="flex-wrap:wrap;">
+                                <div class="field">
+                                    <label for="sizing-refine-cpu-ratio">CPU overcommitment ratio (vCPU per physical core)</label>
+                                    <select id="sizing-refine-cpu-ratio">
+                                        <option value="1" selected>1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-refine-mem-ratio">Memory overcommitment ratio (vRAM per physical GB)</label>
+                                    <select id="sizing-refine-mem-ratio">
+                                        <option value="1" selected>1</option>
+                                        <option value="1.5">1.5</option>
+                                        <option value="2">2</option>
+                                    </select>
+                                </div>
+                                <div class="field">
+                                    <label for="sizing-refine-concurrent-vcenters">vCenters upgraded concurrently</label>
+                                    <select id="sizing-refine-concurrent-vcenters">
+                                        <option value="1" selected>1</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="sizing-refine-hint" class="chk-count" style="margin-top:8px;"></div>
+                        </div>
+                        <div class="sizing-step-nav">
+                            <button type="button" id="sizingBackButton" class="secondary">Back</button>
+                            <button type="button" id="sizingNextButton">Next</button>
+                            <button type="button" id="sizingDownloadButton" class="secondary hidden" title="Download this estimate as a standalone HTML report">Download</button>
+                            <button type="button" id="sizingSaveButton" class="hidden" title="Save this estimate to this Environment's findings directory, then close">Finish</button>
+                        </div>
+                    </div>
+                    <div class="sizing-totals hidden" id="sizingSidebar">
+                        <h4>Running Total</h4>
+                        <table class="sizing-totals-table">
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th class="num">vCPU</th>
+                                    <th class="num">RAM (GB)</th>
+                                    <th class="num">Disk (GB)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sizing-running-total"></tbody>
+                        </table>
+                        <p class="chk-count" id="sizing-running-total-note" style="margin-top:8px;"></p>
+                        <div class="sizing-service-config-section hidden" style="margin-top:16px;">
+                            <h4>Service Configuration</h4>
+                            <p class="chk-count" style="margin-top:0;">Services without a 1:1 relationship to a component - already counted in the component's totals above, shown here for visibility.</p>
+                            <table class="sizing-totals-table">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Runs Within</th>
+                                        <th class="num">vCPU</th>
+                                        <th class="num">RAM (GB)</th>
+                                        <th class="num">Disk (GB)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sizing-running-total-services"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" id="sizingCancelButton" class="secondary" title="Discard this estimate and start over">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="launcher">
+        <h2>Run Scan</h2>
+        <p class="chk-count" style="margin-top:0;">Scans the selected environment(s) and reports any upgrade impediments that need to be resolved before upgrading to VCF 9.</p>
+        <div class="chk-search-row" style="margin-bottom:10px;">
+            <span class="chk-count" style="flex:1;">Select environments to scan</span>
+            <button type="button" id="select-all-envs-button">Select All</button>
+            <button type="button" id="clear-envs-button">Clear</button>
+        </div>
+        <div id="run-scan-environment-list" style="margin-bottom:12px;"></div>
+
+        <div class="field" id="domain-field" style="margin-bottom:12px;">
+            <label>Domain
+                <div id="domain-actions" style="display:none;">
+                    <button type="button" class="chk-mini-link" id="select-all-domains-button">Select all</button>
+                    <button type="button" class="chk-mini-link" id="select-no-domains-button">Select none</button>
+                </div>
+            </label>
+            <div class="checkbox-group" id="domain-checkboxes">
+                <div class="checkbox-group-empty">All domains are scanned by default. To choose specific ones, click <b>Discover Workload Domains</b> below to authenticate and load the list.</div>
+            </div>
+        </div>
+
+        <div class="launcher-row">
+            <div class="card collapsed" id="checks-card">
+                <div class="card-header" id="checks-card-header">
+                    <div>
+                        <h3>Health checks</h3>
+                        <div class="card-header-hint">Expand to search, filter, or customize which checks run</div>
+                    </div>
+                    <span class="chk-header-summary">
+                        <span class="chk-count" id="checks-card-summary"></span>
+                        <span class="chk-root-excluded-hint hidden" id="checks-card-root-hint" tabindex="0" data-tooltip="Root-required checks are excluded because no environment has Root-credential checks enabled.">Root checks excluded</span>
+                    </span>
+                </div>
+                <div class="card-body" id="checks-card-body">
+                    <div class="field">
+                        <label>Component
+                            <button type="button" class="chk-mini-link" id="select-all-areas-button">Select all</button>
+                            <button type="button" class="chk-mini-link" id="select-no-areas-button">Select none</button>
+                        </label>
+                        <div class="checkbox-group" id="component-checkboxes"></div>
+                    </div>
+                    <div class="chk-search-row">
+                        <input type="text" class="search-input" id="check-search-input" placeholder="Search checks by name or area...">
+                        <button type="button" class="filter-chip" id="select-blocking-chip" aria-pressed="false" title="Select only checks whose failure will block a VCF 9.x upgrade"><span class="chk-tag chk-tag-blocking" aria-hidden="true">B</span> Select Blocking Only Checks</button>
+                        <button type="button" class="filter-chip" id="filter-root-chip" aria-pressed="false" title="Show only checks that require the SDDC Manager appliance root/OS password, not just the admin login."><span class="chk-tag chk-tag-root" aria-hidden="true">R</span> Show Checks Requiring Root Credentials</button>
+                        <button type="button" id="clear-filters-button" title="Clears all filters and selects all relevant checks">Clear Filters</button>
+                        <span class="chk-legend" title="B = Blocking: a failure blocks the VCF upgrade until resolved.&#10;R = Root: requires the virtual appliance root/OS password (VMware Tools guest operations), not just the SSO administrative user login.">
+                            <span class="result-info-icon" id="chk-legend-info-icon"></span> Tag key: B/R
+                        </span>
+                        <span class="chk-count" id="check-filter-count"></span>
+                    </div>
+                    <div class="chk-root-hint hidden" id="chk-root-hint"><span class="chk-tag chk-tag-root" aria-hidden="true">R</span> Root-required checks are excluded because no environment has Root-credential checks enabled.</div>
+                    <div class="chk-list" id="check-checkboxes"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="launcher-actions">
+            <button type="button" id="health-check-button" title="Run the selected health checks against the selected environments (also verifies credentials first).">Run Check</button>
+            <button type="button" id="discover-workload-domains-button" class="secondary" title="Validate credentials and discover SDDC workload domains to customize which ones to run VCF Checks on.">Discover Workload Domains</button>
+        </div>
+        <div id="launcher-status-box" class="status-box hidden">
+            <div class="status-indicator"></div>
+            <div id="launcher-status-content">
+                <div class="status-progress-row">
+                    <span id="launcher-progress-text">Progress: 0/0 checks</span>
+                    <span id="launcher-elapsed-text">Elapsed: 0s</span>
+                </div>
+                <div class="status-progress-bar">
+                    <div id="launcher-progress-fill" class="status-progress-fill" style="width: 0%"></div>
+                </div>
+                <div id="launcher-current-check" class="status-current-check"></div>
+                <div id="launcher-sub-progress" class="status-current-check"></div>
+            </div>
+        </div>
+        <div id="sticky-progress-bar" class="hidden">
+            <div class="status-indicator"></div>
+            <span id="sticky-progress-bar-text"></span>
+            <span id="sticky-progress-bar-count"></span>
+        </div>
+        <div id="launcher-error"></div>
+
+        <div class="progress-panel hidden" id="credential-check-panel">
+            <div class="progress-panel-header">
+                <h4>Credential Check</h4>
+                <span class="progress-elapsed-badge" id="credential-check-elapsed"></span>
+            </div>
+            <div id="credential-check-items"></div>
+        </div>
+        <div id="credential-log-wrap" class="hidden">
+            <div class="log-box-header">
+                <h3>Live Log</h3>
+                <button type="button" class="log-copy-btn" id="credential-log-copy-button">Copy</button>
+            </div>
+            <pre class="log-box" id="credential-log"></pre>
+        </div>
+
+        <div class="queue-strip hidden" id="queue-strip"></div>
+        <div class="card hidden" id="live-log-wrap">
+            <div class="card-header" id="live-log-header">
+                <h3>Live log</h3>
+                <button type="button" class="log-copy-btn" id="live-log-copy-button" title="Copy the full live log text to your clipboard">Copy</button>
+            </div>
+            <div class="card-body" id="live-log-body">
+                <pre class="log-box" id="live-log"></pre>
+            </div>
+        </div>
+    </section>
+
+    <div id="report-environment-select-wrap" class="hidden">
+        <label for="report-environment-select" class="chk-count">Viewing report for:</label>
+        <select id="report-environment-select"></select>
+    </div>
+    <p class="total-run-time hidden" id="total-run-time"></p>
+    <div id="domain-scope-summary" class="hidden" style="margin-bottom:16px;"></div>
+    <p class="tiles-intro hidden" id="tiles-hint">Click a tile to filter the results below - combine any status and component tiles at once.</p>
+    <div class="tiles-section">
+        <p class="tiles-section-label hidden" id="area-tiles-hint">By status <span class="tiles-total-count" id="tiles-total-count"></span></p>
+        <div class="tiles" id="tiles"></div>
+    </div>
+    <div class="tiles-section">
+        <p class="tiles-section-label hidden" id="area-tiles-label">By component</p>
+        <div class="tiles area-tiles" id="area-tiles"></div>
+    </div>
+    <button type="button" class="chk-toggle-all-button hidden" id="toggle-all-tiles-button" title="Expand or collapse every check result below">Expand all</button>
+    <details class="filter-hidden-summary hidden" id="filter-hidden-summary">
+        <summary id="filter-hidden-summary-text"></summary>
+        <ul id="filter-hidden-summary-list"></ul>
+    </details>
+    <div id="results"></div>
+</main>
+<script>window.VcfCheckUI = window.VcfCheckUI || {};</script>
+<script src="/ui/state.js"></script>
+<script src="/ui/filters.js"></script>
+<script src="/ui/live-log-filter.js"></script>
+<script src="/ui/common.js"></script>
+<script src="/ui/zip-writer.js"></script>
+<script src="/ui/password-toggle.js"></script>
+<script src="/ui/fqdn-validation.js"></script>
+<script src="/ui/report-render.js"></script>
+<script src="/ui/theme.js"></script>
+<script src="/ui/sizing-wizard-core.js"></script>
+<script src="/ui/sizing-wizard-steps.js"></script>
+<script src="/ui/sizing-wizard-detect.js"></script>
+<script src="/ui/export.js"></script>
+<script src="/ui/logbundle-export.js"></script>
+<script src="/ui/environments.js"></script>
+<script src="/ui/run-scan.js"></script>
+<script src="/ui/health-checks.js"></script>
+<script src="/ui/run-actions-polling.js"></script>
+<script src="/ui/init.js"></script>
+</body>
+</html>

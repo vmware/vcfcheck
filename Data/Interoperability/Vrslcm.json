@@ -1,0 +1,6576 @@
+{
+  "id": "337",
+  "name": "VMware Cloud Foundation Operations fleet management",
+  "upgradeProducts": [
+    {
+      "id": 3577,
+      "version": "8",
+      "gaDate": 1571270400000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 3872,
+      "version": "8.0.1",
+      "gaDate": 1576713600000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 3996,
+      "version": "8.1",
+      "gaDate": 1586822400000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 4280,
+      "version": "8.2",
+      "gaDate": 1601942400000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 5123,
+      "version": "8.3",
+      "gaDate": 1612396800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 5350,
+      "version": "8.4",
+      "gaDate": 1618444800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 5725,
+      "version": "8.4.1",
+      "gaDate": 1622073600000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 5740,
+      "version": "8.6",
+      "gaDate": 1633996800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 6225,
+      "version": "8.6.1",
+      "gaDate": 1638835200000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 6375,
+      "version": "8.6.2",
+      "gaDate": 1642464000000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 6932,
+      "version": "8.7",
+      "gaDate": 1647907200000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 7124,
+      "version": "8.8",
+      "gaDate": 1651104000000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 8365,
+      "version": "8.8.2",
+      "gaDate": 1657584000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 8472,
+      "version": "8.10",
+      "gaDate": 1665446400000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 9863,
+      "version": "8.12",
+      "gaDate": 1681948800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": 1,
+          "footnotes": "Install VMware Aria Suite Lifecycle 8.12 Patch 3 or be on the latest product support pack"
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 17739,
+      "version": "8.14.0",
+      "gaDate": 1697673600000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": 1,
+          "footnotes": "Install VMware Aria Suite Lifecycle 8.14 Patch 1 or be on the latest product support pack"
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 17941,
+      "version": "8.16",
+      "gaDate": 1709164800000,
+      "genGuided": false,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 18218,
+      "version": "8.18.0",
+      "gaDate": 1720483200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 18473,
+      "version": "9.0.0.0",
+      "gaDate": 1750118400000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19520,
+      "version": "9.0.1.0",
+      "gaDate": 1759104000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19596,
+      "version": "8.18.0 Patch 3",
+      "gaDate": 1753747200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19720,
+      "version": "8.18.0 Patch 5",
+      "gaDate": 1759104000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19818,
+      "version": "9.0.2.0",
+      "gaDate": 1768867200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19965,
+      "version": "8.18.0 Patch 2",
+      "gaDate": 1750118400000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19973,
+      "version": "8.18.0 Patch 6",
+      "gaDate": 1768953600000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 20015,
+      "version": "8.18.0 Patch 7",
+      "gaDate": 1771891200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 20250,
+      "version": "8.18.0 Patch 8",
+      "gaDate": 1779840000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 20683,
+      "version": "9.0.2.0100",
+      "gaDate": 1777248000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 20820,
+      "version": "9.0.2.0200",
+      "gaDate": 1780876800000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 21504,
+      "version": "8.18.0 Patch 9",
+      "gaDate": 1785801600000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 3872,
+          "version": "8.0.1",
+          "gaDate": 1576713600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 3996,
+          "version": "8.1",
+          "gaDate": 1586822400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 4280,
+          "version": "8.2",
+          "gaDate": 1601942400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5123,
+          "version": "8.3",
+          "gaDate": 1612396800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5350,
+          "version": "8.4",
+          "gaDate": 1618444800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5725,
+          "version": "8.4.1",
+          "gaDate": 1622073600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 5740,
+          "version": "8.6",
+          "gaDate": 1633996800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6225,
+          "version": "8.6.1",
+          "gaDate": 1638835200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6375,
+          "version": "8.6.2",
+          "gaDate": 1642464000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 6932,
+          "version": "8.7",
+          "gaDate": 1647907200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 7124,
+          "version": "8.8",
+          "gaDate": 1651104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8365,
+          "version": "8.8.2",
+          "gaDate": 1657584000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 8472,
+          "version": "8.10",
+          "gaDate": 1665446400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 9863,
+          "version": "8.12",
+          "gaDate": 1681948800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17739,
+          "version": "8.14.0",
+          "gaDate": 1697673600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17941,
+          "version": "8.16",
+          "gaDate": 1709164800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18218,
+          "version": "8.18.0",
+          "gaDate": 1720483200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18473,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19520,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19596,
+          "version": "8.18.0 Patch 3",
+          "gaDate": 1753747200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19720,
+          "version": "8.18.0 Patch 5",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19818,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 19965,
+          "version": "8.18.0 Patch 2",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19973,
+          "version": "8.18.0 Patch 6",
+          "gaDate": 1768953600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20015,
+          "version": "8.18.0 Patch 7",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20250,
+          "version": "8.18.0 Patch 8",
+          "gaDate": 1779840000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20683,
+          "version": "9.0.2.0100",
+          "gaDate": 1777248000000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 20820,
+          "version": "9.0.2.0200",
+          "gaDate": 1780876800000,
+          "status": 2,
+          "footnotes": ""
+        },
+        {
+          "id": 21504,
+          "version": "8.18.0 Patch 9",
+          "gaDate": 1785801600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21619,
+          "version": "9.0.2.0300",
+          "gaDate": 1788825600000,
+          "status": 2,
+          "footnotes": ""
+        }
+      ]
+    }
+  ]
+}

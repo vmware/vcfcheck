@@ -1,0 +1,3126 @@
+{
+  "id": "851",
+  "name": "SDDC Manager",
+  "upgradeProducts": [
+    {
+      "id": 9217,
+      "version": "5",
+      "gaDate": 1685577600000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 17548,
+      "version": "5.1",
+      "gaDate": 1699315200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 17602,
+      "version": "5.0.0.1",
+      "gaDate": 1695945600000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 17851,
+      "version": "5.1.1",
+      "gaDate": 1711411200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 18327,
+      "version": "5.2.0",
+      "gaDate": 1721692800000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 18331,
+      "version": "5.2.1",
+      "gaDate": 1728432000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 18469,
+      "version": "9.0.0.0",
+      "gaDate": 1750118400000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 18595,
+      "version": "5.2.1.1",
+      "gaDate": 1733356800000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 19053,
+      "version": "5.2.1.2",
+      "gaDate": 1745971200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19220,
+      "version": "9.1.0.0",
+      "gaDate": 1778457600000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 19495,
+      "version": "5.2.2",
+      "gaDate": 1756944000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.2 to target version 9.0.0.0 is not supported, as the source version's release date (2025-09-04) is after the target version's release date (2025-06-17), making it a newer release."
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19502,
+      "version": "9.0.1.0",
+      "gaDate": 1759104000000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19808,
+      "version": "9.0.2.0",
+      "gaDate": 1768867200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": 1,
+          "footnotes": ""
+        }
+      ]
+    },
+    {
+      "id": 19852,
+      "version": "5.2.3.0",
+      "gaDate": 1771891200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.3.0 to target version 9.0.0.0 is not supported, as the source version's release date (2026-02-24) is after the target version's release date (2025-06-17), making it a newer release."
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.3.0 to target version 9.0.1.0 is not supported, as the source version's release date (2026-02-24) is after the target version's release date (2025-09-29), making it a newer release."
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.3.0 to target version 9.0.2.0 is not supported, as the source version's release date (2026-02-24) is after the target version's release date (2026-01-20), making it a newer release."
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 20690,
+      "version": "5.2.4.0",
+      "gaDate": 1779753600000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.4.0 to target version 9.0.0.0 is not supported, as the source version's release date (2026-05-26) is after the target version's release date (2025-06-17), making it a newer release."
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.4.0 to target version 9.1.0.0 is not supported, as the source version's release date (2026-05-26) is after the target version's release date (2026-05-11), making it a newer release."
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.4.0 to target version 9.0.1.0 is not supported, as the source version's release date (2026-05-26) is after the target version's release date (2025-09-29), making it a newer release."
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 5.2.4.0 to target version 9.0.2.0 is not supported, as the source version's release date (2026-05-26) is after the target version's release date (2026-01-20), making it a newer release."
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 20826,
+      "version": "9.1.0.0100",
+      "gaDate": 1780531200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 21327,
+      "version": "9.1.0.0200",
+      "gaDate": 1782259200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 21393,
+      "version": "9.1.0.0300",
+      "gaDate": 1782691200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 21443,
+      "version": "9.1.0.0400",
+      "gaDate": 1783555200000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    },
+    {
+      "id": 21583,
+      "version": "9.0.2.0100",
+      "gaDate": 1785196800000,
+      "genGuided": true,
+      "techGuided": true,
+      "releases": [
+        {
+          "id": 9217,
+          "version": "5",
+          "gaDate": 1685577600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17548,
+          "version": "5.1",
+          "gaDate": 1699315200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17602,
+          "version": "5.0.0.1",
+          "gaDate": 1695945600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 17851,
+          "version": "5.1.1",
+          "gaDate": 1711411200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18327,
+          "version": "5.2.0",
+          "gaDate": 1721692800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18331,
+          "version": "5.2.1",
+          "gaDate": 1728432000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18469,
+          "version": "9.0.0.0",
+          "gaDate": 1750118400000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 18595,
+          "version": "5.2.1.1",
+          "gaDate": 1733356800000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19053,
+          "version": "5.2.1.2",
+          "gaDate": 1745971200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19220,
+          "version": "9.1.0.0",
+          "gaDate": 1778457600000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 9.0.2.0100 to target version 9.1.0.0 is not supported, as the source version's release date (2026-07-28) is after the target version's release date (2026-05-11), making it a newer release."
+        },
+        {
+          "id": 19495,
+          "version": "5.2.2",
+          "gaDate": 1756944000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19502,
+          "version": "9.0.1.0",
+          "gaDate": 1759104000000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19808,
+          "version": "9.0.2.0",
+          "gaDate": 1768867200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 19852,
+          "version": "5.2.3.0",
+          "gaDate": 1771891200000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20690,
+          "version": "5.2.4.0",
+          "gaDate": 1779753600000,
+          "status": null,
+          "footnotes": null
+        },
+        {
+          "id": 20826,
+          "version": "9.1.0.0100",
+          "gaDate": 1780531200000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 9.0.2.0100 to target version 9.1.0.0100 is not supported, as the source version's release date (2026-07-28) is after the target version's release date (2026-06-04), making it a newer release."
+        },
+        {
+          "id": 20923,
+          "version": "9.1.1.0",
+          "gaDate": 1788307200000,
+          "status": 1,
+          "footnotes": ""
+        },
+        {
+          "id": 21327,
+          "version": "9.1.0.0200",
+          "gaDate": 1782259200000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 9.0.2.0100 to target version 9.1.0.0200 is not supported, as the source version's release date (2026-07-28) is after the target version's release date (2026-06-24), making it a newer release."
+        },
+        {
+          "id": 21393,
+          "version": "9.1.0.0300",
+          "gaDate": 1782691200000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 9.0.2.0100 to target version 9.1.0.0300 is not supported, as the source version's release date (2026-07-28) is after the target version's release date (2026-06-29), making it a newer release."
+        },
+        {
+          "id": 21443,
+          "version": "9.1.0.0400",
+          "gaDate": 1783555200000,
+          "status": 2,
+          "footnotes": "Upgrading SDDC Manager from source version 9.0.2.0100 to target version 9.1.0.0400 is not supported, as the source version's release date (2026-07-28) is after the target version's release date (2026-07-09), making it a newer release."
+        },
+        {
+          "id": 21583,
+          "version": "9.0.2.0100",
+          "gaDate": 1785196800000,
+          "status": null,
+          "footnotes": null
+        }
+      ]
+    }
+  ]
+}

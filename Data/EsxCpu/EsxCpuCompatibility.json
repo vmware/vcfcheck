@@ -1,0 +1,411 @@
+[
+  {
+    "Series": "AMD EPYC 7001 Series",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "7..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "AMD EPYC 7002/7Fx2/7Hx2 Series",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "7..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "AMD EPYC 7003/7003X Series",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "7...",
+      "7...."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "AMD EPYC 8004 Series",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "8..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "AMD EPYC 9004 Series",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "9..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "AMD EPYC 9005 Series",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "9..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Atom C3000 Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "C3..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon 6500P/6700P (Granite Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "65...",
+      "67..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon 6700P 4-Socket (Granite Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "67..."
+    ],
+    "SupportedEsx": [
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon 6900P (Granite Rapids-AP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "69..."
+    ],
+    "SupportedEsx": [
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon CPU Max 9400 (Sapphire-Rapids-HBM) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "94.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon D-1700 (Ice-Lake-D) Series ",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "17.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon D-2700 (Ice-Lake-D) Series ",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "27.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E-2100 Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "21.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E-2200 (4 or 6-core) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "22.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E-2200 (8-core) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "22.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E-2300 Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "23.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E-2400/Xeon 6300 Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "24..",
+      "63.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Gold 6100/5100, Silver 4100, Bronze 3100 (Skylake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "61..",
+      "51..",
+      "41..",
+      "31.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Gold 6200/5200 (Cascade-Lake-SP/Refresh) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "62..",
+      "52.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Gold 6300/5300 (Cooper-Lake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "63..",
+      "53.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Gold 6300/5300 (Ice-Lake-SP) Series ",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "63..",
+      "53.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Gold 6400/5400 (Sapphire-Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "64..",
+      "54.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Gold 6500/5500 (Emerald Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "65..",
+      "55.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8100 (Skylake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "81.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8200 (Cascade-Lake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "82.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8300 (Cooper-Lake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "83.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8300 (Ice-Lake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "83.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8400 (Sapphire-Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "84.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8500 (Emerald Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "85.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Silver 4200, Bronze 3200 (Cascade-Lake-SP/Refresh) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "42..",
+      "32.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Silver 4300 (Ice-Lake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "43.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Silver 4400, Bronze 3400 (Sapphire-Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "44..",
+      "34.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Silver 4500, Bronze 3500 (Emerald Rapids-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "45..",
+      "35.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Silver 4500, Bronze 3500 (Sapphire-Rapids-EE LCC) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "45..",
+      "35.."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  },
+  {
+    "Series": "Intel Xeon W-11000 Processor Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "11..."
+    ],
+    "SupportedEsx": [
+      "9.0",
+      "9.1"
+    ]
+  }
+]

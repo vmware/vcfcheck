@@ -1,0 +1,175 @@
+[
+  {
+    "Series": "AMD EPYC 7001 Series (Naples/Zen)",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "7..."
+    ],
+    "Status": "Deprecated",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x00800F10"
+    ]
+  },
+  {
+    "Series": "AMD EPYC 7002/7Fx2 Series (Rome/Zen2)",
+    "Vendor": "AMD",
+    "NumberPatterns": [
+      "7..."
+    ],
+    "Status": "Deprecated",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x00830F10"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8200/Gold 6200/5200/Silver 4200/Bronze 3200 (Cascade-Lake-SP/Refresh) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "82..",
+      "62..",
+      "52..",
+      "42..",
+      "32.."
+    ],
+    "Status": "Deprecated",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x00050656",
+      "0x00050657"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E-2100/E-2200 (4/6-core) Series (Coffee Lake)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "21..",
+      "22.."
+    ],
+    "Status": "Deprecated",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x000906EA",
+      "0x000906EB",
+      "0x000906EC"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E-2200 (8-core) Series (Coffee Lake Refresh)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "22.."
+    ],
+    "Status": "Deprecated",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x000906ED"
+    ]
+  },
+  {
+    "Series": "Intel Atom C3000 Series (Denverton)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "C3..."
+    ],
+    "Status": "Deprecated",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x000506F0"
+    ]
+  },
+  {
+    "Series": "Intel Xeon D-1500 Series (Broadwell-DE)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "D-?15.."
+    ],
+    "Status": "Discontinued",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x00050660"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E3-1200-V5/E3-1500-V5 Series (Skylake S)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "E3-12..\\s*[Vv]5",
+      "E3-15..\\s*[Vv]5"
+    ],
+    "Status": "Discontinued",
+    "DiscontinuedFromEsx": "9.2",
+    "CpuIds": [
+      "0x000506E3"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E5-2600-V4/E5-1600-V4/E5-4600-V4/E7-8800-4800-V4 Series (Broadwell-EP)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "E5-26..\\s*[Vv]4",
+      "E5-16..\\s*[Vv]4",
+      "E5-46..\\s*[Vv]4",
+      "E7-88..\\s*[Vv]4",
+      "E7-48..\\s*[Vv]4"
+    ],
+    "Status": "Discontinued",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x000406F0"
+    ]
+  },
+  {
+    "Series": "Intel Xeon E3-1200-v6 Series (Kaby Lake S)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "E3-12..\\s*[Vv]6"
+    ],
+    "Status": "Discontinued",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x000906E9"
+    ]
+  },
+  {
+    "Series": "Intel Xeon Platinum 8100/Gold 6100/5100/Silver 4100/Bronze 3100 (Skylake-SP) Series",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "81..",
+      "61..",
+      "51..",
+      "41..",
+      "31.."
+    ],
+    "Status": "Discontinued",
+    "DiscontinuedFromEsx": "9.2",
+    "CpuIds": [
+      "0x00050654"
+    ]
+  },
+  {
+    "Series": "Intel Xeon D-2100 Series (Skylake-D)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "D-?21.."
+    ],
+    "Status": "Discontinued",
+    "DiscontinuedFromEsx": "9.2",
+    "CpuIds": [
+      "0x00050654"
+    ]
+  },
+  {
+    "Series": "Intel Xeon W-2100 Series (Skylake-W)",
+    "Vendor": "Intel",
+    "NumberPatterns": [
+      "W-?21.."
+    ],
+    "Status": "Discontinued",
+    "DiscontinuedFromEsx": null,
+    "CpuIds": [
+      "0x00050654"
+    ]
+  }
+]

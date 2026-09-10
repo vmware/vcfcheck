@@ -1,0 +1,974 @@
+{
+  "sample": {
+    "function": "Test-VcfSampleCheck",
+    "area": "Sample",
+    "displayName": "Engine Skeleton Smoke Test",
+    "blocking": false,
+    "requiresConnections": [],
+    "information": "",
+    "validationCriteria": "Invoke-VcfCheck can resolve, run, and report on this check.",
+    "remediation": ""
+  },
+  "sddc_version_alias_check": {
+    "function": "Test-VcfSddcVersionAliasCheck",
+    "area": "SDDC Manager",
+    "displayName": "Hotfix Version Alias Coverage",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "For background on LCM version aliasing, see: [Understanding the VersionAlias.yml file in SDDC Manager](https://knowledge.broadcom.com/external/article/314649/understanding-the-versionaliasyml-file-i.html)",
+    "validationCriteria": "Every vCenter, ESX host, and NSX Manager in each domain either matches the current release's declared BOM version, or is covered by a registered SDDC Manager version alias.",
+    "remediation": "For each build reported as uncovered, either update the component to the version declared in the current release's BOM, or register a version alias mapping that build to its equivalent base version via SDDC Manager's Version Alias configuration (PUT /v1/system/settings/version-aliases) before proceeding with the upgrade."
+  },
+  "sddc_bom_check": {
+    "function": "Test-VcfSddcBomCheck",
+    "area": "SDDC Manager",
+    "displayName": "VCF Bill of Materials Upgrade Readiness Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "Component compliance is determined primarily by checking a copy of Broadcom’s interoperability matrices, which detail the upgrade path between the installed version and the target VCF release (default 9.1.0.0). If the matrix lacks data for that exact pair, the system falls back to a minimum-version floor resolved from the connected SDDC Manager's release catalog. [SDDC Manager](https://interopmatrix.broadcom.com/Upgrade?productId=851); [ESX](https://interopmatrix.broadcom.com/Upgrade?productId=1&isHidePatch=false); [vCenter](https://interopmatrix.broadcom.com/Upgrade?productId=2&isHidePatch=false); [NSX](https://interopmatrix.broadcom.com/Upgrade?productId=912&isHidePatch=false)",
+    "validationCriteria": "Check SDDC Manager, vCenter, ESX, and NSX compatibility against Broadcom’s interoperability matrices for the target VCF release, falling back to minimum-version floors when matrix data is unavailable. Components are evaluated independently.",
+    "remediation": "Upgrade any component reported below its minimum version until it meets the destination release's requirement. If a component instead reports 'incompatible' via the Interop Matrix, upgrading it further will not help - wait until a newer VCF 9.x release is posted before attempting the upgrade."
+  },
+  "sddc_lock_table": {
+    "function": "Test-VcfSddcLockTable",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager Platform Lock Table",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresSddcManagerRootCredential": true,
+    "information": "",
+    "validationCriteria": "Check if the platform.lock table in SDDC Manager's internal database contains no rows.",
+    "remediation": "Visit Broadcom KB [439473](https://knowledge.broadcom.com/external/article/439473/sddc-manager-health-check-fails-with-res.html) for instructions on identifying and clearing the stale lock."
+  },
+  "sddc_check_failed_tasks": {
+    "function": "Test-VcfSddcCheckFailedTasks",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager Failed Tasks",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "",
+    "validationCriteria": "",
+    "remediation": "Review the failed task(s) in SDDC Manager and resolve any underlying issue(s) before proceeding with your VCF upgrade. If you are unfamiliar with the cause, please contact support."
+  },
+  "sddc_check_license_key": {
+    "function": "Test-VcfSddcCheckLicenseKey",
+    "area": "SDDC Manager",
+    "displayName": "VCF License Key Expiration",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "",
+    "validationCriteria": "No VCF-managed license key is expired or expiring within the configured warning threshold.",
+    "remediation": "Renew or replace the affected license key(s) in SDDC Manager before proceeding with the upgrade. For instructions on downloading renewed license keys, see [KB 145804](https://knowledge.broadcom.com/external/article/145804/download-license-keys-for-broadcom-ca-sy.html)."
+  },
+  "sddc_check_repositories": {
+    "function": "Test-VcfSddcCheckRepositories",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager Depot Account Status",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "",
+    "validationCriteria": "Verify that the depot is configured correctly to ensure one can upgrade to VCF 9.x.",
+    "remediation": "To reconfigure an online depot with a Download Token visit [KB 390098](https://knowledge.broadcom.com/external/article/390098). For general help view [Connect SDDC Manager to a Software Depot for Downloading Bundles](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2/vmware-cloud-foundation-lifecycle-management/downloading-vmware-cloud-foundation-bundles-lifecycle/connect-sddc-manager-to-a-software-depot-for-downloading-bundles-lifecycle.html)"
+  },
+  "vcenter_verify_certificate_expirationdate": {
+    "function": "Test-VcfVcenterVerifyCertificateExpirationdate",
+    "area": "vCenter",
+    "displayName": "vCenter and ESX Certificate Expiration",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "",
+    "remediation": "Renew the affected certificate(s) (e.g. via vSphere Certificate Management) before proceeding with the upgrade."
+  },
+  "vcenter_multiwriter_enabled_vm": {
+    "function": "Test-VcfVcenterMultiwriterEnabledVm",
+    "area": "vCenter",
+    "displayName": "Multiwriter-Enabled Virtual Disks",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "No VM attach to this any vCenter has a multiwriter-enabled virtual disk.",
+    "remediation": "Multiwriter-enabled disks may add a level of complexity to upgrade planning, particularly around Storage vMotion limitations. Review these limitations at [Storage migration of virtual machines with Shared VMDKs](https://knowledge.broadcom.com/external/article/390585/storage-migration-of-virtual-machines-wi.html) and plan accordingly before the upgrade. Further reading on limitations such as lack of snapshot support is available in [KB 383195](https://knowledge.broadcom.com/external/article/383195/understanding-multiwriter-disks-and-thei.html). Before proceeding, confirm your upgrade plan does not require Storage vMotion or host maintenance-mode evacuation for any VM listed above."
+  },
+  "vcenter_snapshot_size": {
+    "function": "Test-VcfVcenterSnapshotSize",
+    "area": "vCenter",
+    "displayName": "Management Appliance Snapshot Size",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every management-appliance VM (SDDC Manager, vCenter, VRSLCM) has no snapshot larger than 5GB (50GB is blocking).",
+    "remediation": "The identified VMs are running on a snapshot (or have left-over snapshot files). Coordinate with the customer to delete/consolidate snapshots on these VMs per their downtime window - do not delete snapshots on the customer's behalf."
+  },
+  "vcenter_detect_legacy_plugin": {
+    "function": "Test-VcfVcenterDetectLegacyPlugin",
+    "area": "vCenter",
+    "displayName": "Legacy Plugin Detection",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Reports whether legacy, EOL vCenter plugins - Site Recovery Manager (SRM) or Dell EMC RecoveryPoint (extension key com.emc.recoverpoint.vwc) - are registered as vCenter extensions on any vCenter attached to SDDC Manager.",
+    "remediation": "If Site Recovery Manager is registered, it is EOL - see https://techdocs.broadcom.com/us/en/vmware-cis/live-recovery/live-recovery-appliance/9-0-5/next-release-is-part-of-protection-and-recovery.html and plan to transition as part of the VCF 9 upgrade. If Dell EMC RecoveryPoint is registered, it is EOL - see https://www.dell.com/support/product-details/en-us/product/recoverpoint-for-virtual-machines/overview and remove it before upgrading to VCF 9. See this result's Detail for which plugin(s) were actually found."
+  },
+  "vcenter_detect_hcxplugin": {
+    "function": "Test-VcfVcenterDetectHcxplugin",
+    "area": "vCenter",
+    "displayName": "HCX Plugin Detection",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Informational: reports whether the HCX plugin is registered as a vCenter extension.",
+    "remediation": "HCX must be upgraded to HCX 9.1 before upgrading to VCF 9.1. See [VMware HCX Compatibility and Upgrade Requirements for VCF 9.1](https://knowledge.broadcom.com/external/article/450437/vmware-hcx-compatibility-and-upgrade-req.html)."
+  },
+  "vcenter_appliance_size_check": {
+    "function": "Test-VcfVcenterApplianceSizeCheck",
+    "area": "vCenter",
+    "displayName": "vCenter Appliance Size Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Each vCenter appliance's live host/VM inventory is within its current VCSA size tier, and its measured disk total matches one of that tier's VCSA disk tiers.",
+    "remediation": "If undersized, manually resize the appliance to the recommended size tier via the SDDC Manager API when you upgrade - this result's Detail lists the required vCPU/RAM/disk. If the disk is disjoint (does not match any preset for its tier), VCSA does not support arbitrary disk sizes: you must perform an SDDC Manager API driven vCenter upgrade to move to the next disk tier - the numbered API call sequence is in this result's Detail."
+  },
+  "vcenter_detect_vsphere_supervisor": {
+    "function": "Test-VcfVcenterDetectSupervisor",
+    "area": "vCenter",
+    "displayName": "vSphere Supervisor Cluster Detection",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Informational: reports whether any Supervisor (Workload Management) cluster is enabled. Warns when a Supervisor-enabled cluster is still vLCM baseline (VUM) managed.",
+    "remediation": "You cannot transition a vSphere Supervisor-enabled cluster from vLCM baselines (VUM) to vLCM images until its managing vCenter has been upgraded to vCenter 9.0. Upgrade the managing vCenter named in this result's Detail before attempting the transition. See [Prerequisites for Transitioning to vSphere Lifecycle Manager Images](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-0/deployment/upgrading-cloud-foundation/upgrade-the-management-domain-to-vmware-cloud-foundation-5-2/vlcm-baseline-to-vlcm-image-cluster-transition-/prerequisites-for-transitioning-to-vsphere-lifecycle-manager-images.html) for details."
+  },
+  "vcenter_machine_id_check": {
+    "function": "Test-VcfVcenterMachineIdCheck",
+    "area": "vCenter",
+    "displayName": "vCenter VMAFD Machine ID",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresVcenterRootCredential": true,
+    "information": "VMAFD (VMware Authentication Framework Daemon) manages the vCenter appliance's identity in vmdir. This check confirms VMAFD's machine ID matches the machine ID vpxd has recorded for it in vpxd.cfg; a missing, malformed, or mismatched machine ID indicates a corrupted VMAFD/vmdir identity, which can block VCF upgrade operations.",
+    "validationCriteria": "vmafd-cli get-machine-id returns a well-formed GUID for the vCenter appliance, and that GUID matches the machine ID recorded in /etc/vmware-vpx/vpxd.cfg.",
+    "remediation": "A missing, malformed, or mismatched machine ID indicates a corrupted VMAFD identity - review Broadcom KB [71375](https://knowledge.broadcom.com/external/article?legacyId=71375) and contact Broadcom Support for next steps before proceeding with the upgrade."
+  },
+  "esx_lockdown_status": {
+    "function": "Test-VcfEsxLockdownStatus",
+    "area": "ESX",
+    "displayName": "ESX Lockdown Mode",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "Lockdown Mode is part of a secure ESX configuration (see [Enabling or disabling Lockdown mode on an ESXi host](https://knowledge.broadcom.com/external/article/336894/enabling-or-disabling-lockdown-mode-on-a.html)). ESX can be upgraded while Lockdown Mode is enabled as long as the host's VCF service account ('svc-vcf-<host_shortname>') is present in that host's Lockdown Mode Exception Users list.",
+    "validationCriteria": "For every ESX host with Lockdown Mode enabled, its VCF service account ('svc-vcf-<host_shortname>') is present in that host's Lockdown Mode Exception Users list.",
+    "remediation": "See [ESXi Update Fails with Error \"Upgrade is not supported...\"](https://knowledge.broadcom.com/external/article/435394/esxi-update-fails-with-error-upgrade-is.html) to add the missing VCF service account to the host's Lockdown Mode Exception Users list."
+  },
+  "esx_execInstalledOnly_check": {
+    "function": "Test-VcfEsxExecInstalledOnlyCheck",
+    "area": "ESX",
+    "displayName": "ESX execInstalledOnly Enforcement",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "execInstalledOnly is a part of Secure ESX configuration. For more details, see [Activate or Deactivate the execInstalledOnly Enforcement for a Secure ESXi Configuration](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-security/securing-esxi-hosts/securing-the-esxi-configuration/managing-a-secure-esxi-configuration/enable-or-disable-the-execinstalledonly-enforcement-for-a-secure-esxi-configuration.html)",
+    "validationCriteria": "Reports whether VMkernel.Boot.execInstalledOnly is enabled or disabled on every ESX host in a workload domain.",
+    "remediation": "If a host should be hardened per the vSphere Security Configuration Guide, enable VMkernel.Boot.execInstalledOnly as described in [Activate or Deactivate the execInstalledOnly Enforcement for a Secure ESXi Configuration](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-security/securing-esxi-hosts/securing-the-esxi-configuration/managing-a-secure-esxi-configuration/enable-or-disable-the-execinstalledonly-enforcement-for-a-secure-esxi-configuration.html), then reboot the host for the setting to take effect."
+  },
+  "vsan_health_check": {
+    "function": "Test-VcfVsanHealthCheck",
+    "area": "vSAN",
+    "displayName": "vSAN Cluster Health",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every vSAN-enabled cluster's overall health status is green.",
+    "remediation": "Review the vSAN health findings in the vSphere Client (Cluster > Monitor > vSAN > Skyline Health) and resolve any failing tests before proceeding with the upgrade."
+  },
+  "vsan_check_disks_and_groups": {
+    "function": "Test-VcfVsanCheckDisksAndGroups",
+    "area": "vSAN",
+    "displayName": "vSAN Disk Group Mount Status",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every vSAN disk group across every vCenter attached to SDDC Manager is mounted, and every disk reports a healthy checksum/CMMDS/host-usage state.",
+    "remediation": "Investigate the specific disk(s)/disk group(s) and failure reason(s) named in the Detail message and results table (Cluster > Configure > vSAN > Disk Management) before proceeding with the upgrade - the Detail message links the Broadcom KB matching each failure found."
+  },
+  "vsan_diskformat_version_check": {
+    "function": "Test-VcfVsanDiskformatVersionCheck",
+    "area": "vSAN",
+    "displayName": "vSAN Disk Format Compatibility",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "For background on vSAN on-disk format versions, see: [Understanding vSAN on-disk format versions and compatibility](https://knowledge.broadcom.com/external/article/327034/understanding-vsan-ondisk-format-version.html)",
+    "validationCriteria": "Every vSAN-enabled cluster's on-disk format is at or above the minimum version required by current vSphere releases, and vCenter's own DiskFormatCompatibility assessment reports the format can be updated with no issues.",
+    "remediation": "If the disk format is below the minimum supported version, upgrade it following [Upgrade vSAN on-disk format versions](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2/vmware-cloud-foundation-lifecycle-management/upgrade-the-management-domain-to-vmware-cloud-foundation-5-2-lifecycle/upgrade-vsan-on-disk-format-versions-lifecycle.html). Otherwise, resolve the reported disk-format update issue(s) (Cluster > Configure > vSAN > Disk Management) before proceeding with the upgrade."
+  },
+  "vsan_witnessnode_version": {
+    "function": "Test-VcfVsanWitnessnodeVersion",
+    "area": "vSAN",
+    "displayName": "vSAN Witness Host Version",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every stretched cluster's witness host ESX version/build matches its data hosts.",
+    "remediation": "Upgrade the witness appliance (or the mismatched data host(s)) so all hosts in the stretched cluster run the same ESX version/build."
+  },
+  "vsan_inaccessible_objects": {
+    "function": "Test-VcfVsanInaccessibleObjects",
+    "area": "vSAN",
+    "displayName": "vSAN Inaccessible Objects",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every vSAN object attached to this vCenter returns a healthy vSanHealth state.",
+    "remediation": "Investigate the affected object(s) (Cluster > Monitor > vSAN > Virtual Objects) - resolve before proceeding with the upgrade, since inaccessible objects can indicate data unavailability."
+  },
+  "nsxt_backup_history": {
+    "function": "Test-VcfNsxtBackupHistory",
+    "area": "NSX",
+    "displayName": "NSX Manager Backup History",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "NSX Manager has at least one successful backup on record and no failed backup as the most recent status.",
+    "remediation": "Configure and run an NSX Manager backup (System > Lifecycle Management > Backup & Restore) before proceeding with the upgrade. See [Configure Backups](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/administration-guide/backing-up-and-restoring-the-nsx-manager/configure-backup-location.html)."
+  },
+  "nsxt_alarms": {
+    "function": "Test-VcfNsxtAlarms",
+    "area": "NSX",
+    "displayName": "NSX Manager Open Alarms",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "No open NSX Manager alarm has ERROR severity.",
+    "remediation": "Review and resolve the affected alarm(s) (System > Alarms in the NSX Manager UI) before proceeding with the upgrade. See [Working with Events and Alarms](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-0/administration-guide/system-monitoring/working-with-events-and-alarms.html)."
+  },
+  "nsxt_check_napp_intelligence": {
+    "function": "Test-VcfNsxtCheckNappIntelligence",
+    "area": "NSX",
+    "displayName": "NSX Application Platform (NAPP) Registration",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "Every registered NSX Application Platform cluster is connected.",
+    "remediation": "Investigate NSX Application Platform connectivity (System > NSX Application Platform in the NSX Manager UI) before proceeding with the upgrade. Note: NSX Application Platform (NAPP) is no longer supported and has been superseded by Security Services Platform (SSP) - after validating your license entitlements, consider migrating by first [removing NAPP](https://techdocs.broadcom.com/us/en/vmware-security-load-balancing/vdefend/vmware-nsx-application-platform/4-2/deploying-and-managing-the-nsx-application-platform/managing-the-nsx-application-platform/delete-the-nsx-application-platform.html), then [installing SSP](https://techdocs.broadcom.com/us/en/vmware-security-load-balancing/vdefend/security-services-platform/5-2.html)."
+  },
+  "nsxt_latency_profile_check": {
+    "function": "Test-VcfNsxtLatencyProfileCheck",
+    "area": "NSX",
+    "displayName": "NSX Latency Profile (pNIC Latency Stats)",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "Check if NSX is older than 4.2.1.2 and has latency profile(s), a combination which could interrupt the upgrade process.",
+    "remediation": "Upgrade to NSX 4.2.1.2 or later or disable affected latency profile(s) before proceeding with the upgrade. Please see [KB 376769](https://knowledge.broadcom.com/external/article/376769/nsx-manager-upgrade-prechecks-failure-fo.html) for details."
+  },
+  "vrslcm_fetch_products": {
+    "function": "Test-VcfVrslcmFetchProducts",
+    "area": "Aria Suite",
+    "displayName": "Aria Suite Component Version Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "For more information, review our interoperability matrixes. [Aria Automation](https://interopmatrix.broadcom.com/Upgrade?productId=114&isHidePatch=false&isHideLegacyReleases=false); [Aria Operations](https://interopmatrix.broadcom.com/Upgrade?productId=116&isHidePatch=false); [Aria Operations for Networks](https://interopmatrix.broadcom.com/Upgrade?productId=285&isHidePatch=false); [Aria Automation Orcestrator](https://interopmatrix.broadcom.com/Upgrade?productId=13&isHidePatch=false); [Aria Suite Lifecycle Manager](https://interopmatrix.broadcom.com/Upgrade?productId=337&isHidePatch=false) ; [Aria Operations for Logs](https://interopmatrix.broadcom.com/Upgrade?productId=88&isHidePatch=false) ; [Workspace One Identity Manager](https://interopmatrix.broadcom.com/Upgrade?productId=140&isHidePatch=false&isHideLegacyReleases=false)",
+    "validationCriteria": "Check if Aria Suite components meet the minimum criteria for upgrade to VCF 9.x",
+    "remediation": "Upgrade to the required version. If instead flagged 'incompatible' via the Interop Matrix, wait until a newer VCF 9.x release is posted before attempting the upgrade."
+  },
+  "vrslcm_root_password_expiration": {
+    "function": "Test-VcfVrslcmRootPasswordExpiration",
+    "area": "Aria Suite",
+    "displayName": "Aria Suite Appliance Root Password Expiration Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "requiresVcenterRootCredential": true,
+    "validationCriteria": "Verify that the root guest OS account on each Aria Suite appliance is at least 30 days away from expiration.",
+    "remediation": "Change the root password before it expires (or if it already has) by following [Changing root passwords on VMware Aria Automation, Orchestrator and Configuration using VMware Aria Suite Lifecycle](https://knowledge.broadcom.com/external/article/322695/changing-root-passwords-on-vmware-aria-a.html) or run `chage -M 99999 <user>` on the affected appliance to disable password expiration."
+  },
+  "vrslcm_certificate_expiration": {
+    "function": "Test-VcfVrslcmCertificateExpiration",
+    "area": "Aria Suite",
+    "displayName": "Aria Suite Lifecycle Manager Certificate Expiration Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every certificate managed by Aria Suite Lifecycle Manager, for itself and every registered Aria product, should be valid for at least 30 days.",
+    "remediation": "See the Detail message to identify which case applies: for an expired or soon-to-expire certificate, replace it before it expires - see [Replace certificate for VMware Aria Suite Lifecycle products](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-suite-lifecycle/8-12/vmware-aria-suite-lifecycle-installation-upgrade-and-management-8-12/managing-environments/managing-vrealize-suite-products-in-a-private-cloud/replace-certificate-for-vrslcm-products.html). For a certificate that could not be checked due to an Aria Suite Lifecycle Manager API/data issue, investigate Aria Suite Lifecycle Manager's connectivity and locker health instead - no certificate replacement is needed for that case."
+  },
+  "vrslcm_disk_space_report": {
+    "function": "Test-VcfVrslcmDiskSpace",
+    "area": "Aria Suite",
+    "displayName": "Aria Suite Lifecycle Manager Disk Space Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "An upgrade to vRSLCM 8.18 may be required to upgrade Aria Suite components to the minimum version required to upgrade to VCF 9.x",
+    "validationCriteria": "Checks for at least 3GB of free space on vRSLCM's root volume to facilitate upgrades.",
+    "remediation": "Visit the following KB to resolve the free space issue: https://knowledge.broadcom.com/external/article?legacyId=95238"
+  },
+  "aria_ops_adapter_collection_status": {
+    "function": "Test-VcfAriaOpsAdapterCollectionStatus",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Adapter Collection Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Checks that every Aria Operations adapter instance has at least one monitored resource actively receiving data.",
+    "remediation": "For any adapter instance not collecting data, check the adapter instance's configuration and credentials in Aria Operations (Data Sources > Integrations), and verify network connectivity from the adapter's collector to the monitored endpoint."
+  },
+  "aria_ops_collector_status": {
+    "function": "Test-VcfAriaOpsCollectorStatus",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Collector Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Checks that every Aria Operations collector (primary appliance and any remote collectors) reports an 'UP' State.",
+    "remediation": "For any collector reporting 'DOWN', check the collector's service status and network connectivity to Aria Operations, then restart the collector service if needed. See [Working with Remote Collectors](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/getting-started-with-vmware-aria-operations/managing-remote-collectors-and-remote-collector-groups/managing-remote-collectors.html)."
+  },
+  "aria_ops_collector_type": {
+    "function": "Test-VcfAriaOpsCollectorType",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Collector Type Inventory",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Reports the deployment Type (INTERNAL, REMOTE, CLOUD_PROXY, AAP, OTHER) of every Aria Operations collector for reviewer visibility.",
+    "remediation": "No remediation needed - this is an inventory check with no failure condition."
+  },
+  "aria_ops_critical_alerts": {
+    "function": "Test-VcfAriaOpsCriticalAlerts",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Open Alerts",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Checks that Aria Operations has no active alerts of 'CRITICAL' or 'IMMEDIATE' criticality.",
+    "remediation": "Review each flagged alert in Aria Operations (Alerts > Active Alerts) to identify and resolve the underlying condition on the affected resource before proceeding with the upgrade."
+  },
+  "aria_ops_certificate_expiration": {
+    "function": "Test-VcfAriaOpsCertificateExpiration",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Certificate Expiration Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every certificate registered with Aria Operations should be valid for at least 30 days.",
+    "remediation": "For an expired or soon-to-expire certificate, replace it in Aria Operations (Administration > Certificates). See [Managing Certificates in VMware Aria Operations](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations/8-18/getting-started-with-vmware-aria-operations/administering-vmware-aria-operations/managing-certificates.html)."
+  },
+  "aria_ops_license": {
+    "function": "Test-VcfAriaOpsLicensing",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Licensing Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every non-permanent Aria Operations license should be valid for at least 30 days.",
+    "remediation": "For an expired or soon-to-expire license, renew it in Aria Operations (Administration > Licensing) before proceeding with the upgrade."
+  },
+  "aria_ops_lifecycle_status": {
+    "function": "Test-VcfAriaOpsLifecycleStatus",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Lifecycle Status Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Aria Operations' installed version should be compatible with the selected VCF destination release per Broadcom's Interop Matrix (or meet the minimum version floor).",
+    "remediation": "Upgrade Aria Operations to a version the Interop Matrix reports as Compatible with the target VCF destination release before proceeding."
+  },
+  "aria_ops_sizing_overview": {
+    "function": "Test-VcfAriaOpsSizingOverview",
+    "area": "Aria Suite",
+    "displayName": "Aria Operations Sizing Overview",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Reports Aria Operations' own self-monitored CPU, memory, disk, network, and object-count metrics for reviewer visibility, and flags any self-monitoring resource reporting no sizing-related metrics (resource kinds that never publish sizing metrics, such as Watchdog or Admin UI, are marked Skipped rather than Warning).",
+    "remediation": "Investigate the self-monitoring resource(s) flagged Warning in the results table - a resource reporting no sizing-related metrics may indicate a stale, disconnected, or misconfigured Aria Operations node. Review the reported values against Aria Operations' sizing guidelines manually. Resources flagged Skipped are expected - those resource kinds do not publish sizing metrics and require no action."
+  },
+  "aria_appliance_disk_space_report": {
+    "function": "Test-VcfAriaApplianceDiskSpace",
+    "area": "Aria Suite",
+    "displayName": "Aria Suite Appliance Disk Space Report",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "requiresVcenterRootCredential": true,
+    "validationCriteria": "Checks / (warn above 90%), /storage/db (warn above 80%), /storage/core (warn above 97%), and /storage/log (warn above 90%) utilization on every deployed Aria Suite appliance (Aria Operations, Aria Operations for Logs, Aria Automation, Workspace ONE Access). Fails if any of these mounts is at 100% utilization.",
+    "remediation": "Free up disk space on the affected appliance, then resize/expand the mount if the underlying disk cannot free up enough space. See the KB for the affected product: [Aria Operations](https://knowledge.broadcom.com/external/article/318408), [Aria Automation](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-automation/8-18/vmware-aria-automation-on-prem-administering-8-18/maintaining-your-appliance/increase-appliance-disk.html), [Aria Operations for Logs](https://techdocs.broadcom.com/us/en/vmware-cis/aria/aria-operations-for-logs/8-18/aria-operations-for-logs-8-18/troubleshooting-vrealize-log-insight/log-insight-runs-out-of-disk-space.html), [Aria Operations for Networks](https://knowledge.broadcom.com/external/article/314424/resolving-disk-space-issues-with-an-vcf.html), [Aria Suite Lifecycle Manager](https://knowledge.broadcom.com/external/article/431340/increase-root-filesystem-for-vmware-ari.html)."
+  },
+  "vcenter_ipfix_netflow_enabled": {
+    "function": "Test-VcfVcenterIpfixNetflowEnabled",
+    "area": "vCenter",
+    "displayName": "IPFIX/NetFlow Configuration Consistency",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "IPFIX/NetFlow (VDS Config.IpfixConfig.CollectorIpAddress) is configured consistently across all distributed virtual switches on every vCenter attached to SDDC Manager - either enabled everywhere or nowhere, not a mix.",
+    "remediation": "Review IPFIX/NetFlow configuration on the affected distributed virtual switch(es) and either enable or disable it consistently."
+  },
+  "vcenter_check_drs_and_affinity_rules": {
+    "function": "Test-VcfVcenterCheckDrsAndAffinityRules",
+    "area": "vCenter",
+    "displayName": "DRS Affinity/Anti-Affinity Rules",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "See [Should DRS Affinity Rules be disabled when upgrading ESX hosts in a cluster](https://knowledge.broadcom.com/external/article/421742/should-drs-affinity-rules-be-disabled-wh.html) for guidance on whether DRS affinity rules should be disabled during upgrade.",
+    "validationCriteria": "Reports whether any DRS VM/VM or VM/Host affinity/anti-affinity rule is configured with Mandatory set to true - a mandatory rule must be honored during placement and can constrain host evacuation during an upgrade, unlike a non-mandatory rule.",
+    "remediation": ""
+  },
+  "vcenter_check_hosts": {
+    "function": "Test-VcfVcenterCheckHosts",
+    "area": "vCenter",
+    "displayName": "ESX Host Power State",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every ESX host in this vCenter is powered on and in a connected state.",
+    "remediation": "Power on or reconnect the affected host(s), or remove them from inventory, before proceeding with the upgrade."
+  },
+  "vcenter_check_hosts_memory_usage": {
+    "function": "Test-VcfVcenterCheckHostsMemoryUsage",
+    "area": "vCenter",
+    "displayName": "ESX Host Memory Utilization",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every ESX host is below 95% memory utilization (RED); 80%-95% is flagged as YELLOW and also treated as a Warning.",
+    "remediation": "Reduce memory pressure on the affected host(s) (migrate VMs, adjust reservations) before proceeding with the upgrade."
+  },
+  "vcenter_check_datastore_space": {
+    "function": "Test-VcfVcenterCheckDatastoreSpace",
+    "area": "vCenter",
+    "displayName": "Datastore Free Space",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Reports free space and capacity for every datastore visible attach vCenter. Warns on datastores that are inaccessible, or over 80% full for vSAN datastores / over 90% full for other datastore types, unless the datastore is fully in maintenance mode.",
+    "remediation": "Free up space on, or repair access to, the flagged datastore(s) before proceeding with the upgrade - see each flagged datastore's own Notes for a KB article covering its specific issue (inaccessible, or over the vSAN/other capacity threshold)."
+  },
+  "vcenter_vds_version_check": {
+    "function": "Test-VcfVcenterVdsVersionCheck",
+    "area": "vCenter",
+    "displayName": "Distributed Virtual Switch Version",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Every distributed virtual switch on every vCenter attached to SDDC Manager is at version 7.0 or higher, as required by vCenter Server 9.0.",
+    "remediation": "Follow https://knowledge.broadcom.com/external/article/318256/source-vcenter-server-has-instances-of-d.html to upgrade the distributed virtual switch(es) below version 7.0 before proceeding with the upgrade."
+  },
+  "esx_hardware_details": {
+    "function": "Test-VcfEsxHardwareDetails",
+    "area": "ESX",
+    "displayName": "ESX Hardware Summary and CPU Compatibility Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "validationCriteria": "Reports BIOS version, Server Vendor/Model, CPU, vSAN disk compatibility network adapters, HBAs, and SCSI devices for every ESX host in a workload domain, and flags any host CPU that is unlisted, deprecated, or discontinued for the target ESX release",
+    "remediation": "Confirm the flagged host's CPU against Broadcom's server/CPU Hardware Compatibility Guide (https://compatibilityguide.broadcom.com/) before upgrading - it may be a genuinely unsupported CPU, or a newer/rebranded model this check's offline snapshot does not yet recognize. For a CPU flagged as deprecated or discontinued, see https://knowledge.broadcom.com/external/article/318697 for details on Broadcom's CPU support removal timeline."
+  },
+  "esx_image_profile": {
+    "function": "Test-VcfEsxImageProfile",
+    "area": "ESX",
+    "displayName": "ESX Image Profile",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "Displays the ESX build for the ESX hosts attached to the vCenter for this workload domain, plus each cluster's vLCM Add-on, Components, and Firmware & Drivers Add-on (reported as N/A for a vLCM baseline (VUM) managed cluster).",
+    "validationCriteria": "",
+    "remediation": ""
+  },
+  "nsxt_federation_check": {
+    "function": "Test-VcfNsxtFederationCheck",
+    "area": "NSX",
+    "displayName": "NSX Federation Configuration",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "Detects whether NSX Federation site configuration is present (matches legacy behavior - presence alone is flagged, not a certificate/health check). Not applicable, and Skipped, when no federation configuration exists.",
+    "remediation": "Federation Global Managers require additional steps as part of the VCF 9 upgrade process - see [Upgrading NSX in a Federated Environment](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-0/deployment/upgrading-cloud-foundation/upgrade-the-management-domain-to-vmware-cloud-foundation-5-2/upgrading-nsx--to-version-9/upgrade-nsx-in-a-federated-environment.html)"
+  },
+  "sddc_check_cores_and_vsan_tib": {
+    "function": "Test-VcfSddcCheckCpuCoresAndVsanTib",
+    "area": "SDDC Manager",
+    "displayName": "vCenter Core and vSAN TiB Report",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "Reports cores and vSAN TiB to assist with license estimation.",
+    "validationCriteria": "",
+    "remediation": ""
+  },
+  "sddc_check_vlcm_vum": {
+    "function": "Test-VcfSddcCheckVlcmVum",
+    "area": "SDDC Manager",
+    "displayName": "vSphere Lifecycle Manager (vLCM) Enablement",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "vLCM cluster management is required to upgrade the hosts in a cluster to ESX 9.0 or later.",
+    "validationCriteria": "Checks if the clusters in a workload domain are managed by vLCM baselines (VUM) or vLCM images.",
+    "remediation": "To learn more visit [Transition to vSphere Lifecycle Manager (vLCM) Images using SDDC Manager vLCM](https://knowledge.broadcom.com/external/article/385617/)"
+  },
+  "vcenter_disk_space_inode_and_hprof_check": {
+    "function": "Test-VcfVcenterCheckDiskSpaceInodeAndHprof",
+    "area": "vCenter",
+    "displayName": "vCenter Appliance Disk Space, Inode, and Heap Dump Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresVcenterRootCredential": true,
+    "information": "",
+    "validationCriteria": "Every filesystem on the vCenter appliance is below 80% disk space and inode utilization, and no .hprof (Java heap dump) files are present.",
+    "remediation": "Free up disk space/inodes on the affected filesystem(s) before proceeding with the upgrade. If heap dump files are present, investigate the service crash that produced them, then remove them to reclaim disk space - see [Resolving storage/log disk space issues](https://knowledge.broadcom.com/external/article/375839/resolving-storagelog-disk-space-issues-c.html)."
+  },
+  "vcenter_root_credentials_validity": {
+    "function": "Test-VcfVcenterRootCredentialsValidity",
+    "area": "vCenter",
+    "displayName": "vCenter Appliance Root Password Expiration",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresVcenterRootCredential": true,
+    "information": "",
+    "validationCriteria": "No vCenter appliance root account password expires within 30 days. If automatic rotation is disabled, manual action will be required to rotate that password before it expires.",
+    "remediation": "Update the vCenter appliance root account password through SDDC Manager before proceeding with the upgrade. If automatic rotation is disabled, either enable scheduled auto-rotation or plan to rotate the password manually before it expires. See [Configure Security Settings for SDDC Manager by Using the SDDC Manager UI](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2/security-and-compliance-configuration-for-vmware-cloud-foundation-5-2/securing-sddc-manager/configure-sddc-manager.html). In an emergency where SDDC Manager itself is unreachable, the root password can instead be rotated directly on the vCenter appliance - see [KB 321369](https://knowledge.broadcom.com/external/article/321369) - but SDDC Manager's own credential record must then be updated to match, or it will keep tracking the old password."
+  },
+  "vcenter_CRLs": {
+    "function": "Test-VcfVcenterCRLs",
+    "area": "vCenter",
+    "displayName": "vCenter Trusted Root CRL Accumulation Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresVcenterRootCredential": true,
+    "information": "An unbounded number of entries in the TRUSTED_ROOT_CRLS VECS store can cause the vCenter appliance's certificate-management service to crash, which will fail the upgrade's certificate operations. The 1000-entry threshold is a conservative round number chosen to flag stores that are clearly accumulating unchecked, not a documented hard limit - actual results in the field may vary.",
+    "validationCriteria": "The TRUSTED_ROOT_CRLS VECS store on the vCenter appliance has fewer than 1000 entries.",
+    "remediation": "Prune stale CRL entries from the TRUSTED_ROOT_CRLS VECS store before proceeding with the upgrade. [KB 374146](https://knowledge.broadcom.com/external/article/374146/certificatemanager-failed-at-0-because-t.html) provides the script to prune the store and reports the current entry count so you can confirm the prune brought it back under the threshold."
+  },
+  "vcenter_check_replication": {
+    "function": "Test-VcfVcenterCheckReplication",
+    "area": "vCenter",
+    "displayName": "vCenter Enhanced Linked Mode (ELM) Compatibility",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresVcenterRootCredential": true,
+    "information": "",
+    "validationCriteria": "A standalone vCenter (no replication partners) is informational-Pass, not part of an Enhanced Linked Mode (ELM) topology. A vCenter that is part of an ELM topology always returns Warning, since VCF 9.x Single Sign-On is not compatible with ELM; the warning also reports whether vdcrepadmin shows every partner as \"Partner is 0 changes behind\".",
+    "remediation": "Action required before upgrading to VCF 9.x:  [VCF 9.x Single Sign-On](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-0/fleet-management/what-is.html) is not compatible with  Enhanced Linked Mode (ELM).  To utilize this feature in VCF 9.x, see [Deactivate Enhanced Link Mode from vCenter Using the cmsso-util break-elm Utililty](https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-9-0-and-later/9-0/fleet-management/what-is/points-to-consider-while-setting-up-vmware-cloud-foundation-sso/how-to-deactivate-enhanced-link-mode-in-vcenter-without-downtime.html)"
+  },
+  "vcenter_machine_ssl_mismatch": {
+    "function": "Test-VcfVcenterMachineSslMismatch",
+    "area": "vCenter",
+    "displayName": "vCenter Lookup Service SSL Trust Mismatch",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresVcenterRootCredential": true,
+    "information": "",
+    "validationCriteria": "Every :443 service registered with vCenter's Lookup Service presents the SSL certificate the Lookup Service has on file for it.",
+    "remediation": "Follow https://knowledge.broadcom.com/external/article/320837/using-the-lsdoctor-tool.html to reconcile the mismatched service registration(s) before proceeding with the upgrade."
+  },
+  "vcenter_vmdir_database_size_check": {
+    "function": "Test-VcfVcenterVmdirDatabaseSizeCheck",
+    "area": "vCenter",
+    "displayName": "vCenter VMDir Database File Size",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "The vmdir database file (/storage/db/vmware-vmdir/data.mdb) is not zero-sized and is not at or near the default 1024 MB VMDIR database size limit (warns above 900 MB, fails at or above 1024 MB).",
+    "remediation": "A zero-sized vmdir data file indicates a corrupted/missing database, typically surfacing as vCenter UI login failing with 'no healthy upstream'; see https://knowledge.broadcom.com/external/article/425157/vcenter-server-ui-login-fails-with-no-he.html to restore data.mdb from its snapshot and restart vmdird, then repoint. A file size at or near the 1024 MB default VMDIR limit is typically caused by tombstone accumulation, not genuine directory growth; see https://knowledge.broadcom.com/external/article/344675/adding-new-a-license-or-sso-user-fails-w.html for cleanup guidance, or increase the VMDIR maximum database size as a temporary workaround."
+  },
+  "vcenter_vmdir_local_state_check": {
+    "function": "Test-VcfVcenterVmdirLocalStateCheck",
+    "area": "vCenter",
+    "displayName": "vCenter VMDir Health State",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresVcenterRootCredential": true,
+    "information": "",
+    "validationCriteria": "vdcadmintool reports the vCenter appliance's VMDir state as \"Normal\".",
+    "remediation": "An abnormal VMDir state indicates the vCenter's local directory service is not healthy. Consider using vmdir_tool.py to diagnose the issue. For more information visit [Using vmdir_tool.py to identify vmdir/ELM replication inconsistencies](https://knowledge.broadcom.com/external/article/367525). A \"Normal\" local state does not guarantee this vCenter's VMDir replication with its partners is healthy - also review the \"vCenter Enhanced Linked Mode (ELM) Compatibility\" check result for this vCenter."
+  },
+  "sddc_check_the_space": {
+    "function": "Test-VcfSddcManagerDiskSpace",
+    "area": "SDDC Manager",
+    "informational": true,
+    "displayName": "SDDC Manager Appliance Disk Space",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresSddcManagerRootCredential": true,
+    "information": "",
+    "validationCriteria": "",
+    "remediation": ""
+  },
+  "sddc_manifest_polling_check": {
+    "function": "Test-VcfSddcManifestPollingCheck",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager LCM Manifest Polling",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresSddcManagerRootCredential": true,
+    "information": "Manifest Polling is required to view all download bundles.",
+    "validationCriteria": "Verify that SDDC Manager LCM manifest polling is enabled.",
+    "remediation": "Follow the instructions in this KB to resolve the issue: [Bundles fail to appear under SDDC Manager Bundle Management](https://knowledge.broadcom.com/external/article/424596/bundles-fail-to-appear-under-sddc-manage.html)"
+  },
+  "sddc_vx_manager_table": {
+    "function": "Test-VcfSddcVxManagerTable",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager VxRail Manager Table",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresSddcManagerRootCredential": true,
+    "information": "",
+    "validationCriteria": "The platform.vx_manager table in SDDC Manager's internal database contains no error rows.",
+    "remediation": "Review the VxRail Manager integration in SDDC Manager and resolve the underlying error before proceeding with the upgrade."
+  },
+  "sddc_check_async_patched_applied": {
+    "function": "Test-VcfSddcCheckAsyncPatchedApplied",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager Async-Patch Upgrade History",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "requiresSddcManagerRootCredential": true,
+    "information": "",
+    "validationCriteria": "No async-patch upgrade history is present on SDDC Manager (/var/log/vmware/vcf/lcm/tools/asyncpatchtool/).",
+    "remediation": "Review the reported async-patch history entries with Broadcom support before proceeding with the upgrade."
+  },
+  "nsxt_check_api_rate": {
+    "function": "Test-VcfNsxtCheckApiRate",
+    "area": "NSX",
+    "displayName": "NSX Manager API Rate Limits",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "NSX Manager API rate-limiting configuration matches the expected default values",
+    "remediation": "Restore NSX Manager's API service configuration to the expected values before proceeding with the upgrade. See [NSX-T API configuration for HTTP on NSX-T](https://knowledge.broadcom.com/external/article/379700/nsxt-api-configuration-for-http-on-nsxt.html)."
+  },
+  "nsxt_password_expiration": {
+    "function": "Test-VcfNsxtPasswordExpiration",
+    "area": "NSX",
+    "displayName": "NSX Manager and Edge Password Expiration",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "An expired NSX Manager or NSX Edge local account password can block NSX Manager or Edge access during the upgrade.",
+    "validationCriteria": "The admin, audit, and root account passwords on every NSX Manager and NSX Edge node do not expire within 30 days. If automatic rotation is disabled on an account, manual action will be required to rotate that password before it expires.",
+    "remediation": "Update the affected NSX Manager or NSX Edge account password through SDDC Manager before proceeding with the upgrade. If automatic rotation is disabled on an account, either enable scheduled auto-rotation or plan to rotate that password manually before it expires: https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vcf-5-2-and-earlier/5-2/map-for-administering-vcf-5-2/manage-passwords-admin/rotate-passwords-admin.html"
+  },
+  "nsxt_compute_manager_status": {
+    "function": "Test-VcfNsxtComputeManagerStatus",
+    "area": "NSX",
+    "displayName": "NSX Compute Manager Registration Status",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "Every NSX compute manager (vCenter registration) has registration_status \"registered\" and connection_status \"up\".",
+    "remediation": "Re-register or reconnect the affected compute manager in NSX Manager (System > Fabric > Compute Managers) before proceeding with the upgrade. If registration has failed, see https://knowledge.broadcom.com/external/article/399868/nsx-compute-manager-status-not-registere.html for troubleshooting steps."
+  },
+  "nsxt_disk_space": {
+    "function": "Test-VcfNsxtDiskSpace",
+    "area": "NSX",
+    "displayName": "NSX Transport Node Disk Space",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "Every NSX transport node filesystem is below its utilization threshold (95% for vsantraces, 75% for every other filesystem).",
+    "remediation": "Free up disk space on the affected transport node filesystem(s) before proceeding with the upgrade - see [Troubleshooting NSX disk space related issues](https://knowledge.broadcom.com/external/article/317683/troubleshooting-disk-space-related-issue.html). Left unaddressed, the transport node can end up with [status Disconnected or Unknown](https://techdocs.broadcom.com/us/en/vmware-cis/nsx/vmware-nsx/4-2/installation-guide/troubleshooting-installation-issues/troubleshooting-host-transport-nodes/transport-node-is-in-disconnected-state.html). Logs are auto-rotated, but the rotation size and file locations can be looked up per [KB 408587](https://knowledge.broadcom.com/external/article/408587)."
+  },
+  "nsxt_check_node_install_upgrade": {
+    "function": "Test-VcfNsxtCheckNodeInstallUpgrade",
+    "area": "NSX",
+    "displayName": "NSX Manager Node Install/Upgrade Service",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementNsxManager"
+    ],
+    "information": "",
+    "validationCriteria": "NSX Manager's node install/upgrade service is enabled and bound to a literal IPv4 address.",
+    "remediation": "Enable the node install/upgrade service and confirm it is bound to an IP address (not a hostname) before proceeding with the upgrade."
+  },
+  "vcenter_vsphere_supervisor_cluster_versions": {
+    "function": "Test-VcfVcenterVsphereSupervisorClusterVersions",
+    "area": "vCenter",
+    "displayName": "vSphere Supervisor Cluster Kubernetes Versions",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Informational: reports the Kubernetes version of every Supervisor cluster.",
+    "remediation": ""
+  },
+  "vcenter_supervisor_namespaces": {
+    "function": "Test-VcfVcenterSupervisorNamespaces",
+    "area": "vCenter",
+    "displayName": "vSphere Supervisor Namespaces",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Informational: reports every vSphere Namespace and its backing cluster/config status.",
+    "remediation": "Investigate any namespace reporting an ERROR config status in the vSphere Client under Workload Management > Namespaces."
+  },
+  "vcenter_overall_health": {
+    "function": "Test-VcfVcenterOverallHealth",
+    "area": "vCenter",
+    "displayName": "vCenter Appliance Health Endpoints",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Check the vCenter health endpoints (system, memory, storage, swap, software-packages, applmgmt) verify their status.",
+    "remediation": "For endpoints reported Unhealthy, follow the guidance in that row's Message column; for more detail, log in to the vCenter Server Management Interface (VAMI) directly before proceeding with the upgrade."
+  },
+  "vcenter_check_proxy": {
+    "function": "Test-VcfVcenterCheckProxy",
+    "area": "vCenter",
+    "displayName": "vCenter Appliance Outbound Proxy Configuration",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Reports the outbound proxy configuration for every vCenter appliance attached to SDDC Manager. If a proxy is configured, this check warns that its health should be verified before proceeding with the upgrade. Note: this finding is only actionable for vCenters not lifecycle-managed by SDDC Manager - a proxy configured on an SDDC Manager-managed vCenter is outside the customer's control to change.",
+    "remediation": "If an outbound proxy is configured, verify its health status before beginning the upgrade. See https://knowledge.broadcom.com/external/article/370265/how-to-configure-proxy-settings-for-vcen.html for more information."
+  },
+  "vcenter_vami_check_storage": {
+    "function": "Test-VcfVcenterVamiCheckStorage",
+    "area": "vCenter",
+    "displayName": "vCenter Appliance Storage Usage Detail",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "Shows per-partition storage usage on a vCenter appliance.",
+    "remediation": ""
+  },
+  "vcenter_service_status_check": {
+    "function": "Test-VcfVcenterServiceStatusCheck",
+    "area": "vCenter",
+    "displayName": "vCenter Service Status",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "No vCenter appliance service reports an \"unknown\" state.",
+    "remediation": "Investigate the affected service(s) - see VMware KB 2041357 - before proceeding with the upgrade."
+  },
+  "sddc_check_health_summary": {
+    "function": "Test-VcfSddcCheckHealthSummary",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager Health Summary",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "",
+    "validationCriteria": "The SDDC Manager health-summary check completes with an overall status of success, not failure.",
+    "remediation": "Review the health-summary results in the SDDC Manager UI and resolve the reported failure(s) before proceeding with the upgrade."
+  },
+  "sddc_pre_check_ui": {
+    "function": "Test-VcfSddcCheckUi",
+    "area": "SDDC Manager",
+    "displayName": "SDDC Manager Pre-Upgrade Check-Set Assessment",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "",
+    "validationCriteria": "SDDC Manager's own pre-upgrade check-set assessment (the same engine behind the SDDC Manager UI's Run Precheck button) completes and reports no failing or warning checks.",
+    "remediation": "Review the failing/warning check(s) listed in the Rows table, or log in to the SDDC Manager UI and check the Tasks tab for the full assessment detail, before proceeding with the upgrade."
+  },
+  "sddc_cluster_resource_utilization": {
+    "function": "Test-VcfSddcClusterResourceUtilization",
+    "area": "SDDC Manager",
+    "displayName": "Management Domain Resource Utilization",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "The management domain's primary cluster (the cluster hosting the SDDC Manager appliance) is below 75% CPU/memory utilization and 65% storage utilization.",
+    "remediation": "Reduce resource pressure on the affected cluster (add capacity, migrate workloads, free up storage) before proceeding with the upgrade."
+  },
+  "vcenter_password_policy_expiry": {
+    "function": "Test-VcfVcenterPasswordPolicyExpiry",
+    "area": "vCenter",
+    "displayName": "vCenter SSO Administrator Password Expiry",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "information": "",
+    "validationCriteria": "The SSO administrator (PSC/SYSTEM) credential is not expired and does not expire within 30 days for every vCenter attached to SDDC Manager.",
+    "remediation": "Rotate the expiring or expired SSO administrator (PSC/SYSTEM) credential before proceeding with the upgrade. If the account is managed by SDDC Manager, rotate it via SDDC Manager: https://techdocs.broadcom.com/us/en/vmware-cis/vcf/vvs/1-0/intelligent-operations-management-for-vmware-cloud-foundation/operational-guidance-for-intelligent-operations-management/password-management-for-intelligent-operations-management/password-rotation-and-remediation-for-intelligent-om-for-vmware-cloud-foundation/rotate-an-account-password-using-sddc-manager-for-intelligent-om-for-vmware-cloud-foundation.html - otherwise, reset it directly per https://knowledge.broadcom.com/external/article/326186/resetting-forgotten-vcenter-sso-password.html."
+  }
+}
