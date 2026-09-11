@@ -59,7 +59,7 @@ function Resolve-VcfCheckAllowInsecureTls {
     try {
         $invalidCertificateAction = (Get-PowerCLIConfiguration -Scope Session -ErrorAction Stop).InvalidCertificateAction
         $allowInsecureTls = $invalidCertificateAction -eq 'Ignore'
-        Write-LogMessage -Type INFO -Message "PowerCLI InvalidCertificateAction is `"$invalidCertificateAction`" - untrusted/self-signed certificates on SDDC Manager, vCenter, NSX Manager, Aria Operations, Aria Automation, and Aria Suite Lifecycle Manager will $(if ($allowInsecureTls) { 'be accepted' } else { 'NOT be accepted' }) this run. Change with `"Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore`" (lab environments with self-signed certificates only) or `"...-InvalidCertificateAction Fail`" (production)."
+        Write-LogMessage -Type INFO -Message "PowerCLI InvalidCertificateAction is `"$invalidCertificateAction`" - untrusted/self-signed certificates on all endpoints will $(if ($allowInsecureTls) { 'be accepted' } else { 'NOT be accepted' }) this run. Change with `"Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore`" or `"...-InvalidCertificateAction Fail`"."
     } catch {
         Write-LogMessage -Type DEBUG -Message "Could not read PowerCLI's InvalidCertificateAction (defaulting to secure - untrusted certificates will NOT be accepted this run): $($_.Exception.Message)"
     }

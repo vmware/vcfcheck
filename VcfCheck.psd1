@@ -27,7 +27,7 @@
 # =============================================================================
 @{
     RootModule           = 'VcfCheck.psm1'
-    ModuleVersion        = '2.0.0.1006'
+    ModuleVersion        = '2.0.0.1007'
     GUID                 = 'b4e1f7d0-6a2c-4e3a-9b8f-2d7c5a1e9f43'
     Author               = 'VCF'
     CompanyName          = 'Broadcom'
@@ -256,6 +256,7 @@
     AliasesToExport      = @()
 
     FileList             = @(
+        'Install-VcfCheckModule.ps1'
         'Config\settings.example.json'
         'Data\CheckCatalog.json'
         'Data\CheckDescription.json'

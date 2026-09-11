@@ -38,17 +38,19 @@ function Test-VcfVsanHealthCheck {
         Evaluates overall cluster health statuses and per-category sub-tests:
         - Evaluates OverallHealthStatus using both color-based ('green', 'yellow', 'red') and state-based ('passed', 'warning', 'failed') status indicators.
         - Captures human-readable diagnostic summaries from OverallHealthDescription.
-        - Parses per-category sub-tests (Cluster, Network, Limits, Physical Disk, Encryption, Hardware Compatibility, File Service) via
-          Get-VcfCheckVsanHealthAllSubTests and isolates non-green findings via Get-VcfCheckVsanHealthFailingSubTests.
+        - Parses per-category sub-tests (Cluster, Network, Limits, Physical Disk, Data, Encryption, Hardware Compatibility, File Service) via
+          Get-VcfCheckVsanHealthAllSubTests and isolates red/yellow findings via Get-VcfCheckVsanHealthFailingSubTests.
 
-        Evaluation logic:
-        - Pass: All vSAN clusters report healthy status ('green' or 'passed').
+        Evaluation logic (via ConvertTo-VcfCheckVsanOverallStatusLabel):
+        - Pass: All vSAN clusters report healthy status ('green', 'passed', or 'info' - vCenter's "nothing wrong" state).
         - Warning: One or more vSAN clusters report warning status ('yellow' or 'warning') or unrecognized health states.
         - Fail: One or more vSAN clusters report failed status ('red' or 'failed').
         - Skipped: No vSAN-enabled clusters are found in the target vCenter inventory.
 
-        Populates a structured Rows summary table detailing ClusterName, OverallHealthStatus, OverallHealthDescription, and FailingSubTests,
-        and constructs HostDetails cards for detailed sub-test visualization.
+        Populates a structured Rows summary table detailing ClusterName, OverallHealthStatus, OverallHealthDescription, and SubTasks,
+        sorted alphabetically by ClusterName, and constructs HostDetails cards for detailed sub-test visualization. For Warning
+        and Fail results, Rows and the Detail message include only the clusters at that status - clusters reporting Pass are
+        omitted, and the Detail text says so explicitly.
 
         Delegates per-vCenter execution and per-domain outcome packaging to Invoke-VcfCheckPerVCenterCheck.
 
@@ -72,37 +74,33 @@ function Test-VcfVsanHealthCheck {
     return Invoke-VcfCheckPerVCenterCheck -Context $Context -CheckId 'vsan_health_check' -Area vSAN -DisplayName $DisplayName -Body {
         param($Context, $VCenterFqdn)
 
-        $healthResults = @(Get-VcfCheckVsanClusterHealth -Server $VCenterFqdn)
+        $healthResults = @(Get-VcfCheckVsanClusterHealth -Server $VCenterFqdn -Context $Context)
 
         if ($healthResults.Count -eq 0) {
             return [PSCustomObject]@{ Status = 'Skipped'; Detail = 'No vSAN-enabled cluster found on this vCenter.'; SkipReasonTag = 'no vSAN cluster'; Rows = @() }
         }
-
-        $failValues = @('red', 'failed')
-        $warningValues = @('yellow', 'warning')
-        $passValues = @('green', 'passed')
 
         $rows = @($healthResults | ForEach-Object {
             [PSCustomObject]@{
                 ClusterName = $_.Cluster.Name
                 OverallHealthStatus = $_.OverallHealthStatus
                 OverallHealthDescription = $_.OverallHealthDescription
-                FailingSubTests = Get-VcfCheckVsanHealthFailingSubTests -HealthResult $_
+                SubTasks = Get-VcfCheckVsanHealthFailingSubTests -HealthResult $_
             }
         })
 
         $hostDetails = @($healthResults | ForEach-Object {
             [PSCustomObject]@{
                 HostName = $_.Cluster.Name
-                Status = $_.OverallHealthStatus
+                Status = ConvertTo-VcfCheckVsanOverallStatusLabel -Status $_.OverallHealthStatus
                 OverallHealthDescription = $_.OverallHealthDescription
                 SubTests = @(Get-VcfCheckVsanHealthAllSubTests -HealthResult $_)
             }
         })
 
         $troubleshootingReference = Get-VcfCheckVsanTroubleshootingKbText -Number '326929' -Url 'https://knowledge.broadcom.com/external/article/326929/vsan-health-service-data-health-vsan-o.html'
-        $failRows = @($rows | Where-Object { $_.OverallHealthStatus -and $_.OverallHealthStatus.ToLowerInvariant() -in $failValues })
-        $warnRows = @($rows | Where-Object { $_.OverallHealthStatus -and ($_.OverallHealthStatus.ToLowerInvariant() -in $warningValues -or $_.OverallHealthStatus.ToLowerInvariant() -notin ($failValues + $warningValues + $passValues)) })
+        $failRows = @($rows | Where-Object { (ConvertTo-VcfCheckVsanOverallStatusLabel -Status $_.OverallHealthStatus) -eq 'Fail' } | Sort-Object -Property ClusterName)
+        $warnRows = @($rows | Where-Object { (ConvertTo-VcfCheckVsanOverallStatusLabel -Status $_.OverallHealthStatus) -eq 'Warning' } | Sort-Object -Property ClusterName)
 
         if ($failRows.Count -gt 0) {
             $clusterNames = ($failRows.ClusterName) -join '; '
@@ -111,7 +109,7 @@ function Test-VcfVsanHealthCheck {
 
         if ($warnRows.Count -gt 0) {
             $clusterNames = ($warnRows.ClusterName) -join '; '
-            return [PSCustomObject]@{ Status = 'Warning'; Detail = "vSAN health needs attention on: $clusterNames. $troubleshootingReference"; Rows = $warnRows; HostDetails = $hostDetails; HostDetailsLabel = 'vSAN Cluster Health Details' }
+            return [PSCustomObject]@{ Status = 'Warning'; Detail = "vSAN health needs attention on the following cluster(s) with Warning status (clusters reporting Pass are not shown): $clusterNames. $troubleshootingReference"; Rows = $warnRows; HostDetails = $hostDetails; HostDetailsLabel = 'vSAN Cluster Health Details' }
         }
 
         return [PSCustomObject]@{ Status = 'Pass'; Detail = "Checked $($healthResults.Count) vSAN cluster(s); all report healthy."; Rows = $rows; HostDetails = $hostDetails; HostDetailsLabel = 'vSAN Cluster Health Details' }
@@ -171,6 +169,39 @@ function ConvertTo-VcfCheckVsanIssueHealth {
 
     if ($null -eq $IssueFound) { return $null }
     if ($IssueFound) { return 'red' } else { return 'green' }
+}
+
+function ConvertTo-VcfCheckVsanOverallStatusLabel {
+
+    <#
+        .SYNOPSIS
+        Normalizes a vSAN OverallHealthStatus value into the check's Pass/Warning/Fail badge vocabulary.
+
+        .DESCRIPTION
+        vCenter's vSAN health API returns OverallHealthStatus as a mix of color words ('green', 'yellow',
+        'red') and state words ('passed', 'warning', 'failed', 'info'). 'info' means "nothing wrong" - it is
+        not a warning - so it maps to 'Pass' alongside 'green'/'passed'. An unrecognized value defaults to
+        'Warning' rather than silently rendering as a healthy Pass.
+
+        .PARAMETER Status
+        The raw OverallHealthStatus value returned by Test-VsanClusterHealth.
+
+        .OUTPUTS
+        [String] 'Pass', 'Warning', or 'Fail'.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param (
+        [Parameter(Mandatory = $false)] [String]$Status
+    )
+
+    if (-not $Status) { return 'Warning' }
+    $normalized = $Status.ToLowerInvariant()
+    if ($normalized -in @('red', 'failed')) { return 'Fail' }
+    if ($normalized -in @('yellow', 'warning')) { return 'Warning' }
+    if ($normalized -in @('green', 'passed', 'info')) { return 'Pass' }
+    return 'Warning'
 }
 
 function ConvertTo-VcfCheckVsanSafeArray {
@@ -332,9 +363,12 @@ function Get-VcfCheckVsanHealthNetworkTests {
     $subnetHealth = ConvertTo-VcfCheckVsanFlagHealth -Flag $net.MatchingIPSubnets
     $multicastHealth = ConvertTo-VcfCheckVsanFlagHealth -Flag $net.MatchingMulticastConfig
 
+    # NetworkPartition always lists at least one group - the group containing all connected
+    # hosts - so a count of 1 means the cluster is unified, not partitioned. Only 2+ groups
+    # indicate an actual network split.
     $partitionCount = (ConvertTo-VcfCheckVsanSafeArray -Value $net.NetworkPartition).Count
-    $partitionHealth = if ($partitionCount -gt 0) { 'red' } else { 'green' }
-    $partitionDescription = if ($partitionCount -gt 0) { "Cluster is partitioned into $partitionCount group(s)" } else { $null }
+    $partitionHealth = if ($partitionCount -gt 1) { 'red' } else { 'green' }
+    $partitionDescription = if ($partitionCount -gt 1) { "Cluster is split into $partitionCount network partitions" } else { $null }
 
     $connectivityIssueHostCount = (ConvertTo-VcfCheckVsanSafeArray -Value $net.HostDisconnected).Count + (ConvertTo-VcfCheckVsanSafeArray -Value $net.HostCommunicationFailure).Count
     $connectivityHealth = if ($connectivityIssueHostCount -gt 0) { 'red' } else { 'green' }
@@ -447,6 +481,47 @@ function Get-VcfCheckVsanHealthPhysicalDiskTests {
     return $rows.ToArray()
 }
 
+function Get-VcfCheckVsanHealthDataTests {
+
+    <#
+        .SYNOPSIS
+        Builds sub-test report rows for the Data vSAN health category.
+
+        .DESCRIPTION
+        Extracts per-host "Create a new VM" data-health results from a vSAN cluster health object. vCenter's
+        OverallHealthStatus rollup includes this test, but it was previously absent from every category function
+        below - a cluster could show OverallHealthStatus 'yellow' ("Cluster health issue") while every visible
+        sub-test read green, because CreateVMHealth was never surfaced in the Rows/HostDetails tables.
+
+        .PARAMETER HealthResult
+        A vSAN cluster health result object returned by Test-VsanClusterHealth.
+
+        .OUTPUTS
+        [PSObject[]] Array of sub-test report rows for the Data category.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([PSObject[]])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$HealthResult
+    )
+
+    $rows = [System.Collections.Generic.List[Object]]::new()
+    $createVmResults = ConvertTo-VcfCheckVsanSafeArray -Value $HealthResult.CreateVMHealth
+    if ($createVmResults.Count -eq 0) {
+        return $rows.ToArray()
+    }
+
+    $dataHealth = if (@($createVmResults | Where-Object { $_.State -and $_.State -ne 'green' -and $_.State -ne 'passed' }).Count -gt 0) { 'red' } else { 'green' }
+
+    foreach ($createVmResult in $createVmResults) {
+        $hostName = if ($createVmResult.Host) { $createVmResult.Host.Name } else { 'Unknown host' }
+        $rows.Add((New-VcfCheckVsanHealthTestRow -GroupName 'Data' -GroupHealth $dataHealth -TestName "Create a new VM: $hostName" -TestHealth $createVmResult.State))
+    }
+
+    return $rows.ToArray()
+}
+
 function Get-VcfCheckVsanHealthMiscTests {
 
     <#
@@ -531,7 +606,7 @@ function Get-VcfCheckVsanHealthAllSubTests {
         Retrieves all sub-test results across categories for a vSAN cluster health evaluation.
 
         .DESCRIPTION
-        Aggregates sub-tests across Cluster, Network, Limits, Physical Disk, Encryption, Hardware Compatibility,
+        Aggregates sub-tests across Cluster, Network, Limits, Physical Disk, Data, Encryption, Hardware Compatibility,
         and File Service categories from a vSAN cluster health object, returning a severity-sorted list of all sub-tests.
 
         .PARAMETER HealthResult
@@ -552,6 +627,7 @@ function Get-VcfCheckVsanHealthAllSubTests {
     $allTests.AddRange([Object[]]@(Get-VcfCheckVsanHealthNetworkTests -HealthResult $HealthResult))
     $allTests.AddRange([Object[]]@(Get-VcfCheckVsanHealthLimitTests -HealthResult $HealthResult))
     $allTests.AddRange([Object[]]@(Get-VcfCheckVsanHealthPhysicalDiskTests -HealthResult $HealthResult))
+    $allTests.AddRange([Object[]]@(Get-VcfCheckVsanHealthDataTests -HealthResult $HealthResult))
     $allTests.AddRange([Object[]]@(Get-VcfCheckVsanHealthMiscTests -HealthResult $HealthResult))
 
     return Sort-VcfCheckVsanHealthTestsBySeverity -Tests $allTests.ToArray()
@@ -561,11 +637,13 @@ function Get-VcfCheckVsanHealthFailingSubTests {
 
     <#
         .SYNOPSIS
-        Extracts non-green failing sub-tests from a vSAN cluster health evaluation.
+        Extracts red/yellow failing sub-tests from a vSAN cluster health evaluation.
 
         .DESCRIPTION
-        Filters the full set of sub-tests returned by Get-VcfCheckVsanHealthAllSubTests to isolate non-green findings,
-        formatting them as a semicolon-separated summary string. Returns 'N/A' if no failing sub-tests are detected.
+        Filters the full set of sub-tests returned by Get-VcfCheckVsanHealthAllSubTests to isolate red/yellow
+        findings - explicitly excluding 'N/A' sub-tests that were never applicable rather than treating them as
+        failures - formatting the result as a semicolon-separated summary string. Returns 'N/A' if no failing
+        sub-tests are detected.
 
         .PARAMETER HealthResult
         A vSAN cluster health result object returned by Test-VsanClusterHealth.
@@ -585,9 +663,9 @@ function Get-VcfCheckVsanHealthFailingSubTests {
         return 'N/A'
     }
 
-    $healthyValues = @('green', 'passed')
+    $failingValues = @('red', 'failed', 'yellow', 'warning')
     $failingTests = foreach ($test in $allSubTests) {
-        if ($test.TestHealth -and $test.TestHealth.ToLowerInvariant() -notin $healthyValues) {
+        if ($test.TestHealth -and $test.TestHealth.ToLowerInvariant() -in $failingValues) {
             $description = if ($test.TestDescription) { $test.TestDescription } else { $test.TestName }
             "$($test.GroupName): $($test.TestName) - $description"
         }

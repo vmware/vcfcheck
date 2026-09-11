@@ -35,6 +35,7 @@
         var vcenterRef = VcfCheckUI._sizing.sizingReferenceData.vcenter || {};
         var sizeKeys = Object.keys(vcenterRef.cpuCores || {});
         listBox.innerHTML = "";
+        VcfCheckUI._sizing.syncConcurrentVCenterSelects();
 
         VcfCheckUI._sizing.getSizingVCenterEntries().forEach(function (entry) {
             var snapshot = entry.snapshot;

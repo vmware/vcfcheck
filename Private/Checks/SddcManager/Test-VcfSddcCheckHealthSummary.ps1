@@ -45,10 +45,13 @@ function Test-VcfSddcCheckHealthSummary {
 
         Polled using an initial 90-second wait followed by up to 24 attempts at 30-second intervals
         (13.5 minutes total) to accommodate full execution while maintaining a bounded poll duration.
-        Polling also stops early, before the full budget, if the reported sub-task statuses stop
-        changing across StallPollThreshold consecutive polls - SDDC Manager has been observed to
-        leave a health-summary task permanently "IN_PROGRESS" after one of its sub-tasks (e.g.
-        VSAN-CHECK) fails, so waiting out the full budget in that case only delays the result.
+        Polling also stops early, before the full budget, if a sub-task already reporting
+        IN_PROGRESS/PENDING stops changing across StallPollThreshold consecutive polls - SDDC Manager
+        has been observed to leave a health-summary task permanently "IN_PROGRESS" after one of its
+        sub-tasks (e.g. VSAN-CHECK) fails, so waiting out the full budget in that case only delays the
+        result. Sub-task sets made up entirely of terminal statuses (e.g. only "Pre-Validation:
+        Successful" reported so far, with later categories not yet started) never count toward the
+        stall threshold, since that reflects normal SDDC Manager pacing rather than a stalled task.
 
         Configures an explicit HealthSummarySpec (enabling all 11 health-check categories, Force, and
         SummaryReport) scoped to IncludeAllDomains and IncludeFreeHosts, evaluating SDDC Manager across
@@ -76,8 +79,9 @@ function Test-VcfSddcCheckHealthSummary {
         Delay between polls. Default 30.
 
         .PARAMETER StallPollThreshold
-        Number of consecutive polls with an unchanged set of sub-task name/status pairs before
-        polling is abandoned as stalled, even though MaxPollAttempts has not been reached. Default 4.
+        Number of consecutive polls with an unchanged set of sub-task name/status pairs, where at
+        least one sub-task is still IN_PROGRESS/PENDING, before polling is abandoned as stalled, even
+        though MaxPollAttempts has not been reached. Default 4.
 
         .OUTPUTS
         [PSObject] a VcfCheck.Result.
@@ -139,7 +143,8 @@ function Test-VcfSddcCheckHealthSummary {
         Write-VcfCheckHealthSummaryProgress -Context $Context -Attempt $attempt -MaxAttempts $MaxPollAttempts -Status $status -StartedAt $startedAt -SubTasks $subTasks
 
         $subTaskSignature = Get-VcfCheckHealthSummarySubTaskSignature -SubTasks $subTasks
-        if ([String]::IsNullOrEmpty($subTaskSignature)) {
+        $hasNonTerminalSubTask = @($subTasks | Where-Object { $_ -and $_.Status -notmatch 'SUCCE|COMPLET|FAIL' }).Count -gt 0
+        if ([String]::IsNullOrEmpty($subTaskSignature) -or -not $hasNonTerminalSubTask) {
             $stallCount = 0
         } elseif ($subTaskSignature -eq $previousSubTaskSignature) {
             $stallCount++
@@ -184,8 +189,10 @@ function Test-VcfSddcCheckHealthSummary {
         if ($failedSubTaskNames.Count -gt 0) {
             $detail += " Already failed: $($failedSubTaskNames -join ', ')."
         }
+        $remediation = 'Review the health-summary results in the SDDC Manager UI. If the task is still ' +
+        'progressing normally, consider increasing the Health Summary poll budget in Settings and re-running the check.'
         return New-VcfCheckResult -CheckId $checkId -Status Error `
-            -TargetComponent $Context.SddcManagerFqdn -Detail $detail `
+            -TargetComponent $Context.SddcManagerFqdn -Detail $detail -Remediation $remediation `
             -Rows $subTaskRows -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $displayName
     }
 
@@ -376,8 +383,9 @@ function Get-VcfCheckHealthSummarySubTaskSignature {
 
         .DESCRIPTION
         Joins each sub-task's Name and Status into a single sorted string so
-        Test-VcfSddcCheckHealthSummary can detect when consecutive polls report no change,
-        indicating SDDC Manager has stopped making progress on the health-summary task.
+        Test-VcfSddcCheckHealthSummary can detect when consecutive polls report no change to an
+        in-progress sub-task, indicating SDDC Manager has stopped making progress on the
+        health-summary task.
 
         .PARAMETER SubTasks
         Sub-tasks from Get-VcfCheckHealthSummarySubTaskList. Returns an empty string if empty/$null.

@@ -166,9 +166,12 @@ function Test-VcfSddcCheckUi {
     if ([String]::IsNullOrWhiteSpace($status) -or $status -match 'IN_?PROGRESS') {
         $elapsedSeconds = [Int][Math]::Round(((Get-Date) - $startedAt).TotalSeconds)
         Write-LogMessage -Type WARNING -Message "SDDC Manager check-set run `"$runId`" hit its poll budget ($MaxPollAttempts attempt(s), $elapsedSeconds second(s) elapsed) while still reporting `"$status`"."
+        $remediation = 'Check the SDDC Manager Tasks tab for the run''s live status. If the run is still ' +
+        'progressing normally, consider increasing the Pre-Upgrade Check-Set poll budget in Settings and re-running the check.'
         return New-VcfCheckResult -CheckId $checkId -Status Error `
             -TargetComponent $Context.SddcManagerFqdn `
             -Detail "SDDC Manager check-set run `"$runId`" did not complete after $MaxPollAttempts poll(s) ($elapsedSeconds second(s)). Check the SDDC Manager Tasks tab for its live status." `
+            -Remediation $remediation `
             -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $displayName
     }
 

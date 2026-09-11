@@ -1213,7 +1213,7 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
         ]
         try:
             completed = subprocess.run(
-                args, capture_output=True, text=True, timeout=10, **_NO_WINDOW_KWARGS,
+                args, capture_output=True, text=True, timeout=30, **_NO_WINDOW_KWARGS,
             )
         except (subprocess.TimeoutExpired, OSError) as exc:
             logger.warning("Could not read PowerCLI's InvalidCertificateAction: %s", exc)

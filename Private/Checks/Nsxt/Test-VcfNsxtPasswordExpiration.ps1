@@ -171,6 +171,11 @@ function ConvertTo-VcfCheckNsxCredentialRow {
         .PARAMETER Expiry
         The matching ExpirationDetails object, or $null if none was found.
 
+        .PARAMETER Errors
+        Any Error elements SDDC Manager returned alongside the expiration-check result for this
+        credential (e.g. because it could not reach the resource). Used to explain an Error
+        status instead of reporting it as a bare unknown.
+
         .PARAMETER WarningThresholdDays
         Number of days before expiry to raise a Warning instead of a Pass.
 
@@ -184,6 +189,7 @@ function ConvertTo-VcfCheckNsxCredentialRow {
     Param (
         [Parameter(Mandatory = $true)] [PSObject]$Account,
         [Parameter(Mandatory = $true)] [AllowNull()] [PSObject]$Expiry,
+        [Parameter(Mandatory = $false)] [AllowNull()] [Object[]]$Errors,
         [Parameter(Mandatory = $true)] [Int32]$WarningThresholdDays
     )
 
@@ -194,6 +200,13 @@ function ConvertTo-VcfCheckNsxCredentialRow {
     $nextRotation = if ($rotationEnabled) { $Account.AutoRotatePolicy.NextSchedule } else { 'N/A' }
 
     if (-not $Expiry -or [String]::IsNullOrEmpty($Expiry.ExpiryDate)) {
+        $reason = ''
+        $firstError = @($Errors) | Select-Object -First 1
+        if ($firstError -and $firstError.ErrorCode -eq 'PASSWORD_MANAGER_RESOURCE_CREDENTIALS_NOT_FOUND') {
+            $reason = " SDDC Manager has lost contact with this NSX resource; log in to NSX Manager directly to verify the account and rotate the password."
+        } elseif ($firstError) {
+            $reason = " SDDC Manager reports `"$($firstError.ErrorCode)`": $($firstError.Message)"
+        }
         return [PSCustomObject]@{
             Hostname            = $hostname
             Username            = $username
@@ -202,7 +215,7 @@ function ConvertTo-VcfCheckNsxCredentialRow {
             Status              = 'Error'
             'Rotation Schedule' = $rotationSchedule
             'Next Rotation'     = $nextRotation
-            Detail              = "Could not determine password expiry for `"$username`" on `"$hostname`"."
+            Detail              = "Could not determine password expiry for `"$username`" on `"$hostname`".$reason"
         }
     }
 
@@ -305,12 +318,12 @@ function Test-VcfNsxtPasswordExpiration {
 
     $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
     foreach ($credential in $managerCredentials) {
-        $expiry = ($managerExpirations | Where-Object { $_.Id -eq $credential.Id } | Select-Object -First 1).Expiry
-        $rows.Add((ConvertTo-VcfCheckNsxCredentialRow -Account $credential -Expiry $expiry -WarningThresholdDays $WarningThresholdDays))
+        $match = $managerExpirations | Where-Object { $_.Id -eq $credential.Id } | Select-Object -First 1
+        $rows.Add((ConvertTo-VcfCheckNsxCredentialRow -Account $credential -Expiry $match.Expiry -Errors $match.Errors -WarningThresholdDays $WarningThresholdDays))
     }
     foreach ($credential in $edgeCredentials) {
-        $expiry = ($edgeExpirations | Where-Object { $_.Id -eq $credential.Id } | Select-Object -First 1).Expiry
-        $rows.Add((ConvertTo-VcfCheckNsxCredentialRow -Account $credential -Expiry $expiry -WarningThresholdDays $WarningThresholdDays))
+        $match = $edgeExpirations | Where-Object { $_.Id -eq $credential.Id } | Select-Object -First 1
+        $rows.Add((ConvertTo-VcfCheckNsxCredentialRow -Account $credential -Expiry $match.Expiry -Errors $match.Errors -WarningThresholdDays $WarningThresholdDays))
     }
 
     $reportRows = @($rows | ForEach-Object { [PSCustomObject]@{
@@ -323,6 +336,7 @@ function Test-VcfNsxtPasswordExpiration {
         'Next Rotation'     = $_.'Next Rotation'
         Detail              = $_.Detail
     } })
+    $reportRows = @($reportRows | Sort-Object -Property Hostname, Username)
 
     $failures = @($rows | Where-Object { $_.Status -eq 'Fail' })
     $warningsAndErrors = @($rows | Where-Object { $_.Status -eq 'Warning' -or $_.Status -eq 'Error' })

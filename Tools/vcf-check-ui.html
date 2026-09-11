@@ -110,7 +110,7 @@
     button:not(:disabled):active { transform: scale(0.97); filter: brightness(0.92); }
     #theme-toggle { display: inline-flex; align-items: center; gap: 4px; }
     #theme-toggle svg { display: block; }
-    main { padding: 24px; max-width: 1100px; margin: 0 auto; }
+    main { padding: 24px; max-width: 1400px; margin: 0 auto; }
     .tiles-intro { margin: 0 0 14px; font-size: 14px; font-weight: 500; color: var(--text); }
     .total-run-time {
         display: inline-block;
@@ -828,6 +828,7 @@
     .run-scan-env-credentials { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
     .run-scan-env-credentials .field { flex: 0 1 auto; }
     .run-scan-env-credentials .field label { white-space: nowrap; }
+    .run-scan-env-credentials-heading { flex-basis: 100%; font-weight: 600; }
     .queue-strip { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
     .queue-item {
         display: flex;
@@ -1128,9 +1129,9 @@
                     <div class="sizing-main">
                         <div class="sizing-step-panel active" id="sz-step-connect">
                             <div class="launcher-row" id="sizing-detect-row" style="align-items:flex-end;flex-wrap:wrap;">
-                                <div class="field" style="min-width:200px;">
+                                <div class="field" style="flex:0 0 auto;min-width:0;">
                                     <label for="sizing-detect-environment">Environment</label>
-                                    <select id="sizing-detect-environment"></select>
+                                    <select id="sizing-detect-environment" style="width:auto;padding:7px 32px 7px 12px;"></select>
                                 </div>
                                 <div id="sizing-detect-password-wrap"></div>
                                 <button type="button" id="sizing-detect-button">Scan</button>
@@ -1159,6 +1160,13 @@
                                 <p class="chk-count" style="margin:8px 0 0;">The sizing choice is carried in <code>vcenterUpgradeUserInputSpecs[].targetVcenterAppliance</code> (<code>applianceSize</code>, <code>storageSize</code>), alongside <code>upgradeMechanism</code>, <code>switchoverType</code>, and a required <code>temporaryNetwork</code> (a temporary IP is needed during appliance switchover).</p>
                             </details>
                             <div id="sizing-vcenter-list"></div>
+                            <div class="field" style="max-width:260px;margin-top:8px;">
+                                <label for="sizing-vcenter-concurrent">vCenters upgraded concurrently</label>
+                                <select id="sizing-vcenter-concurrent">
+                                    <option value="1" selected>1</option>
+                                </select>
+                            </div>
+                            <div id="sizing-vcenter-concurrent-hint" class="chk-count" style="margin-top:8px;"></div>
                         </div>
                         <div class="sizing-step-panel" id="sz-step-runtime">
                             <p class="chk-count" style="margin-top:0;">VCF services runtime control and worker nodes are mandatory. Their size follows the VCF Instance Profile below.</p>
@@ -1323,7 +1331,7 @@
                         </div>
                         <div class="sizing-step-panel" id="sz-step-more">
                             <p class="chk-count" style="margin-top:0;">Remaining components (NSX, security/load balancing, optional add-ons) - check the ones to include and choose a size for each. Running totals update in the sidebar as you go.</p>
-                            <p class="chk-count" style="margin-top:0;"><strong>Security Services Platform, AVI Load Balancer, and Supervisor</strong> are sized per domain below, using the domains detected by Scan.</p>
+                            <p class="chk-count" style="margin-top:0;"><strong>Security Services Platform, AVI Load Balancer, and Supervisor</strong> are sized per domain below, using the domains detected by Scan. Each domain is collapsed by default - expand a domain to add its services.</p>
                             <div id="sizing-platform-list"></div>
                             <div id="sizing-form-rows"></div>
                             <div id="sizing-error" style="color:var(--fail);margin-top:8px;"></div>

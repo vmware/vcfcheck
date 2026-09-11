@@ -1,6 +1,8 @@
+[![Downloads](https://img.shields.io/github/downloads/vmware/vcfcheck/total.svg?label=GitHub%20Release%20Downloads)](https://github.com/vmware/vcfcheck/releases)
+[![PS Version](https://img.shields.io/powershellgallery/v/VcfCheck?label=Version)](https://www.powershellgallery.com/packages/VcfCheck)
+[![PS Downloads](https://img.shields.io/powershellgallery/dt/VcfCheck?label=PS%20Gallery%20Downloads)](https://www.powershellgallery.com/packages/VcfCheck)
 [![License](https://img.shields.io/badge/License-Broadcom-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-2.0.0.1006-orange.svg)](CHANGELOG.md)
-[![Downloads]](https://img.shields.io/github/downloads/vmware/vcfcheck/total?label=Release%20Downloads)
+[![GitHub Release](https://img.shields.io/badge/Github-Changelog-green)](CHANGELOG.md)
 
 # VCF Check
 
@@ -37,49 +39,43 @@ Python 3 is included by default on macOS and most Linux distributions. On Window
 * **Microsoft Store:** search for "Python 3.13" (Windows 10/11 only, not Windows Server).
 * **Official installer:** download from the [Python Windows downloads page](https://www.python.org/downloads/windows/) and select the installer matching your system architecture.
 
-### Offline Zip
+### Option 1: PowerShell Gallery (Preferred)
 
-1. Copy `VcfCheck-<version>.zip` to the script execution system.
-2. Expand it into a `VcfCheck` folder under one of your `$env:PSModulePath` locations, for example, your user module path:
+```powershell
+Install-Module -Name VcfCheck -Scope CurrentUser
+```
 
-   ```powershell
-   $userModulePath = ($env:PSModulePath -split [IO.Path]::PathSeparator)[0]
-   $destination = Join-Path -Path $userModulePath -ChildPath 'VcfCheck'
-   Expand-Archive -Path './VcfCheck-<version>.zip' -DestinationPath $destination -Force
-   ```
+### Option 2: Clone from GitHub and install manually
 
-   On Linux, `Expand-Archive` may not be recognized as the PowerShell module that installs it, `Microsoft.PowerShell.Archive` module,
-   may not be installed by default on all distributions. If the command above fails, either install it first:
+```powershell
+# Open a PowerShell 7.4+ prompt (pwsh on macOS/Linux, PowerShell 7 on Windows)
+git clone https://github.com/vmware/vcfcheck.git
+cd vcfcheck
+pwsh -ExecutionPolicy Bypass -File .\Install-VcfCheckModule.ps1
+```
 
-   ```powershell
-   Install-Module -Name Microsoft.PowerShell.Archive -Scope AllUsers
-   ```
+### Option 3: Download latest release from GitHub and install manually
 
-   or extract the archive with `unzip` instead:
+```powershell
+$tempDir = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([Guid]::NewGuid().ToString()))
+$fullPath = Join-Path -Path $tempDir -ChildPath "VcfCheck.zip"
+Invoke-WebRequest -Uri "https://github.com/vmware/vcfcheck/releases/latest/download/VcfCheck.zip" -OutFile $fullPath
+Expand-Archive -Path $fullPath -DestinationPath $tempDir
+$installer = Get-ChildItem -Path $tempDir -Filter "Install-VcfCheckModule.ps1" -Recurse -File | Select-Object -First 1 -ExpandProperty FullName
+pwsh -ExecutionPolicy Bypass -File $installer
+```
 
-   ```bash
-   unzip VcfCheck-<version>.zip -d /path/to/Modules/VcfCheck
-   ```
+> **Note:** `-ExecutionPolicy Bypass` is required on Windows when running a script downloaded
+> from the internet. It is accepted but has no effect on macOS and Linux, so the same command
+> works on all platforms. The installer also calls `Unblock-File` on all installed module files
+> to remove the Windows "mark of the web" that would otherwise block `Import-Module` even after
+> the script completes.
 
-   The archive's top-level folder is already named after the module version, so this produces
-   `<...>/Modules/VcfCheck/<version>/VcfCheck.psd1`, matching the layout PowerShell
-   expects for versioned modules.
-3. If this PowerShell session was already open before you ran the steps above, start a new
-   session before continuing. A running session caches the module autoload table at startup,
-   so it will not see a module dropped into `$env:PSModulePath` afterward, and
-   `Get-Module -ListAvailable` will report nothing until the session is restarted.
-4. Verify and import:
-
-   ```powershell
-   Get-Module -ListAvailable VcfCheck
-   Import-Module VcfCheck
-   ```
-
-### PowerShell Gallery
-
-  ```Powershell
-  Install-Module -Name VcfCheck -Scope CurrentUser
-  ```
+PowerShell auto-imports the module on first use once it is installed to `$env:PSModulePath` —
+no profile changes are needed. If a PowerShell session was already open before running the
+installer, start a new session before continuing - a running session caches the module
+autoload table at startup, so it will not see a module dropped into `$env:PSModulePath`
+afterward, and `Get-Module -ListAvailable` will report nothing until the session is restarted.
 
 ## Quick Start
 
