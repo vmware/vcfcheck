@@ -480,10 +480,10 @@ class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-
 <p><strong>Note:</strong> <code>-ExecutionPolicy Bypass</code> is
 required on Windows when running a script downloaded from the internet.
 It is accepted but has no effect on macOS and Linux, so the same command
-works on all platforms. The installer also calls
+works on all platforms. On Windows, the installer also calls
 <code>Unblock-File</code> on all installed module files to remove the
-Windows "mark of the web" that would otherwise block
-<code>Import-Module</code> even after the script completes.</p>
+"mark of the web" that would otherwise block <code>Import-Module</code>
+even after the script completes.</p>
 </blockquote>
 <p>PowerShell auto-imports the module on first use once it is installed
 to <code>$env:PSModulePath</code> — no profile changes are needed. If a

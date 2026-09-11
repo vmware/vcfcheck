@@ -33,10 +33,10 @@
     Manually installs the VcfCheck PowerShell module cross-platform.
 
 .DESCRIPTION
-    Copies VcfCheck.psd1, VcfCheck.psm1, PSScriptAnalyzerSettings.psd1, Config, Data,
-    Docs, Private, and Tools into the first path in $env:PSModulePath for the current
-    platform (Windows, Linux, or macOS). Validates the installed manifest before
-    completing. Python __pycache__ directories are excluded from the copy.
+    Copies VcfCheck.psd1, VcfCheck.psm1, Config, Data, Docs, Private, and Tools into the
+    first path in $env:PSModulePath for the current platform (Windows, Linux, or macOS).
+    Validates the installed manifest before completing. Python __pycache__ directories
+    are excluded from the copy.
 
     If the module is currently loaded in the session it is removed before the files
     are overwritten and reloaded afterward, so the in-memory version matches what was
@@ -78,7 +78,7 @@ Param (
     [Parameter(Mandatory = $false)] [ValidateNotNullOrEmpty()] [String]$SourcePath = $PSScriptRoot
 )
 
-$itemsToCopy = @("VcfCheck.psd1", "VcfCheck.psm1", "PSScriptAnalyzerSettings.psd1", "Config", "Data", "Docs", "Private", "Tools")
+$itemsToCopy = @("VcfCheck.psd1", "VcfCheck.psm1", "Config", "Data", "Docs", "Private", "Tools")
 
 Write-Host ""
 Write-Host "VcfCheck Module Installer" -ForegroundColor Cyan
@@ -131,10 +131,12 @@ try {
 
     # Unblock all copied files on Windows so execution policy does not block the module
     # after installation when the source was downloaded from the internet (ZIP or clone).
-    # Unblock-File is a no-op on macOS/Linux where Zone.Identifier streams do not exist.
-    Write-Host "Unblocking installed module files (Windows execution policy)..." -ForegroundColor Gray
-    Get-ChildItem -Path $installPath -Recurse -File -ErrorAction SilentlyContinue |
-        ForEach-Object { Unblock-File -Path $_.FullName -ErrorAction SilentlyContinue }
+    # Unblock-File throws on macOS/Linux (unsupported cmdlet), so only run it on Windows.
+    if ($IsWindows) {
+        Write-Host "Unblocking installed module files (Windows execution policy)..." -ForegroundColor Gray
+        Get-ChildItem -Path $installPath -Recurse -File -ErrorAction SilentlyContinue |
+            ForEach-Object { Unblock-File -Path $_.FullName -ErrorAction SilentlyContinue }
+    }
 
     Write-Host ""
     Write-Host "Validating module manifest..." -ForegroundColor Gray

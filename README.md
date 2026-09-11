@@ -67,9 +67,9 @@ pwsh -ExecutionPolicy Bypass -File $installer
 
 > **Note:** `-ExecutionPolicy Bypass` is required on Windows when running a script downloaded
 > from the internet. It is accepted but has no effect on macOS and Linux, so the same command
-> works on all platforms. The installer also calls `Unblock-File` on all installed module files
-> to remove the Windows "mark of the web" that would otherwise block `Import-Module` even after
-> the script completes.
+> works on all platforms. On Windows, the installer also calls `Unblock-File` on all installed
+> module files to remove the "mark of the web" that would otherwise block `Import-Module` even
+> after the script completes.
 
 PowerShell auto-imports the module on first use once it is installed to `$env:PSModulePath` —
 no profile changes are needed. If a PowerShell session was already open before running the
