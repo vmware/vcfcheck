@@ -289,6 +289,30 @@
         return Object.keys(first);
     }
 
+    // Rank used to sort a rows-table that has both a Severity and a Count column (e.g. an
+    // alarm/event summary): ERROR first, then CRITICAL, HIGH, MEDIUM, LOW, WARNING, INFO, with
+    // any other value pushed to the end. Within a severity, higher Count sorts first, then
+    // Summary alphabetically.
+    VcfCheckUI.ROW_SEVERITY_ORDER = { ERROR: 0, CRITICAL: 1, HIGH: 2, MEDIUM: 3, LOW: 4, WARNING: 5, INFO: 6 };
+
+    VcfCheckUI.sortRowsBySeverityCount = function (rows, columns) {
+        if (!rows || rows.length < 2) return rows;
+        if (columns.indexOf("Severity") === -1 || columns.indexOf("Count") === -1) return rows;
+        return rows.slice().sort(function (a, b) {
+            var orderA = VcfCheckUI.ROW_SEVERITY_ORDER[String(a.Severity).trim().toUpperCase()];
+            var orderB = VcfCheckUI.ROW_SEVERITY_ORDER[String(b.Severity).trim().toUpperCase()];
+            if (orderA === undefined) orderA = 99;
+            if (orderB === undefined) orderB = 99;
+            if (orderA !== orderB) return orderA - orderB;
+            var countA = Number(a.Count);
+            var countB = Number(b.Count);
+            if (!isNaN(countA) && !isNaN(countB) && countA !== countB) return countB - countA;
+            var summaryA = a.Summary === undefined || a.Summary === null ? "" : String(a.Summary);
+            var summaryB = b.Summary === undefined || b.Summary === null ? "" : String(b.Summary);
+            return summaryA.localeCompare(summaryB);
+        });
+    }
+
     // Companion to VcfCheckUI.rowsTableColumns' "Value" fallback above - a non-object row has no such
     // property, so read the row itself rather than indexing into it.
     VcfCheckUI.rowsTableCellValue = function (row, column) {
@@ -364,6 +388,7 @@
     VcfCheckUI.renderRowsTable = function (rows) {
         if (!rows || !rows.length) return null;
         var columns = VcfCheckUI.rowsTableColumns(rows);
+        var sortedRows = VcfCheckUI.sortRowsBySeverityCount(rows, columns);
         var table = document.createElement("table");
         table.className = "rows-table";
 
@@ -373,7 +398,7 @@
         });
         table.appendChild(headRow);
 
-        rows.forEach(function (row) {
+        sortedRows.forEach(function (row) {
             var tr = document.createElement("tr");
             columns.forEach(function (column) {
                 var td = document.createElement("td");
@@ -396,8 +421,9 @@
     VcfCheckUI.rowsToHtml = function (rows) {
         if (!rows || !rows.length) return "";
         var columns = VcfCheckUI.rowsTableColumns(rows);
+        var sortedRows = VcfCheckUI.sortRowsBySeverityCount(rows, columns);
         var head = "<tr>" + columns.map(function (column) { return "<th>" + VcfCheckUI.escapeHtml(column) + "</th>"; }).join("") + "</tr>";
-        var body = rows.map(function (row) {
+        var body = sortedRows.map(function (row) {
             return "<tr>" + columns.map(function (column) {
                 var value = VcfCheckUI.normalizeExpiryCellValue(column, VcfCheckUI.rowsTableCellValue(row, column));
                 var statusClass = VcfCheckUI.rowStatusClass(value);

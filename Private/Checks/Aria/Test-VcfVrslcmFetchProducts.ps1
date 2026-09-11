@@ -234,7 +234,7 @@ function Test-VcfVrslcmFetchProducts {
             $minimumFloorVersion = ConvertTo-VcfCheckSimpleVersion -VersionString $resolvedFloor
             if ($id -eq 'vrslcm' -and $minimumFloorVersion -and $minimumFloorVersion -ge [Version]'9.0.0.0') {
                 $row.ReadyforUpgrade = $true
-                $row.FailureReason = 'SDDC Manager is replaced by VCF Ops in VCF 9.x'
+                $row.FailureReason = 'VMware Aria Suite Lifecycle (vRSLCM) is replaced by VCF Ops in VCF 9.x'
             }
 
             if (-not $row.ReadyforUpgrade) {

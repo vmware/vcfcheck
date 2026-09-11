@@ -109,7 +109,7 @@
     }
 
     function renderResultRow(result) {
-        var resultKey = result.checkId + "|" + result.area;
+        var resultKey = [result.checkId, result.area, result.component, result.domain, result.targetComponent].join("|");
         var row = VcfCheckUI.el("div", "result-row");
         var summaryRow = VcfCheckUI.el("div", "result-summary");
 

@@ -96,12 +96,19 @@ function Test-VcfSddcLockTable {
         }
 
         $columns = $outputLines[0] -split '\|'
+        $epochMillisColumns = @('creation_time', 'modification_time')
         $lockRows = [System.Collections.Generic.List[PSCustomObject]]::new()
         foreach ($line in $outputLines | Select-Object -Skip 1) {
             $values = $line -split '\|'
             $row = [Ordered]@{}
             for ($i = 0; $i -lt $columns.Count; $i++) {
-                $row[$columns[$i]] = if ($i -lt $values.Count) { $values[$i] } else { '' }
+                $rawValue = if ($i -lt $values.Count) { $values[$i] } else { '' }
+                [Int64]$epochMillis = 0
+                if ($columns[$i] -in $epochMillisColumns -and [Int64]::TryParse($rawValue, [ref]$epochMillis)) {
+                    $row[$columns[$i]] = [DateTimeOffset]::FromUnixTimeMilliseconds($epochMillis).UtcDateTime.ToString('yyyy-MM-dd')
+                } else {
+                    $row[$columns[$i]] = $rawValue
+                }
             }
             $lockRows.Add([PSCustomObject]$row)
         }

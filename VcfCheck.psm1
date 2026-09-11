@@ -99,7 +99,7 @@ if (Test-Path -LiteralPath $checksPath) {
 
 # Module constants - set once at load time, never mutate.
 $Script:VcfCheckModuleLoaded = $true
-$Script:VcfCheckVersion      = '2.0.0.1006'
+$Script:VcfCheckVersion      = '2.0.0.1007'
 
 # Environment variable that stores the active base directory (set by Initialize-VcfCheck).
 $Script:VCF_CHECK_ENV_VAR     = 'VcfCheckBaseDirectory'

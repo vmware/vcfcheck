@@ -504,7 +504,7 @@
     ],
     "information": "See [Should DRS Affinity Rules be disabled when upgrading ESX hosts in a cluster](https://knowledge.broadcom.com/external/article/421742/should-drs-affinity-rules-be-disabled-wh.html) for guidance on whether DRS affinity rules should be disabled during upgrade.",
     "validationCriteria": "Reports whether any DRS VM/VM or VM/Host affinity/anti-affinity rule is configured with Mandatory set to true - a mandatory rule must be honored during placement and can constrain host evacuation during an upgrade, unlike a non-mandatory rule.",
-    "remediation": ""
+    "remediation": "Review the enabled mandatory DRS rule(s) listed in this check's Rows table. Before upgrading, either disable the rule, set Mandatory to false, or manually evacuate the affected hosts so the rule does not block DRS from placing VMs during the upgrade. See [Should DRS Affinity Rules be disabled when upgrading ESX hosts in a cluster](https://knowledge.broadcom.com/external/article/421742/should-drs-affinity-rules-be-disabled-wh.html) for guidance."
   },
   "vcenter_check_hosts": {
     "function": "Test-VcfVcenterCheckHosts",

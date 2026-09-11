@@ -364,9 +364,16 @@
 <ul>
 <li><a href="#prerequisites"
 id="toc-prerequisites">Prerequisites</a></li>
-<li><a href="#offline-zip" id="toc-offline-zip">Offline Zip</a></li>
-<li><a href="#powershell-gallery" id="toc-powershell-gallery">PowerShell
-Gallery</a></li>
+<li><a href="#option-1-powershell-gallery-preferred"
+id="toc-option-1-powershell-gallery-preferred">Option 1: PowerShell
+Gallery (Preferred)</a></li>
+<li><a href="#option-2-clone-from-github-and-install-manually"
+id="toc-option-2-clone-from-github-and-install-manually">Option 2: Clone
+from GitHub and install manually</a></li>
+<li><a
+href="#option-3-download-latest-release-from-github-and-install-manually"
+id="toc-option-3-download-latest-release-from-github-and-install-manually">Option
+3: Download latest release from GitHub and install manually</a></li>
 </ul></li>
 <li><a href="#quick-start" id="toc-quick-start">Quick Start</a></li>
 <li><a href="#using-vcf-check" id="toc-using-vcf-check">Using VCF
@@ -448,51 +455,50 @@ href="https://www.python.org/downloads/windows/">Python Windows
 downloads page</a> and select the installer matching your system
 architecture.</p></li>
 </ul>
-<h3 id="offline-zip">Offline Zip</h3>
-<ol type="1">
-<li><p>Copy <code>VcfCheck-&lt;version&gt;.zip</code> to the script
-execution system.</p></li>
-<li><p>Expand it into a <code>VcfCheck</code> folder under one of your
-<code>$env:PSModulePath</code> locations, for example, your user module
-path:</p>
+<h3 id="option-1-powershell-gallery-preferred">Option 1: PowerShell
+Gallery (Preferred)</h3>
 <div class="sourceCode" id="cb2"><pre
-class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">$userModulePath</span> <span class="op">=</span> <span class="op">(</span><span class="va">$env</span><span class="op">:</span><span class="va">PSModulePath</span> <span class="op">-split</span> <span class="op">[</span>IO<span class="op">.</span><span class="fu">Path</span><span class="op">]::</span>PathSeparator<span class="op">)[</span><span class="dv">0</span><span class="op">]</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="va">$destination</span> <span class="op">=</span> <span class="fu">Join-Path</span> <span class="op">-</span>Path <span class="va">$userModulePath</span> <span class="op">-</span>ChildPath <span class="st">&#39;VcfCheck&#39;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Expand-Archive <span class="op">-</span>Path <span class="st">&#39;./VcfCheck-&lt;version&gt;.zip&#39;</span> <span class="op">-</span>DestinationPath <span class="va">$destination</span> <span class="op">-</span>Force</span></code></pre></div>
-<p>On Linux, <code>Expand-Archive</code> may not be recognized as the
-PowerShell module that installs it,
-<code>Microsoft.PowerShell.Archive</code> module, may not be installed
-by default on all distributions. If the command above fails, either
-install it first:</p>
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Install-Module <span class="op">-</span>Name VcfCheck <span class="op">-</span>Scope CurrentUser</span></code></pre></div>
+<h3 id="option-2-clone-from-github-and-install-manually">Option 2: Clone
+from GitHub and install manually</h3>
 <div class="sourceCode" id="cb3"><pre
-class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Install-Module <span class="op">-</span>Name Microsoft<span class="op">.</span><span class="fu">PowerShell</span><span class="op">.</span><span class="fu">Archive</span> <span class="op">-</span>Scope AllUsers</span></code></pre></div>
-<p>or extract the archive with <code>unzip</code> instead:</p>
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Open a PowerShell 7.4+ prompt (pwsh on macOS/Linux, PowerShell 7 on Windows)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>git clone https<span class="op">://</span>github<span class="op">.</span><span class="fu">com</span><span class="op">/</span>vmware<span class="op">/</span>vcfcheck<span class="op">.</span><span class="fu">git</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cd</span> vcfcheck</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>pwsh <span class="op">-</span>ExecutionPolicy Bypass <span class="op">-</span>File <span class="op">.</span>\Install-VcfCheckModule<span class="op">.</span><span class="fu">ps1</span></span></code></pre></div>
+<h3
+id="option-3-download-latest-release-from-github-and-install-manually">Option
+3: Download latest release from GitHub and install manually</h3>
 <div class="sourceCode" id="cb4"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unzip</span> VcfCheck-<span class="op">&lt;</span>version<span class="op">&gt;</span>.zip <span class="at">-d</span> /path/to/Modules/VcfCheck</span></code></pre></div>
-<p>The archive's top-level folder is already named after the module
-version, so this produces
-<code>&lt;...&gt;/Modules/VcfCheck/&lt;version&gt;/VcfCheck.psd1</code>,
-matching the layout PowerShell expects for versioned modules.</p></li>
-<li><p>If this PowerShell session was already open before you ran the
-steps above, start a new session before continuing. A running session
-caches the module autoload table at startup, so it will not see a module
-dropped into <code>$env:PSModulePath</code> afterward, and
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="va">$tempDir</span> <span class="op">=</span> <span class="fu">New-Item</span> <span class="op">-</span>ItemType Directory <span class="op">-</span>Path <span class="op">(</span><span class="fu">Join-Path</span> <span class="op">([</span>System<span class="op">.</span><span class="fu">IO</span><span class="op">.</span><span class="fu">Path</span><span class="op">]::</span>GetTempPath<span class="op">())</span> <span class="op">([</span>Guid<span class="op">]::</span>NewGuid<span class="op">().</span><span class="fu">ToString</span><span class="op">()))</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="va">$fullPath</span> <span class="op">=</span> <span class="fu">Join-Path</span> <span class="op">-</span>Path <span class="va">$tempDir</span> <span class="op">-</span>ChildPath <span class="st">&quot;VcfCheck.zip&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">Invoke-WebRequest</span> <span class="op">-</span>Uri <span class="st">&quot;https://github.com/vmware/vcfcheck/releases/latest/download/VcfCheck.zip&quot;</span> <span class="op">-</span>OutFile <span class="va">$fullPath</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>Expand-Archive <span class="op">-</span>Path <span class="va">$fullPath</span> <span class="op">-</span>DestinationPath <span class="va">$tempDir</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="va">$installer</span> <span class="op">=</span> <span class="fu">Get-ChildItem</span> <span class="op">-</span>Path <span class="va">$tempDir</span> <span class="op">-</span>Filter <span class="st">&quot;Install-VcfCheckModule.ps1&quot;</span> <span class="op">-</span>Recurse <span class="op">-</span>File <span class="op">|</span> <span class="fu">Select-Object</span> <span class="op">-</span>First <span class="dv">1</span> <span class="op">-</span>ExpandProperty FullName</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>pwsh <span class="op">-</span>ExecutionPolicy Bypass <span class="op">-</span>File <span class="va">$installer</span></span></code></pre></div>
+<blockquote>
+<p><strong>Note:</strong> <code>-ExecutionPolicy Bypass</code> is
+required on Windows when running a script downloaded from the internet.
+It is accepted but has no effect on macOS and Linux, so the same command
+works on all platforms. The installer also calls
+<code>Unblock-File</code> on all installed module files to remove the
+Windows "mark of the web" that would otherwise block
+<code>Import-Module</code> even after the script completes.</p>
+</blockquote>
+<p>PowerShell auto-imports the module on first use once it is installed
+to <code>$env:PSModulePath</code> — no profile changes are needed. If a
+PowerShell session was already open before running the installer, start
+a new session before continuing - a running session caches the module
+autoload table at startup, so it will not see a module dropped into
+<code>$env:PSModulePath</code> afterward, and
 <code>Get-Module -ListAvailable</code> will report nothing until the
-session is restarted.</p></li>
-<li><p>Verify and import:</p>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">Get-Module</span> <span class="op">-</span>ListAvailable VcfCheck</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Import-Module</span> VcfCheck</span></code></pre></div></li>
-</ol>
-<h3 id="powershell-gallery">PowerShell Gallery</h3>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode Powershell"><code class="sourceCode powershell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>Install-Module <span class="op">-</span>Name VcfCheck <span class="op">-</span>Scope CurrentUser</span></code></pre></div>
+session is restarted.</p>
 <h2 id="quick-start">Quick Start</h2>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Initialize-VcfCheck                        <span class="co"># (One time) sets up your configuration files and environment.</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>Start-VcfCheckServer                       <span class="co"># Launches the web-based configuration utility.</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>Stop-VcfCheckServer                        <span class="co"># Stops the web-based configuration utility.</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Initialize-VcfCheck                        <span class="co"># (One time) sets up your configuration files and environment.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>Start-VcfCheckServer                       <span class="co"># Launches the web-based configuration utility.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Stop-VcfCheckServer                        <span class="co"># Stops the web-based configuration utility.</span></span></code></pre></div>
 <p>HTML and JSON reports are automatically saved to
 <code>$env:VcfCheckBaseDirectory/Findings/&lt;environment name&gt;</code>.</p>
 <p>If port 8766 is already in use by a leftover process,

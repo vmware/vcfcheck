@@ -66,6 +66,7 @@
     // not folded into it).
     VcfCheckUI._sizing.sizingMorePlatformRows = {};
     VcfCheckUI._sizing.sizingMoreGenericRows = {};
+    VcfCheckUI._sizing.collapsedSizingPlatformDomains = {}; // domainKey -> false, for a domain the user expanded (default collapsed)
 
     VcfCheckUI._sizing.renderSizingMoreBreakdown = function () {
         var breakdownBox = document.getElementById("sizing-more-breakdown");
@@ -95,16 +96,31 @@
 
         VcfCheckUI._sizing.getSizingPlatformDomainEntries().forEach(function (domain) {
             var card = document.createElement("div");
-            card.className = "sizing-vcenter-block";
+            card.className = "chk-area-group sizing-vcenter-block";
             card.style.marginBottom = "20px";
+            if (VcfCheckUI._sizing.collapsedSizingPlatformDomains[domain.domainKey] !== false) {
+                card.classList.add("collapsed");
+            }
 
-            var heading = document.createElement("p");
-            heading.className = "chk-count";
-            heading.style.marginTop = "0";
-            var headingStrong = document.createElement("strong");
-            headingStrong.textContent = domain.displayName;
-            heading.appendChild(headingStrong);
-            card.appendChild(heading);
+            var header = document.createElement("div");
+            header.className = "chk-area-header";
+            header.appendChild(VcfCheckUI.el("span", "chk-area-toggle", "▼"));
+            header.appendChild(VcfCheckUI.el("span", null, domain.displayName));
+            header.addEventListener("click", function () {
+                var collapsed = card.classList.toggle("collapsed");
+                VcfCheckUI._sizing.collapsedSizingPlatformDomains[domain.domainKey] = !collapsed;
+            });
+            card.appendChild(header);
+
+            var body = document.createElement("div");
+            body.className = "chk-area-items";
+            card.appendChild(body);
+
+            var hint = document.createElement("p");
+            hint.className = "chk-count";
+            hint.style.marginTop = "0";
+            hint.textContent = "Expand this domain to include AVI Load Balancer, Security Services Platform, or Supervisor for " + domain.displayName + ".";
+            body.appendChild(hint);
 
             var aviRow = document.createElement("div");
             aviRow.className = "launcher-row";
@@ -113,7 +129,7 @@
             var aviSizeSelect = VcfCheckUI._sizing.buildSizingTierSelect(VcfCheckUI._sizing.SIZING_AVI_LB_SIZE_OPTIONS, false);
             aviRow.appendChild(VcfCheckUI._sizing.buildSizingField("AVI Load Balancer", aviSelect));
             aviRow.appendChild(VcfCheckUI._sizing.buildSizingField("AVI Load Balancer Size", aviSizeSelect));
-            card.appendChild(aviRow);
+            body.appendChild(aviRow);
 
             var sspRow = document.createElement("div");
             sspRow.className = "launcher-row";
@@ -122,7 +138,7 @@
             var sspSizeSelect = VcfCheckUI._sizing.buildSizingTierSelect(VcfCheckUI._sizing.SIZING_SSP_SIZE_OPTIONS, false);
             sspRow.appendChild(VcfCheckUI._sizing.buildSizingField("Security Services Platform", sspSelect));
             sspRow.appendChild(VcfCheckUI._sizing.buildSizingField("Security Services Platform Size", sspSizeSelect));
-            card.appendChild(sspRow);
+            body.appendChild(sspRow);
 
             var supervisorRow = document.createElement("div");
             supervisorRow.className = "launcher-row";
@@ -139,14 +155,14 @@
             supervisorRow.appendChild(VcfCheckUI._sizing.buildSizingField("Supervisor", supervisorModeSelect));
             supervisorRow.appendChild(VcfCheckUI._sizing.buildSizingField("Availability Model", supervisorAvailabilitySelect));
             supervisorRow.appendChild(VcfCheckUI._sizing.buildSizingField("Supervisor Size", supervisorSizeSelect));
-            card.appendChild(supervisorRow);
+            body.appendChild(supervisorRow);
 
             if (domain.supervisorPresent) {
                 var supervisorNote = document.createElement("p");
                 supervisorNote.className = "chk-count";
                 supervisorNote.style.marginTop = "8px";
                 supervisorNote.textContent = "Supervisor is already deployed on this domain - it upgrades in place with no net-new resource footprint. Only choose a mode above if you also plan to resize it as part of this upgrade.";
-                card.appendChild(supervisorNote);
+                body.appendChild(supervisorNote);
             } else {
                 supervisorModeSelect.value = "exclude";
             }

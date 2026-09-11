@@ -226,14 +226,29 @@ function Get-VcfCheckVsanClusterHealth {
         .SYNOPSIS
         Thin, mockable wrapper around Get-Cluster | Test-VsanClusterHealth (see file header for why this wrapper exists).
 
+        .DESCRIPTION
+        Test-VsanClusterHealth runs live per-host tests against vCenter's vSAN Health Service and can take
+        60-120+ seconds per cluster. Clusters are health-checked one at a time (rather than piped through in a
+        single call) so Write-VcfCheckSubProgress can report which cluster is currently being scanned.
+
         .PARAMETER Server
         The connected vCenter FQDN.
+
+        .PARAMETER Context
+        The VcfCheck.Context object, passed through to Write-VcfCheckSubProgress.
     #>
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory = $true)] [String]$Server
+        [Parameter(Mandatory = $true)] [String]$Server,
+        [Parameter(Mandatory = $true)] [PSObject]$Context
     )
-    return Get-Cluster -Server $Server -ErrorAction Stop | Test-VsanClusterHealth -ErrorAction Stop
+    $clusters = @(Get-Cluster -Server $Server -ErrorAction Stop)
+    $clusterIndex = 0
+    return @($clusters | ForEach-Object {
+        $clusterIndex++
+        Write-VcfCheckSubProgress -Context $Context -Current $clusterIndex -Total $clusters.Count -Label $_.Name -Unit 'clusters'
+        $_ | Test-VsanClusterHealth -ErrorAction Stop
+    })
 }
 function Get-VcfCheckVsanDiskGroupInventory {
     <#

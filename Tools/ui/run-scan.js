@@ -50,6 +50,7 @@
             row.appendChild(main);
 
             var credentialsRow = VcfCheckUI.el("div", "run-scan-env-credentials hidden");
+            credentialsRow.appendChild(VcfCheckUI.el("div", "run-scan-env-credentials-heading", "Enter the passwords for " + environment.name));
             var passwordField = VcfCheckUI.buildPasswordField("rs-password-" + environment.id, "Password for User " + environment.sddcManagerUser);
             passwordField.querySelector("input").classList.add("rs-password");
             credentialsRow.appendChild(passwordField);

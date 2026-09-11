@@ -364,7 +364,7 @@
             });
             var peakLabel = totals.vCenterCount > 0 && totals.concurrentVCenters === totals.vCenterCount ?
                 "Total peak swing capacity (upgrading all " + totals.vCenterCount + " vCenter" + (totals.vCenterCount === 1 ? "" : "s") + " at once)" :
-                "Total peak swing capacity (upgrading " + totals.concurrentVCenters + " of " + totals.vCenterCount + " vCenters at once - see Refinement step)";
+                "Total peak swing capacity (upgrading " + totals.concurrentVCenters + " of " + totals.vCenterCount + " vCenters at once - see \"vCenters upgraded concurrently\" above)";
             box.appendChild(VcfCheckUI._sizing.sizingRow([
                 VcfCheckUI._sizing.sizingRowCell(peakLabel),
                 VcfCheckUI._sizing.sizingRowCell(String(Math.round(totals.peakTotalVCpu)), { numeric: true }),
@@ -385,7 +385,7 @@
         if (noteBox) {
             var notes = [];
             if (totals.anyDelta) {
-                notes.push("\"Net change\" rows are the delta versus what's running today. \"Peak swing capacity\" is the extra vCPU/RAM/disk needed while old and new appliances run side by side; the total scales to how many vCenters you upgrade at once (set on the Refinement step).");
+                notes.push("\"Net change\" rows are the delta versus what's running today. \"Peak swing capacity\" is the extra vCPU/RAM/disk needed while old and new appliances run side by side; the total scales to how many vCenters you upgrade at once (set on the vCenter step, or later on Refinement).");
             }
             notes.push("\"Physical resources needed\" applies the overcommitment ratios from the Refinement step (default 1:1) to estimate physical host CPU cores and RAM required.");
             noteBox.textContent = notes.join(" ");
@@ -488,32 +488,60 @@
     document.getElementById("sizingSaveButton").addEventListener("click", VcfCheckUI._sizing.saveSizingEstimate);
     document.getElementById("sizingDownloadButton").addEventListener("click", VcfCheckUI._sizing.downloadSizingEstimateHtml);
 
+    // Both the vCenter step and the Refinement step expose a "vCenters upgraded concurrently"
+    // control over the same VcfCheckUI._sizing.sizingConcurrentVCenters state, so the setting is visible where
+    // the peak swing capacity total is first shown, not just buried in Refinement. Shared here
+    // so the two selects stay in sync with each other and with the vCenter count from Scan.
+    VcfCheckUI._sizing.CONCURRENT_VCENTER_SELECT_IDS = ["sizing-vcenter-concurrent", "sizing-refine-concurrent-vcenters"];
+
+    VcfCheckUI._sizing.syncConcurrentVCenterSelects = function () {
+        var totalVCenters = VcfCheckUI._sizing.getSizingVCenterEntries().length;
+        var optionCount = Math.max(totalVCenters, 1);
+        if (VcfCheckUI._sizing.sizingConcurrentVCenters > optionCount) {
+            VcfCheckUI._sizing.sizingConcurrentVCenters = optionCount;
+        }
+        VcfCheckUI._sizing.CONCURRENT_VCENTER_SELECT_IDS.forEach(function (selectId) {
+            var select = document.getElementById(selectId);
+            if (!select) {
+                return;
+            }
+            if (parseInt(select.dataset.optionCount, 10) !== optionCount) {
+                select.dataset.optionCount = String(optionCount);
+                select.innerHTML = "";
+                for (var optionIndex = 1; optionIndex <= optionCount; optionIndex++) {
+                    var option = document.createElement("option");
+                    option.value = String(optionIndex);
+                    option.textContent = String(optionIndex);
+                    select.appendChild(option);
+                }
+            }
+            select.value = String(VcfCheckUI._sizing.sizingConcurrentVCenters);
+            if (!select.dataset.wired) {
+                select.dataset.wired = "1";
+                select.addEventListener("change", function () {
+                    VcfCheckUI._sizing.sizingConcurrentVCenters = parseInt(select.value, 10) || 1;
+                    VcfCheckUI._sizing.sizingEstimateDirty = true;
+                    VcfCheckUI._sizing.syncConcurrentVCenterSelects();
+                    VcfCheckUI._sizing.updateSizingRunningTotal();
+                });
+            }
+        });
+        var vcenterHint = document.getElementById("sizing-vcenter-concurrent-hint");
+        if (vcenterHint) {
+            vcenterHint.textContent = totalVCenters + " vCenter(s) detected. This sets how much temporary swing capacity the peak total below assumes - raise it if you'll upgrade more than one vCenter at the same time (can also be changed later on the Refinement step).";
+        }
+        return totalVCenters;
+    }
+
     VcfCheckUI._sizing.renderSizingRefineStep = function () {
         var cpuInput = document.getElementById("sizing-refine-cpu-ratio");
         var memInput = document.getElementById("sizing-refine-mem-ratio");
-        var vcenterInput = document.getElementById("sizing-refine-concurrent-vcenters");
         var hintBox = document.getElementById("sizing-refine-hint");
-        var totalVCenters = VcfCheckUI._sizing.getSizingVCenterEntries().length;
-        var vcenterOptionCount = Math.max(totalVCenters, 1);
-        if (parseInt(vcenterInput.dataset.optionCount, 10) !== vcenterOptionCount) {
-            vcenterInput.dataset.optionCount = String(vcenterOptionCount);
-            vcenterInput.innerHTML = "";
-            for (var vcenterOptionIndex = 1; vcenterOptionIndex <= vcenterOptionCount; vcenterOptionIndex++) {
-                var vcenterOption = document.createElement("option");
-                vcenterOption.value = String(vcenterOptionIndex);
-                vcenterOption.textContent = String(vcenterOptionIndex);
-                vcenterInput.appendChild(vcenterOption);
-            }
-        }
-        if (VcfCheckUI._sizing.sizingConcurrentVCenters > vcenterOptionCount) {
-            VcfCheckUI._sizing.sizingConcurrentVCenters = vcenterOptionCount;
-        }
-        vcenterInput.value = String(VcfCheckUI._sizing.sizingConcurrentVCenters);
+        var totalVCenters = VcfCheckUI._sizing.syncConcurrentVCenterSelects();
         hintBox.textContent = totalVCenters + " vCenter(s) detected. Overcommitment ratios default to 1:1 (no overcommit) - set them to match your cluster's actual CPU/memory overcommitment (see the linked guidance above) to see the physical host resources required.";
         if (!cpuInput.dataset.wired) {
             cpuInput.dataset.wired = "1";
             memInput.dataset.wired = "1";
-            vcenterInput.dataset.wired = "1";
             cpuInput.addEventListener("input", function () {
                 VcfCheckUI._sizing.sizingCpuOvercommitRatio = parseFloat(cpuInput.value) || 1;
                 VcfCheckUI._sizing.sizingEstimateDirty = true;
@@ -521,11 +549,6 @@
             });
             memInput.addEventListener("input", function () {
                 VcfCheckUI._sizing.sizingMemOvercommitRatio = parseFloat(memInput.value) || 1;
-                VcfCheckUI._sizing.sizingEstimateDirty = true;
-                VcfCheckUI._sizing.updateSizingRunningTotal();
-            });
-            vcenterInput.addEventListener("change", function () {
-                VcfCheckUI._sizing.sizingConcurrentVCenters = parseInt(vcenterInput.value, 10) || 1;
                 VcfCheckUI._sizing.sizingEstimateDirty = true;
                 VcfCheckUI._sizing.updateSizingRunningTotal();
             });

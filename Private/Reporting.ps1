@@ -1209,6 +1209,11 @@ function Format-VcfCheckHtmlRowsTable {
         renders as "N/A" rather than an empty <td>, so a reviewer can distinguish "queried and
         found nothing" from a rendering gap.
 
+        When $Rows has both a Severity and a Count column, rows are reordered by severity
+        (ERROR, CRITICAL, HIGH, MEDIUM, LOW, WARNING, INFO, then anything else), then by
+        descending Count, then by Summary alphabetically - matching
+        Tools/ui/common.js's VcfCheckUI.sortRowsBySeverityCount().
+
         .PARAMETER Rows
         Array of PSCustomObject "table rows". $null or empty returns an empty string (no <table>
         emitted at all).
@@ -1248,6 +1253,19 @@ function Format-VcfCheckHtmlRowsTable {
         'SKIPPED' = 'skipped'
     }
     $noTransformColumns = @('UsedPercent')
+
+    # Mirrors Tools/ui/common.js's VcfCheckUI.sortRowsBySeverityCount(): when a Rows table has
+    # both a Severity and a Count column (e.g. an alarm/event summary), group by severity in
+    # ERROR/CRITICAL/HIGH/MEDIUM/LOW/WARNING/INFO order, then by descending Count, then by
+    # Summary alphabetically.
+    $severityOrder = @{ 'ERROR' = 0; 'CRITICAL' = 1; 'HIGH' = 2; 'MEDIUM' = 3; 'LOW' = 4; 'WARNING' = 5; 'INFO' = 6 }
+    if ('Severity' -in $columns -and 'Count' -in $columns) {
+        $Rows = @($Rows | Sort-Object -Property @(
+            @{ Expression = { $rank = $severityOrder[([String]$_.Severity).Trim().ToUpperInvariant()]; if ($null -eq $rank) { 99 } else { $rank } } },
+            @{ Expression = { [Int64]$_.Count }; Descending = $true },
+            @{ Expression = { [String]$_.Summary } }
+        ))
+    }
 
     $sb = [System.Text.StringBuilder]::new()
     $null = $sb.Append('<table class="rows-table"><tr>')
