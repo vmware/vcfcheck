@@ -33,8 +33,9 @@
     Manually installs the VcfCheck PowerShell module cross-platform.
 
 .DESCRIPTION
-    Copies VcfCheck.psd1, VcfCheck.psm1, Config, Data, Docs, Private, and Tools into the
-    first path in $env:PSModulePath for the current platform (Windows, Linux, or macOS).
+    Copies VcfCheck.psd1, VcfCheck.psm1, this installer script, Config, Data, Docs,
+    Private, and Tools into the first path in $env:PSModulePath for the current
+    platform (Windows, Linux, or macOS).
     Validates the installed manifest before completing. Python __pycache__ directories
     are excluded from the copy.
 
@@ -78,7 +79,7 @@ Param (
     [Parameter(Mandatory = $false)] [ValidateNotNullOrEmpty()] [String]$SourcePath = $PSScriptRoot
 )
 
-$itemsToCopy = @("VcfCheck.psd1", "VcfCheck.psm1", "Config", "Data", "Docs", "Private", "Tools")
+$itemsToCopy = @("VcfCheck.psd1", "VcfCheck.psm1", "Install-VcfCheckModule.ps1", "Config", "Data", "Docs", "Private", "Tools")
 
 Write-Host ""
 Write-Host "VcfCheck Module Installer" -ForegroundColor Cyan
