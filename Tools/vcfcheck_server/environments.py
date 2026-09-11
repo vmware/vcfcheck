@@ -161,6 +161,16 @@ def _find_password_like_key(value) -> str:
     return ""
 
 
+def reject_unsafe_cli_value(value: str, field_name: str) -> str:
+    """Returns an error message, or "" when `value` is safe to pass as a pwsh -File positional
+    argument value. A leading "-" (or "/" on Windows) makes PowerShell's parameter binder treat
+    the value as a switch/parameter name of its own rather than plain text, letting a value like
+    fqdn or username inject additional parameters into the child pwsh invocation."""
+    if value.startswith("-") or value.startswith("/"):
+        return f"{field_name} must not start with '-' or '/'."
+    return ""
+
+
 def _validate_integrations(integrations) -> str:
     """Validates the optional `integrations` field - components (e.g. a standalone Aria
     Operations instance) SDDC Manager/VRSLCM have zero knowledge of, declared directly by the
@@ -207,10 +217,18 @@ def _validate_environment_body(body: dict, environments: list, exclude_id: str =
     name = str(body.get("name", "")).strip()
     if not name:
         return "name must not be empty."
-    if not str(body.get("sddcManagerFqdn", "")).strip():
+    fqdn = str(body.get("sddcManagerFqdn", "")).strip()
+    if not fqdn:
         return "sddcManagerFqdn must not be empty."
-    if not str(body.get("sddcManagerUser", "")).strip():
+    fqdn_error = reject_unsafe_cli_value(fqdn, "sddcManagerFqdn")
+    if fqdn_error:
+        return fqdn_error
+    username = str(body.get("sddcManagerUser", "")).strip()
+    if not username:
         return "sddcManagerUser must not be empty."
+    username_error = reject_unsafe_cli_value(username, "sddcManagerUser")
+    if username_error:
+        return username_error
     integrations_error = _validate_integrations(body.get("integrations"))
     if integrations_error:
         return integrations_error

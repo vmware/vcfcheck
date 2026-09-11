@@ -120,6 +120,7 @@ from vcfcheck_server.environments import (
     _save_environments,
     _slugify_environment_name,
     _validate_environment_body,
+    reject_unsafe_cli_value,
 )
 from vcfcheck_server.json_utils import _extract_json_object, _load_json_file, _load_latest_findings_json
 from vcfcheck_server.logs import (
@@ -1871,6 +1872,10 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
         if not fqdn or not username or not password:
             self._send_json(HTTPStatus.BAD_REQUEST, {"error": "fqdn, username, and password are required"})
             return
+        cli_error = reject_unsafe_cli_value(fqdn, "fqdn") or reject_unsafe_cli_value(username, "username")
+        if cli_error:
+            self._send_json(HTTPStatus.BAD_REQUEST, {"error": cli_error})
+            return
 
         self._send_json(HTTPStatus.OK, self._run_validate_credentials_script(fqdn, username, password, root_password))
 
@@ -1960,6 +1965,10 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
 
             if not fqdn or not username or not password:
                 self._send_json(HTTPStatus.BAD_REQUEST, {"error": "fqdn, username, and password are required"})
+                return
+            cli_error = reject_unsafe_cli_value(fqdn, "fqdn") or reject_unsafe_cli_value(username, "username")
+            if cli_error:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": cli_error})
                 return
 
             item_check_ids = candidate_ids if root_password else [c for c in candidate_ids if c not in root_credential_ids]
