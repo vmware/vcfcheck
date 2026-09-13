@@ -1,6 +1,7 @@
 [![Downloads](https://img.shields.io/github/downloads/vmware/vcfcheck/total.svg?label=GitHub%20Release%20Downloads)](https://github.com/vmware/vcfcheck/releases)
 [![PS Version](https://img.shields.io/powershellgallery/v/VcfCheck?label=Version)](https://www.powershellgallery.com/packages/VcfCheck)
 [![PS Downloads](https://img.shields.io/powershellgallery/dt/VcfCheck?label=PS%20Gallery%20Downloads)](https://www.powershellgallery.com/packages/VcfCheck)
+[![GitHub Clones](https://img.shields.io/badge/dynamic/json?color=success&label=Clone&query=count&url=https://gist.githubusercontent.com/nathanthaler/dfd9177ce85f2ecf391900688f2206c7/raw/clone.json&logo=github)](https://gist.githubusercontent.com/nathanthaler/dfd9177ce85f2ecf391900688f2206c7/raw/clone.json)
 [![License](https://img.shields.io/badge/License-Broadcom-green.svg)](LICENSE)
 [![GitHub Release](https://img.shields.io/badge/Github-Changelog-green)](CHANGELOG.md)
 
