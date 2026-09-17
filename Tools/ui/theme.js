@@ -65,6 +65,9 @@
 
             document.getElementById("sizing-section").style.display = data.sizingEstimatorEnabled ? "" : "none";
 
+            VcfCheckUI.savedDefaultCheckIds = Array.isArray(data.defaultCheckIds) ? data.defaultCheckIds : null;
+            VcfCheckUI.savedDefaultAreaIds = Array.isArray(data.defaultAreaIds) ? data.defaultAreaIds : null;
+
             VcfCheckUI.loadPowerCliTlsStatus();
         });
     }

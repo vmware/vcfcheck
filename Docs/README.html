@@ -376,33 +376,46 @@ id="toc-option-3-download-latest-release-from-github-and-install-manually">Optio
 3: Download latest release from GitHub and install manually</a></li>
 </ul></li>
 <li><a href="#quick-start" id="toc-quick-start">Quick Start</a></li>
-<li><a href="#running-in-a-container"
-id="toc-running-in-a-container">Running in a Container</a></li>
 <li><a href="#using-vcf-check" id="toc-using-vcf-check">Using VCF
 Check</a>
 <ul>
 <li><a href="#creating-an-environment"
 id="toc-creating-an-environment">Creating an Environment</a></li>
 </ul></li>
+<li><a href="#health-checks" id="toc-health-checks">Health
+Checks</a></li>
 <li><a href="#run-scan" id="toc-run-scan">Run Scan</a>
 <ul>
 <li><a href="#select-environments" id="toc-select-environments">Select
 Environment(s)</a></li>
+<li><a href="#run-check" id="toc-run-check">Run Check</a></li>
 <li><a href="#discover-workload-domains-optional"
 id="toc-discover-workload-domains-optional">Discover Workload Domains
 (Optional)</a></li>
-<li><a href="#health-checks" id="toc-health-checks">Health
-Checks</a></li>
-<li><a href="#run-check" id="toc-run-check">Run Check</a></li>
-<li><a href="#export-reports" id="toc-export-reports">Export
-(Reports)</a></li>
-<li><a href="#collect-logs" id="toc-collect-logs">Collect Logs</a></li>
+</ul></li>
+<li><a href="#other" id="toc-other">Other</a>
+<ul>
+<li><a href="#disabling-a-check-debugging"
+id="toc-disabling-a-check-debugging">Disabling a Check
+(Debugging)</a></li>
+<li><a href="#interacting-with-run-check"
+id="toc-interacting-with-run-check">Interacting with Run Check</a></li>
+<li><a href="#filters" id="toc-filters">Filters</a></li>
+<li><a href="#progress-bars" id="toc-progress-bars">Progress
+bars</a></li>
+<li><a href="#check-structures-and-descriptions"
+id="toc-check-structures-and-descriptions">Check structures and
+descriptions</a></li>
+<li><a href="#exporting-your-report"
+id="toc-exporting-your-report">Exporting your Report</a></li>
+<li><a href="#collecting-logs" id="toc-collecting-logs">Collecting
+Logs</a></li>
 <li><a href="#dark--light-mode" id="toc-dark--light-mode">Dark / Light
 mode</a></li>
+<li><a href="#general-notes" id="toc-general-notes">General
+Notes</a></li>
 </ul></li>
-<li><a href="#check-details" id="toc-check-details">Check
-Details</a></li>
-<li><a href="#general-notes" id="toc-general-notes">General Notes</a>
+<li><a href="#check-details" id="toc-check-details">Check Details</a>
 <ul>
 <li><a href="#aria" id="toc-aria">Aria</a></li>
 <li><a href="#esx" id="toc-esx">ESX</a></li>
@@ -415,15 +428,24 @@ Details</a></li>
 </ul>
 </nav>
 <h1 id="vcf-check">VCF Check</h1>
-<p>A lightweight PowerShell module that runs pre-upgrade health checks
-against VMware Cloud Foundation (VCF) 5.2 and later environments, paired
-with a bundled local Python web-based user interface. These checks are
-used to ascertain if any remediation is required before launching a VCF
-9.x upgrade.</p>
-<p>VCF Check does not support VCF releases earlier than 5.2. When it
-connects to SDDC Manager, it checks the reported VCF version and stops
-the run with an explanatory error if the environment is older than
-5.2.</p>
+<p>VCF Check helps prepare customers for VCF 5.2.x to VCF 9.1.x upgrades
+by running a series of component health and version compatibility
+checks. It does so without installing or modifying any server-side
+components.</p>
+<p>The platform is comprised of a Powershell Module, which acts as an
+execution engine, paired with a Python user interface, which is used to
+configure, run, and view the results of the checks.</p>
+<p>The checks currently cover the following component areas:</p>
+<ul>
+<li>Aria Automation</li>
+<li>Aria Operations</li>
+<li>Aria Operations for Logs</li>
+<li>ESX</li>
+<li>SDDC Manager</li>
+<li>vCenter</li>
+<li>VMware Aria Suite Lifecycle</li>
+</ul>
+<p>Aria components (and VMware Aria Suite Lifecycle) are optional.</p>
 <h2 id="installation">Installation</h2>
 <h3 id="prerequisites">Prerequisites</h3>
 <ul>
@@ -431,13 +453,21 @@ the run with an explanatory error if the environment is older than
 href="https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell">PowerShell
 7.4+</a></li>
 <li><a href="https://developer.broadcom.com/powercli">VCF.PowerCLI
-9.0+</a> — if VMware.PowerCLI is already installed, uninstall it first
+9.0+</a>
+<ul>
+<li><strong>NOTE</strong> VMware.PowerCLI is already installed,
+uninstall it first
 (<code>Uninstall-Module VMware.PowerCLI -AllVersions</code>); the two
 modules conflict and cannot coexist.</li>
+</ul></li>
 <li>Python 3.13+ (see <a href="#installing-python">Installing Python</a>
 below)</li>
-<li>macOS/Linux/Windows system with HTTPS network access to SDDC
-Manager, vCenter, and vRSLCM (if installed)</li>
+<li>macOS/Linux/Windows system with HTTPS network access to all the
+component endpoints.
+<ul>
+<li><strong>NOTE</strong> All component endpoint APIs use HTTPS over
+443, except for Aria Operations for Logs which uses 9543.</li>
+</ul></li>
 <li>An SSO account on SDDC Manager with ADMIN-level access.</li>
 <li>Modern web browser (to access the web interface of pre-check
 utility). Chrome-based recommended (Firefox, Safari should work; IE will
@@ -501,54 +531,12 @@ class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>Start-VcfCheckServer                       <span class="co"># Launches the web-based configuration utility.</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Stop-VcfCheckServer                        <span class="co"># Stops the web-based configuration utility.</span></span></code></pre></div>
-<p>HTML and JSON reports are automatically saved to
-<code>$env:VcfCheckBaseDirectory/Findings/&lt;environment name&gt;</code>.</p>
 <p>If port 8766 is already in use by a leftover process,
-<code>Start-VcfCheckServer</code> throws instead of binding to it. Run
+<code>Start-VcfCheckServer</code> will produce an error. Run
 <code>Start-VcfCheckServer -Force</code> to stop whatever is holding the
 port first and then start normally. Use <code>-Background</code> to run
 detached (stop it later with <code>Stop-VcfCheckServer</code>) and
 <code>-Port &lt;n&gt;</code> to use a different port.</p>
-<h2 id="running-in-a-container">Running in a Container</h2>
-<p>As an alternative to installing PowerShell/PowerCLI locally, run VCF
-Check via the bundled
-<code>docker/Dockerfile</code>/<code>docker/docker-compose.yml</code>
-(see <code>docker/README.md</code> for full run and troubleshooting
-instructions):</p>
-<div class="sourceCode" id="cb6"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> docker</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">--build</span></span></code></pre></div>
-<p>This builds an image containing PowerShell 7.4, PowerCLI, and the
-module, then starts the report viewer non-interactively
-(<code>Initialize-VcfCheck -BaseDirectory /data -SkipDependencyCheck</code>
-runs automatically - no prompts). <code>Findings/</code>,
-<code>Config/</code>, and logs persist in the <code>vcfcheck-data</code>
-named volume across restarts.</p>
-<p>The server binds <code>127.0.0.1</code> only, by design, so it is
-never reachable from another machine.
-<code>docker/docker-compose.yml</code> uses
-<code>network_mode: host</code> (Linux only) so that loopback bind lands
-on your real machine, the same as running the server unpacked - it does
-not, and must not, publish the port to the network. Docker Desktop
-(macOS/Windows) does not support <code>network_mode: host</code>; run
-VCF Check unpacked on those platforms instead.</p>
-<p>Pass credentials per run rather than baking them into the image, via
-your shell environment (picked up automatically by
-<code>docker/docker-compose.yml</code>, no <code>-e</code> flag
-needed):</p>
-<div class="sourceCode" id="cb7"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFCHECK_SDDC_PASSWORD</span><span class="op">=</span><span class="pp">***</span> <span class="ex">docker</span> compose run vcfcheck</span></code></pre></div>
-<p>By default the container rejects untrusted/self-signed certificates,
-the same as PowerCLI's own secure default. VcfCheck has no TLS-bypass
-setting of its own outside a container - it always reflects PowerCLI's
-own <code>InvalidCertificateAction</code>, normally set by the operator
-with <code>Set-PowerCLIConfiguration</code>. Since a container has no
-interactive session to run that in,
-<code>VCFCHECK_ALLOW_INSECURE_TLS=true</code> is the container-only
-equivalent, for lab/test environments with self-signed certificates
-only:</p>
-<div class="sourceCode" id="cb8"><pre
-class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="va">VCFCHECK_ALLOW_INSECURE_TLS</span><span class="op">=</span>true <span class="ex">docker</span> compose up</span></code></pre></div>
 <h2 id="using-vcf-check">Using VCF Check</h2>
 <ul>
 <li>After launching <code>Start-VcfCheckServer</code> from a PowerShell
@@ -571,24 +559,27 @@ address in the "SDDC Manager FQDN" field. (e.g.,
 <li><p>Enter your SSO username in the "Username" field (example:
 <code>administrator@vsphere.local</code>). Please note: This user must
 have ADMIN-level permissions to SDDC Manager.</p></li>
-<li><p>The checkbox
-<code>Enable SDDC Manager and vCenter GuestOS-based checks</code> should
-remain checked unless one or more of the following conditions are
+<li><p>The checkbox <code>Enable Component GuestOS-based checks"</code>
+should remain checked unless one or more of the following conditions are
 met:</p>
 <ul>
-<li>SDDC Manager and vCenter do not and cannot run VMware Tools for
-security or policy reasons.</li>
+<li>Infrastructure components like SDDC Manager and vCenter do not and
+cannot run VMware Tools for security or policy reasons.</li>
 <li>You do not have guest OS credentials for the SDDC Manager.</li>
 <li>You have specific organization policies against the use of
 <code>Invoke-VMScript</code> to run guest OS operations on virtual
 appliances.</li>
 </ul></li>
 </ol>
-<p>GuestOS-based checks are executed through the PowerCLI cmdlet <a
+<p><strong>NOTE</strong> GuestOS-based checks are executed through the
+PowerCLI cmdlet <a
 href="https://developer.broadcom.com/powercli/latest/vmware.vimautomation.core/commands/invoke-vmscript"><code>Invoke-VMScript</code></a>.
 They rely on VMware Tools and user-provided credentials to collect
 internal system details not exposed by the native vSphere API. This does
 not require or utilize SSH access for security.</p>
+<p><strong>NOTE</strong> This toggle controls access to SDDC Manager and
+vCenter based GuestOS checks as well as Aria Automation, Aria
+Operations, and Aria Operations for Logs, should the be configured.</p>
 <p>To view GuestOS-based checks, expand "Health checks" and click on the
 filter "Show GuestOS-based Checks".</p>
 <h4 id="adding-aria-components-optional">Adding Aria Components
@@ -604,7 +595,7 @@ not go through, and do not require, vRealize Suite Lifecycle Manager
 be managed by vRSLCM, or whether vRSLCM is deployed in the environment
 at all - VCF Check has no dependency on vRSLCM to run these checks.</li>
 <li>If you don't add a component here, its checks are simply skipped for
-that environment.</li>
+the environment in question.</li>
 </ul>
 <h4 id="creating-a-subsequent-environment">Creating a subsequent
 environment</h4>
@@ -673,92 +664,150 @@ read-only reflection of that PowerCLI setting, not a control - change it
 via <code>Set-PowerCLIConfiguration</code>, then reload the page to see
 the update.</li>
 </ul>
-<h2 id="run-scan">Run Scan</h2>
-<h3 id="select-environments">Select Environment(s)</h3>
-<ol type="1">
-<li>Click one or more environments you wish to check.</li>
-<li>Enter your credentials for your SSO user and the guest OS root user
-(if GuestOS-based checks are enabled).</li>
-</ol>
-<h3 id="discover-workload-domains-optional">Discover Workload Domains
-(Optional)</h3>
+<h2 id="health-checks">Health Checks</h2>
 <ul>
-<li><p>By default, <code>Run Check</code> scans every workload domain in
-the selected environment(s). Click
-<code>Discover Workload Domains</code> to customize which ones are
-scanned instead.</p></li>
-<li><p>This step performs the following:</p>
+<li>Click on <code>Health Check</code> to view or customize the list of
+checks run against your environments. By default, all are selected.
 <ul>
-<li>Validates SDDC Manager and vCenter TCP/443 reachability.</li>
-<li>Validates vRSLCM (if deployed) TCP/443 reachability.</li>
-<li>Validates SSO user credentials for SDDC Manager.</li>
-<li>Validates GuestOS root credentials for SDDC Manager through a
-multi-step authentication and VM identification process.</li>
-<li>Loads the list of workload domains for the selected environment(s)
-into the <code>Domain</code> selector.</li>
+<li><strong>NOTE</strong> If you want your customized to persist across
+session, click <code>Save defaults</code>.</li>
 </ul></li>
-<li><p>Once the domains load, deselect any you do not wish to scan. Your
-selection carries forward into <code>Run Check</code>.</p></li>
-<li><p>The four-stage checks will be displayed under
-<code>Credential Check</code> with any errors surfaced to the right of
-the check name. A <code>Live Log</code> will appear beneath with
-additional detail.</p></li>
-</ul>
-<h3 id="health-checks">Health Checks</h3>
-<ul>
-<li><p>Click on <code>Health Check</code> to view or customize the list
-of checks run against your environments. By default, all are
-selected.</p></li>
-<li><p>Each check is accompanied by a short description (longer
+<li>Each check is accompanied by a short description (longer
 descriptions are available in this document). These descriptions also
-accompany the completed checks.</p></li>
-<li><p>Checks may be excluded / included individually or by Component
-category.</p>
+accompany the completed checks.</li>
+<li>Checks may be excluded / included individually or by Component
+category.
 <ul>
 <li>To disable an entire Component category, deselect the component
 under <code>Components</code> or above the list of checks.</li>
 </ul></li>
-<li><p>Checks for which failure is known to block a VCF 9.x upgrade are
-prefaced with a <strong>[B]</strong>.</p></li>
-<li><p>Checks that require <code>root</code> credentials to SDDC Manager
-are prefaced with an <strong>[R]</strong>.</p></li>
+<li>Checks for which failure is known to block a VCF 9.x upgrade are
+prefaced with a <strong>[B]</strong>.</li>
+<li>Checks that require <code>GuestOS</code> credentials to SDDC Manager
+are prefaced with an <strong>[G]</strong>.</li>
+<li>Click "Select Blocking Checks Only" to select only the checks which,
+if they fail, are known to block a VCF 9.x upgrade. Click a second time
+to revert.</li>
+<li>To see what checks require GuestOS credentials click
+<code>Show GuestOS-based checks</code>. Click a second time to
+revert.</li>
+<li>Enter a keyword in the "Search checks by name or area" to search for
+a particular check name.</li>
 </ul>
-<h4 id="disabling-a-check-debugging">Disabling a Check (Debugging)</h4>
+<h2 id="run-scan">Run Scan</h2>
+<h3 id="select-environments">Select Environment(s)</h3>
+<ul>
+<li>Click one or more environments you wish to check.</li>
+<li>The window will expand showing what credentials are required to run
+the scan.</li>
+<li>Enter the credentials for your SDDC Manager SSO user and the SDDC
+Manager Guest OS root user (if GuestOS-based checks are enabled).</li>
+<li>If you have Aria Components enabled, enter the credentials for the
+Aria components vCenter, API user, and GuestOS OS root user (if
+GuestOS-based checks are enabled), per service.
+<ul>
+<li><strong>NOTE</strong> Click on the <code>eye</code> icon if to
+reveal your password if you are concerned you mistyped it. Click the
+icon again to re-hide it.</li>
+<li><strong>NODE</strong> These passwords are not saved to disk, logged,
+or persist in memory in an unencrypted state.</li>
+</ul></li>
+</ul>
+<h3 id="run-check">Run Check</h3>
+<ul>
+<li>Click <code>Run Check</code> scans every workload domain in the
+selected environment(s).</li>
+<li>This step performs the following all relevant management endpoints
+(vCenter, SDDC manager, etc)s:
+<ul>
+<li>Validates TCP/443 reachability.</li>
+<li>Validates API credentials.</li>
+<li>Validates GuestOS root credentials multi-step authentication and VM
+identification process.</li>
+<li>(If <code>Discover Workload Domains</code> is clicked) Loads the
+list of workload domains for the selected environment(s) into the
+<code>Domain</code> selector.</li>
+</ul></li>
+<li>While the validation is running, a <code>Credential Check</code>
+pane will open below <code>Health Checks</code> listing what validations
+have passed. A <code>Live Log</code> will appear beneath with additional
+detail.
+<ul>
+<li><strong>NOTE</strong> If a password is incorrect, you will receive a
+message under the <code>Credential Check pane</code> with an error, such
+as "Invalid root password. Verify the SDDC Manager appliance root
+password." followed by a call to action under <code>Run Check</code>
+such as "Run Check was not started - connectivity/credential check
+failed for: TestEnvironment. See the details above, fix the issue, then
+click Run Check again."</li>
+</ul></li>
+</ul>
+<h3 id="discover-workload-domains-optional">Discover Workload Domains
+(Optional)</h3>
+<p>Alternatively, Click <code>Discover Workload Domains</code> to
+customize which ones are scanned instead.</p>
+<p>It performs the same reachability test.</p>
+<ul>
+<li>Once the domains load, deselect any you do not wish to scan. Your
+selection carries forward into <code>Run Check</code>.</li>
+<li>This invocation of <code>Run Check</code> will not re-validate the
+credentials.</li>
+</ul>
+<h2 id="other">Other</h2>
+<h3 id="disabling-a-check-debugging">Disabling a Check (Debugging)</h3>
 <ul>
 <li><p>If a check routinely misbehaves (e.g. it errors out or produces
 unreliable results in your environment), it can be turned off without
 deleting it from <code>Data/CheckCatalog.json</code>. Add
 <code>"disabled": true</code> to that check's entry:</p>
-<div class="sourceCode" id="cb9"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;sddc_bom_check&quot;</span><span class="er">:</span> <span class="fu">{</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;function&quot;</span><span class="fu">:</span> <span class="st">&quot;Test-VcfSddcBomCheck&quot;</span><span class="fu">,</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;area&quot;</span><span class="fu">:</span> <span class="st">&quot;SDDC Manager&quot;</span><span class="fu">,</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;displayName&quot;</span><span class="fu">:</span> <span class="st">&quot;VCF Bill of Materials Upgrade Readiness Check&quot;</span><span class="fu">,</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;blocking&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;disabled&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="er">...</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;sddc_bom_check&quot;</span><span class="er">:</span> <span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;function&quot;</span><span class="fu">:</span> <span class="st">&quot;Test-VcfSddcBomCheck&quot;</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;area&quot;</span><span class="fu">:</span> <span class="st">&quot;SDDC Manager&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;displayName&quot;</span><span class="fu">:</span> <span class="st">&quot;VCF Bill of Materials Upgrade Readiness Check&quot;</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;blocking&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;disabled&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="er">...</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
 <li><p>A disabled check no longer appears in the
 <code>Health Checks</code> list in the UI and cannot be selected or run
 - including via a full ("all checks") run.</p></li>
 <li><p>Remove the <code>"disabled": true</code> line (or set it to
 <code>false</code>) to restore the check.</p></li>
 </ul>
-<h3 id="run-check">Run Check</h3>
+<h3 id="interacting-with-run-check">Interacting with Run Check</h3>
+<p><strong>NOTE</strong> During the course of a run, the check results
+will dynamically reorder themselves with higher priority issues
+(blocking failures for example) rising to the top.</p>
+<h3 id="filters">Filters</h3>
 <ul>
-<li>The check workflow validates connectivity and credentials for the
-selected environment(s) automatically before proceeding with the checks
-themselves - the same validation <code>Discover Workload Domains</code>
-performs (see <code>Discover Workload Domains (Optional)</code> for
-details), so running it first is optional.</li>
-<li>A Progress Bar will appear, showing how many checks out of the total
-have completed, the time elapsed, and details on the running check.</li>
-<li>You may scroll down to see details on the checks that have
-completed; a floating "mini progress bar" will keep you apprised of the
-overall scan progress.</li>
-<li>You may apply post-check filters in real time, filtering out
-statuses or components at will. These will be dynamically applied to
-your view and will not impact the underlying data.</li>
+<li>Filters are available for component and for severity,</li>
+<li>They may be applied at any time during the scan (running or
+complete) and impact the view only, not the underlying data.</li>
+<li>The filters are even available in the downloaded HTML report.</li>
+</ul>
+<h3 id="progress-bars">Progress bars</h3>
+<ul>
+<li>Once the scan begins, a progress bar will appear under health checks
+showing the following information:
+<ul>
+<li>Number of completed checks divided by total checks.</li>
+<li>Elapsed time.</li>
+<li>Current running check (and how long it has run).</li>
+<li>If the running check has sub-status or numerous poll attempts (for
+example, in the case of the SDDC Manager Health Summary), its data</li>
+</ul></li>
+<li>A "mini-status" status pill will show up at the bottom of the screen
+to summarize the job status.</li>
+<li>Once the scan is complete, a total elapsed time will appear in the
+place fo the first progress bar.</li>
+<li><strong>NOTE</strong> the total execution time for each individual
+check appears within its expanded pane in the lower right (ex: "4
+seconds to execute".)</li>
+</ul>
+<h3 id="check-structures-and-descriptions">Check structures and
+descriptions</h3>
+<ul>
 <li>The check results will dynamically reorder themselves with higher
 priority issues (blocking failures for example) rising to the top.</li>
 <li>One check result will appear per workload domain.</li>
@@ -780,7 +829,7 @@ and why they were skipped.</li>
 <li><code>Info-only</code> badge. This badge indicates that there is no
 check criteria. The data is presented as informational only.</li>
 </ul>
-<h3 id="export-reports">Export (Reports)</h3>
+<h3 id="exporting-your-report">Exporting your Report</h3>
 <ul>
 <li><p>Once your report is complete, it becomes available for
 export.</p></li>
@@ -816,7 +865,7 @@ the most recent run's data, under that fixed name, regardless of whether
 the run completed or was interrupted.</li>
 </ul></li>
 </ul>
-<h3 id="collect-logs">Collect Logs</h3>
+<h3 id="collecting-logs">Collecting Logs</h3>
 <ul>
 <li>If you need technical support, you may click on
 <code>Collect Logs</code> in the upper-right corner of the screen at any
@@ -828,12 +877,11 @@ time.</li>
 </ul></li>
 <li>Notes
 <ul>
-<li>No passwords are stored in this data.</li>
+<li>No passwords are stored in this data, as they are not collected in
+the first place.</li>
 <li>You will be prompted to accept a warning that this data does contain
-FQDNs and other details about your environment.</li>
-<li>If you need to sanitize FQDN or other details about your
-environment, manually collect the data from the aforementioned
-directories and transform accordingly.</li>
+FQDNs and other details about your environment (from the Findings and
+Log files).</li>
 </ul></li>
 </ul>
 <h4 id="optional-scrubbing">Optional Scrubbing</h4>
@@ -907,15 +955,15 @@ bundle, scrubbed or not.</li>
 <ul>
 <li>The UI supports Dark and Light mode. Light mode is the default.</li>
 </ul>
-<h2 id="check-details">Check Details</h2>
-<ul>
-<li>96 checks total</li>
-</ul>
-<h2 id="general-notes">General Notes</h2>
+<h3 id="general-notes">General Notes</h3>
 <ul>
 <li>Expirations dates for password and certificates are presented in
 YYYY-MM-DD in the HTML. For further granularity, please review the JSON
 export.</li>
+</ul>
+<h2 id="check-details">Check Details</h2>
+<ul>
+<li>96 checks total</li>
 </ul>
 <h3 id="aria">Aria</h3>
 <ul>

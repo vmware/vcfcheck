@@ -169,7 +169,7 @@
     // little benefit at this list size.
     var formIntegrations = [];
 
-    // Aria guestOS checks piggyback on the environment-wide "Enable SDDC Manager and vCenter
+    // Aria guestOS checks piggyback on the environment-wide "Enable Component
     // GuestOS-based checks" checkbox (env-form-root-checks) rather than a separate per-component
     // opt-in - GuestOS checks are all-or-nothing for the environment. These three hold the single
     // shared-vCenter choice presented once above the component list; on Save their values are
@@ -268,7 +268,7 @@
         if (!guestOsEnabled) return "";
         if (shared) {
             if (!String(sharedFqdn || "").trim() || !String(sharedUsername || "").trim()) {
-                return "Enter the Aria Components vCenter FQDN and username, or disable \"SDDC Manager and vCenter GuestOS-based checks\".";
+                return "Enter the Aria Components vCenter FQDN and username, or disable \"Component GuestOS-based checks\".";
             }
             return "";
         }
@@ -277,7 +277,7 @@
             for (var j = 0; j < endpoints.length; j++) {
                 var endpoint = endpoints[j];
                 if (!String(endpoint.vCenterFqdn || "").trim() || !String(endpoint.vCenterUsername || "").trim()) {
-                    return "Enter the vCenter FQDN and username for \"" + (endpoint.name || integrations[i].type) + "\", or disable \"SDDC Manager and vCenter GuestOS-based checks\".";
+                    return "Enter the vCenter FQDN and username for \"" + (endpoint.name || integrations[i].type) + "\", or disable \"Component GuestOS-based checks\".";
                 }
             }
         }
@@ -291,7 +291,7 @@
 
         var guestOsEnabled = document.getElementById("env-form-root-checks").checked;
         if (!guestOsEnabled) {
-            container.appendChild(VcfCheckUI.el("div", "chk-count", "Enable \"SDDC Manager and vCenter GuestOS-based checks\" above to also run guestOS checks against Aria components' vCenters."));
+            container.appendChild(VcfCheckUI.el("div", "chk-count", "Enable \"Component GuestOS-based checks\" above to also run guestOS checks against Aria components' vCenters."));
             return;
         }
 

@@ -29,7 +29,8 @@
   * New Check: Aria Operations for Logs SSH Server Status Check
 * Aria Operations check added.
   * New Check: Aria Operations SSH Server Status Check
-* Feature: Optional log scrubbing upon export
+* Feature: Optional log scrubbing upon export.
+* Feature: Save default health checks.
 * Change: Rename "Root checks" to "GuestOS Checks" for clarity.
 * Change: Keep LiveLog after the scan has completed (but leave it in a collapsed state).
 * Enhancement: If inventory-runtime-dependent checks `SDDC Manager Health Summary` and `SDDC Manager Pre-Upgrade` timeout; provide tailored call to action (how to increase timeout value as needed).

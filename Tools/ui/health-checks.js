@@ -9,8 +9,34 @@
         return VcfCheckUI.fetchJson("/api/checks").then(function (data) {
             VcfCheckUI.checksByArea = data.areas || {};
             VcfCheckUI.rootCredentialCheckIds = data.rootCredentialCheckIds || [];
+            applySavedCheckDefaults();
             renderComponentCheckboxes();
         });
+    }
+
+    // Applies a saved "Save Defaults" selection (VcfCheckUI.savedDefaultCheckIds/savedDefaultAreaIds,
+    // populated by loadSettings from /api/settings) to checkSelectionState before the first render, so
+    // the UI opens with the user's customized subset instead of every check. Absent entirely (null) means
+    // no defaults have ever been saved, so the full catalog stays selected as before.
+    function applySavedCheckDefaults() {
+        var hint = document.getElementById("checks-card-custom-defaults-hint");
+        if (!Array.isArray(VcfCheckUI.savedDefaultCheckIds)) {
+            hint.classList.add("hidden");
+            return;
+        }
+
+        var savedCheckIds = {};
+        VcfCheckUI.savedDefaultCheckIds.forEach(function (checkId) { savedCheckIds[checkId] = true; });
+        var checkCount = 0;
+        Object.keys(VcfCheckUI.checksByArea).forEach(function (area) {
+            (VcfCheckUI.checksByArea[area] || []).forEach(function (check) {
+                VcfCheckUI.checkSelectionState[check.id] = !!savedCheckIds[check.id];
+                checkCount++;
+            });
+        });
+
+        hint.classList.remove("hidden");
+        console.info("[VcfCheck] Loaded a customized default health check selection (" + VcfCheckUI.savedDefaultCheckIds.length + " of " + checkCount + " checks) instead of the full catalog.");
     }
 
     VcfCheckUI.checkedValues = function (containerId, scopeSelector) {
@@ -27,7 +53,7 @@
             var input = document.createElement("input");
             input.type = "checkbox";
             input.value = area;
-            input.checked = true;
+            input.checked = Array.isArray(VcfCheckUI.savedDefaultAreaIds) ? VcfCheckUI.savedDefaultAreaIds.indexOf(area) !== -1 : true;
             input.addEventListener("change", VcfCheckUI.renderCheckCheckboxes);
             item.appendChild(input);
             item.appendChild(document.createTextNode(area));
@@ -348,5 +374,43 @@
     }
     document.getElementById("clear-filters-button").addEventListener("click", clearFiltersAndSelectAll);
 
+    function saveCheckDefaults() {
+        var button = document.getElementById("save-check-defaults-button");
+        var selectedAreaIds = VcfCheckUI.checkedValues("component-checkboxes");
+        var selectedCheckIds = Object.keys(VcfCheckUI.checkSelectionState).filter(function (checkId) {
+            return VcfCheckUI.checkSelectionState[checkId];
+        });
+
+        VcfCheckUI.postJson("/api/settings", { defaultCheckIds: selectedCheckIds, defaultAreaIds: selectedAreaIds }).then(function () {
+            VcfCheckUI.savedDefaultCheckIds = selectedCheckIds;
+            VcfCheckUI.savedDefaultAreaIds = selectedAreaIds;
+            document.getElementById("checks-card-custom-defaults-hint").classList.remove("hidden");
+            var originalText = button.textContent;
+            button.textContent = "Saved!";
+            button.disabled = true;
+            setTimeout(function () {
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 2000);
+        }).catch(function (err) {
+            VcfCheckUI.showErrorNotification(err.message || "Failed to save default health check selection.");
+        });
+    }
+    document.getElementById("save-check-defaults-button").addEventListener("click", saveCheckDefaults);
+
+    function restoreCheckDefaults() {
+        if (!Array.isArray(VcfCheckUI.savedDefaultCheckIds)) {
+            VcfCheckUI.showErrorNotification("No saved default health check selection to restore.");
+            return;
+        }
+        applySavedCheckDefaults();
+        Array.prototype.slice.call(document.getElementById("component-checkboxes").querySelectorAll("input[type=checkbox]")).forEach(function (input) {
+            input.checked = Array.isArray(VcfCheckUI.savedDefaultAreaIds) ? VcfCheckUI.savedDefaultAreaIds.indexOf(input.value) !== -1 : true;
+        });
+        VcfCheckUI.renderCheckCheckboxes();
+        applyCheckFilter();
+        updateChecksCardSummary();
+    }
+    document.getElementById("restore-check-defaults-button").addEventListener("click", restoreCheckDefaults);
 
 })();

@@ -153,6 +153,7 @@ from vcfcheck_server.vcf_release import (
     _families_from_versions,
     _fetch_vcf_destination_release_options,
     _get_vcf_destination_release,
+    _INTEROP_MATRIX_SDDC_MANAGER_DATA_FILE,
     _parse_dotted_version,
 )
 
@@ -1252,6 +1253,9 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
 
     def _get_settings(self, parsed) -> None:
         payload = _load_json_file(_config_dir(self.base_directory) / "settings.json") or {}
+        default_check_ids = payload.get("DefaultCheckIds")
+        if default_check_ids is not None:
+            logger.info("Loading UI with a customized default health check selection (%d checks saved).", len(default_check_ids))
         self._send_json(
             HTTPStatus.OK,
             {
@@ -1264,6 +1268,8 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                 "healthSummaryMaxPollAttempts": _get_health_summary_max_poll_attempts(self.base_directory),
                 "preUpgradeCheckSetMaxPollAttempts": _get_pre_upgrade_check_set_max_poll_attempts(self.base_directory),
                 "sizingEstimatorEnabled": _sizing_estimator_enabled(),
+                "defaultCheckIds": default_check_ids,
+                "defaultAreaIds": payload.get("DefaultAreaIds"),
             },
         )
 
@@ -1730,7 +1736,7 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
         })
 
     def _handle_settings_update(self, body: dict) -> None:
-        """Persist browser-only preferences (theme, live log detail level) to settings.json.
+        """Persist browser-only preferences (theme, live log detail level, default health check selection) to settings.json.
 
         Read-merge-write against whatever settings.json already holds, so this never clobbers
         the FQDN/username _handle_run_start wrote as a side effect of starting a run. Each
@@ -1793,6 +1799,30 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                 return
             updates["PreUpgradeCheckSetMaxPollAttempts"] = pre_upgrade_check_set_max_poll_attempts
 
+        if "defaultCheckIds" in body:
+            default_check_ids = body.get("defaultCheckIds")
+            if default_check_ids is not None and (
+                not isinstance(default_check_ids, list) or not all(isinstance(check_id, str) for check_id in default_check_ids)
+            ):
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": "defaultCheckIds must be a list of strings or null"})
+                return
+            updates["DefaultCheckIds"] = default_check_ids
+
+        if "defaultAreaIds" in body:
+            default_area_ids = body.get("defaultAreaIds")
+            if default_area_ids is not None and (
+                not isinstance(default_area_ids, list) or not all(isinstance(area_id, str) for area_id in default_area_ids)
+            ):
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": "defaultAreaIds must be a list of strings or null"})
+                return
+            updates["DefaultAreaIds"] = default_area_ids
+
+        if "DefaultCheckIds" in updates:
+            logger.info(
+                "Saved default health check selection: %d checks across %d components.",
+                len(updates.get("DefaultCheckIds") or []), len(updates.get("DefaultAreaIds") or []),
+            )
+
         if not updates:
             self._send_json(HTTPStatus.BAD_REQUEST, {"error": "No recognized setting provided"})
             return
@@ -1819,6 +1849,8 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                 "vcfDestinationRelease": existing.get("VcfDestinationRelease"),
                 "healthSummaryMaxPollAttempts": existing.get("HealthSummaryMaxPollAttempts"),
                 "preUpgradeCheckSetMaxPollAttempts": existing.get("PreUpgradeCheckSetMaxPollAttempts"),
+                "defaultCheckIds": existing.get("DefaultCheckIds"),
+                "defaultAreaIds": existing.get("DefaultAreaIds"),
             },
         )
 

@@ -476,7 +476,7 @@
         align-items: center;
         gap: 6px;
         background: var(--panel);
-        color: var(--muted);
+        color: var(--text);
         border: 1px solid var(--border);
         border-radius: 999px;
         padding: 5px 12px;
@@ -1080,7 +1080,7 @@
                     </div>
                     <div class="checkbox-row">
                         <input type="checkbox" id="env-form-root-checks" checked>
-                        <label for="env-form-root-checks">Enable SDDC Manager and vCenter GuestOS-based checks</label>
+                        <label for="env-form-root-checks">Enable Component GuestOS-based checks</label>
                         <span class="result-info-icon" id="env-form-root-checks-info-icon" tabindex="0" data-tooltip="These checks rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. They do not utilize SSH."></span>
                     </div>
                     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
@@ -1483,6 +1483,7 @@
                     <span class="chk-header-summary">
                         <span class="chk-count" id="checks-card-summary"></span>
                         <span class="chk-root-excluded-hint hidden" id="checks-card-root-hint" tabindex="0" data-tooltip="GuestOS-based checks are excluded because no environment has GuestOS-based checks enabled.">GuestOS checks excluded</span>
+                        <span class="chk-root-excluded-hint hidden" id="checks-card-custom-defaults-hint" tabindex="0" data-tooltip="This selection was loaded from your saved defaults, not the full check catalog. Use Clear Filters to select every check.">Loaded from saved defaults</span>
                     </span>
                 </div>
                 <div class="card-body" id="checks-card-body">
@@ -1497,7 +1498,9 @@
                         <input type="text" class="search-input" id="check-search-input" placeholder="Search checks by name or area...">
                         <button type="button" class="filter-chip" id="select-blocking-chip" aria-pressed="false" title="Select only checks whose failure will block a VCF 9.x upgrade"><span class="chk-tag chk-tag-blocking" aria-hidden="true">B</span> Select Blocking Only Checks</button>
                         <button type="button" class="filter-chip" id="filter-root-chip" aria-pressed="false" title="These checks rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. They do not utilize SSH."><span class="chk-tag chk-tag-root" aria-hidden="true">G</span> Show GuestOS-based Checks</button>
-                        <button type="button" id="clear-filters-button" title="Clears all filters and selects all relevant checks">Clear Filters</button>
+                        <button type="button" class="filter-chip" id="save-check-defaults-button" title="Save the current component and check selection as your default for future sessions">Save Defaults</button>
+                        <button type="button" class="filter-chip" id="restore-check-defaults-button" title="Restore your saved default component and check selection">Restore Defaults</button>
+                        <button type="button" class="filter-chip" id="clear-filters-button" title="Clears all filters and selects all relevant checks">Clear Filters</button>
                         <span class="chk-legend" title="B = Blocking: a failure blocks the VCF upgrade until resolved.&#10;G = GuestOS: executed through Invoke-VMScript using VMware Tools and user-provided credentials, not the SSO administrative user login and not SSH.">
                             <span class="result-info-icon" id="chk-legend-info-icon"></span> Tag key: B/G
                         </span>

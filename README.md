@@ -7,23 +7,35 @@
 
 # VCF Check
 
-A lightweight PowerShell module that runs pre-upgrade health checks against VMware Cloud
-Foundation (VCF) 5.2 and later environments, paired with a bundled local Python web-based user
-interface. These checks are used to ascertain if any remediation is required before launching a
-VCF 9.x upgrade.
+VCF Check helps prepare customers for VCF 5.2.x to VCF 9.1.x upgrades by running a series of
+component health and version compatibility checks.  It does so without installing or modifying
+any server-side components.
 
-VCF Check does not support VCF releases earlier than 5.2. When it connects to SDDC Manager, it
-checks the reported VCF version and stops the run with an explanatory error if the environment
-is older than 5.2.
+The platform is comprised of a Powershell Module, which acts as an execution engine, paired with
+a Python user interface, which is used to configure, run, and view the results of the checks.
+
+The checks currently cover the following component areas:
+
+* Aria Automation
+* Aria Operations
+* Aria Operations for Logs
+* ESX
+* SDDC Manager
+* vCenter
+* VMware Aria Suite Lifecycle
+
+Aria components (and VMware Aria Suite Lifecycle) are optional.
 
 ## Installation
 
 ### Prerequisites
 
 * [PowerShell 7.4+](https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell)
-* [VCF.PowerCLI 9.0+](https://developer.broadcom.com/powercli) — if VMware.PowerCLI is already installed, uninstall it first (`Uninstall-Module VMware.PowerCLI -AllVersions`); the two modules conflict and cannot coexist.
+* [VCF.PowerCLI 9.0+](https://developer.broadcom.com/powercli)
+  * **NOTE** VMware.PowerCLI is already installed, uninstall it first (`Uninstall-Module VMware.PowerCLI -AllVersions`); the two modules conflict and cannot coexist.
 * Python 3.13+ (see [Installing Python](#installing-python) below)
-* macOS/Linux/Windows system with HTTPS network access to SDDC Manager, vCenter, and vRSLCM (if installed)
+* macOS/Linux/Windows system with HTTPS network access to all the component endpoints.
+  * **NOTE** All component endpoint APIs use HTTPS over 443, except for Aria Operations for Logs which uses 9543.
 * An SSO account on SDDC Manager with ADMIN-level access.
 * Modern web browser (to access the web interface of pre-check utility). Chrome-based recommended (Firefox, Safari should work; IE will not).
 
@@ -87,49 +99,7 @@ Start-VcfCheckServer                       # Launches the web-based configuratio
 Stop-VcfCheckServer                        # Stops the web-based configuration utility.
 ```
 
-HTML and JSON reports are automatically saved to `$env:VcfCheckBaseDirectory/Findings/<environment name>`.
-
-If port 8766 is already in use by a leftover process, `Start-VcfCheckServer` throws instead of binding to it. Run `Start-VcfCheckServer -Force` to stop whatever is holding the port first and then start normally. Use `-Background` to run detached (stop it later with `Stop-VcfCheckServer`) and `-Port <n>` to use a different port.
-
-## Running in a Container
-
-As an alternative to installing PowerShell/PowerCLI locally, run VCF Check via the bundled
-`docker/Dockerfile`/`docker/docker-compose.yml` (see `docker/README.md` for full run and
-troubleshooting instructions):
-
-```bash
-cd docker
-docker compose up --build
-```
-
-This builds an image containing PowerShell 7.4, PowerCLI, and the module, then starts the
-report viewer non-interactively (`Initialize-VcfCheck -BaseDirectory /data -SkipDependencyCheck`
-runs automatically - no prompts). `Findings/`, `Config/`, and logs persist in the
-`vcfcheck-data` named volume across restarts.
-
-The server binds `127.0.0.1` only, by design, so it is never reachable from another machine.
-`docker/docker-compose.yml` uses `network_mode: host` (Linux only) so that loopback bind lands on
-your real machine, the same as running the server unpacked - it does not, and must not,
-publish the port to the network. Docker Desktop (macOS/Windows) does not support
-`network_mode: host`; run VCF Check unpacked on those platforms instead.
-
-Pass credentials per run rather than baking them into the image, via your shell environment
-(picked up automatically by `docker/docker-compose.yml`, no `-e` flag needed):
-
-```bash
-VCFCHECK_SDDC_PASSWORD=*** docker compose run vcfcheck
-```
-
-By default the container rejects untrusted/self-signed certificates, the same as PowerCLI's
-own secure default. VcfCheck has no TLS-bypass setting of its own outside a container - it
-always reflects PowerCLI's own `InvalidCertificateAction`, normally set by the operator with
-`Set-PowerCLIConfiguration`. Since a container has no interactive session to run that in,
-`VCFCHECK_ALLOW_INSECURE_TLS=true` is the container-only equivalent, for lab/test
-environments with self-signed certificates only:
-
-```bash
-VCFCHECK_ALLOW_INSECURE_TLS=true docker compose up
-```
+If port 8766 is already in use by a leftover process, `Start-VcfCheckServer` will produce an error. Run `Start-VcfCheckServer -Force` to stop whatever is holding the port first and then start normally. Use `-Background` to run detached (stop it later with `Stop-VcfCheckServer`) and `-Port <n>` to use a different port.
 
 ## Using VCF Check
 
@@ -143,13 +113,15 @@ VCFCHECK_ALLOW_INSECURE_TLS=true docker compose up
 2. Enter a friendly name for your VCF environment in the `Name` field.
 3. Enter the SDDC Manager Fully Qualified Domain Name (FQDN) or IP address in the "SDDC Manager FQDN" field. (e.g., `sddcm.example.com` or `192.168.1.100`).
 4. Enter your SSO username in the "Username" field (example: `administrator@vsphere.local`). Please note: This user must have ADMIN-level permissions to SDDC Manager.
-5. The checkbox `Enable SDDC Manager and vCenter GuestOS-based checks` should remain checked unless one or more of the following conditions are met:
+5. The checkbox `Enable Component GuestOS-based checks"` should remain checked unless one or more of the following conditions are met:
 
-   * SDDC Manager and vCenter do not and cannot run VMware Tools for security or policy reasons.
+   * Infrastructure components like SDDC Manager and vCenter do not and cannot run VMware Tools for security or policy reasons.
    * You do not have guest OS credentials for the SDDC Manager.
    * You have specific organization policies against the use of `Invoke-VMScript` to run guest OS operations on virtual appliances.
 
-GuestOS-based checks are executed through the PowerCLI cmdlet [`Invoke-VMScript`](https://developer.broadcom.com/powercli/latest/vmware.vimautomation.core/commands/invoke-vmscript). They rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. This does not require or utilize SSH access for security.
+**NOTE** GuestOS-based checks are executed through the PowerCLI cmdlet [`Invoke-VMScript`](https://developer.broadcom.com/powercli/latest/vmware.vimautomation.core/commands/invoke-vmscript). They rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. This does not require or utilize SSH access for security.
+
+**NOTE** This toggle controls access to SDDC Manager and vCenter based GuestOS checks as well as Aria Automation, Aria Operations, and Aria Operations for Logs, should the be configured.
 
 To view GuestOS-based checks, expand "Health checks" and click on the filter "Show GuestOS-based Checks".
 
@@ -159,7 +131,7 @@ Under `Aria Components (optional)`, you may register endpoints such as Aria Oper
 
 * These checks connect directly to each component's own API. They do not go through, and do not require, vRealize Suite Lifecycle Manager (vRSLCM).
 * Add an endpoint here regardless of whether that component happens to be managed by vRSLCM, or whether vRSLCM is deployed in the environment at all - VCF Check has no dependency on vRSLCM to run these checks.
-* If you don't add a component here, its checks are simply skipped for that environment.
+* If you don't add a component here, its checks are simply skipped for the environment in question.
 
 #### Creating a subsequent environment
 
@@ -184,38 +156,54 @@ Under `Aria Components (optional)`, you may register endpoints such as Aria Oper
 * `SDDC Manager Health Summary poll budget` and `SDDC Manager Pre-Upgrade Check-Set poll budget` control how long the `SDDC Manager Health Summary` and `SDDC Manager Pre-Upgrade Check-Set Assessment` checks, respectively, will keep polling SDDC Manager before giving up - both can take several minutes on a live environment since SDDC Manager runs a multi-step task in the background for each. The `SDDC Manager Health Summary` check also abandons polling on its own once SDDC Manager stops making progress, so raising its budget only helps a genuinely slow (not stuck) run.
 * Whether connections to all endpoints (via SDK or REST) accept untrusted/self-signed certificates is controlled by PowerCLI's own `Set-PowerCLIConfiguration -InvalidCertificateAction` setting - there is no separate VcfCheck-specific toggle. Run `Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore` for lab environments with self-signed certificates, or leave it at its default (`Fail`/`Warn`) for production. Check the current value with `Get-PowerCLIConfiguration`. The `Insecure TLS Settings` line in this Settings panel is a read-only reflection of that PowerCLI setting, not a control - change it via `Set-PowerCLIConfiguration`, then reload the page to see the update.
 
+## Health Checks
+
+* Click on `Health Check` to view or customize the list of checks run against your environments.  By default, all are selected.
+  * **NOTE** If you want your customized to persist across session, click `Save defaults`.
+* Each check is accompanied by a short description (longer descriptions are available in this document).  These descriptions also accompany the completed checks.
+* Checks may be excluded / included individually or by Component category.
+  * To disable an entire Component category, deselect the component under `Components` or above the list of checks.
+* Checks for which failure is known to block a VCF 9.x upgrade are prefaced with a **[B]**.
+* Checks that require `GuestOS` credentials to SDDC Manager are prefaced with an **[G]**.
+* Click "Select Blocking Checks Only" to select only the checks which, if they fail, are known to block a VCF 9.x upgrade. Click a second time to revert.
+* To see what checks require GuestOS credentials click `Show GuestOS-based checks`. Click a second time to revert.
+* Enter a keyword in the "Search checks by name or area" to search for a particular check name.
+
 ## Run Scan
 
 ### Select Environment(s)
 
-1. Click one or more environments you wish to check.
-2. Enter your credentials for your SSO user and the guest OS root user (if GuestOS-based checks are enabled).
+* Click one or more environments you wish to check.
+* The window will expand showing what credentials are required to run the scan.
+* Enter the credentials for your SDDC Manager SSO user and the SDDC Manager Guest OS root user (if GuestOS-based checks are enabled).
+* If you have Aria Components enabled, enter the credentials for the Aria components vCenter, API user, and GuestOS OS root user (if GuestOS-based checks are enabled), per service.
+  * **NOTE** Click on the `eye` icon if to reveal your password if you are concerned you mistyped it.  Click the icon again to re-hide it.
+  * **NODE** These passwords are not saved to disk, logged, or persist in memory in an unencrypted state.
+
+### Run Check
+
+* Click `Run Check` scans every workload domain in the selected environment(s).
+* This step performs the following all relevant management endpoints (vCenter, SDDC manager, etc)s:
+  * Validates TCP/443 reachability.
+  * Validates API credentials.
+  * Validates GuestOS root credentials multi-step authentication and VM identification process.
+  * (If `Discover Workload Domains` is clicked) Loads the list of workload domains for the selected environment(s) into the `Domain` selector.
+* While the validation is running, a `Credential Check` pane will open below `Health Checks` listing what validations have passed.  A `Live Log` will appear beneath with additional detail.
+  * **NOTE** If a password is incorrect, you will receive a message under the `Credential Check pane` with an error, such as "Invalid root password. Verify the SDDC Manager appliance root password."
+followed by a call to action under `Run Check` such as "Run Check was not started - connectivity/credential check failed for: TestEnvironment. See the details above, fix the issue, then click Run Check again."
 
 ### Discover Workload Domains (Optional)
 
-* By default, `Run Check` scans every workload domain in the selected environment(s). Click `Discover Workload Domains` to customize which ones are scanned instead.
-* This step performs the following:
-  * Validates SDDC Manager and vCenter TCP/443 reachability.
-  * Validates vRSLCM (if deployed) TCP/443 reachability.
-  * Validates SSO user credentials for SDDC Manager.
-  * Validates GuestOS root credentials for SDDC Manager through a multi-step authentication and VM identification process.
-  * Loads the list of workload domains for the selected environment(s) into the `Domain` selector.
+Alternatively, Click `Discover Workload Domains` to customize which ones are scanned instead.
+
+It performs the same reachability test.
+
 * Once the domains load, deselect any you do not wish to scan. Your selection carries forward into `Run Check`.
+* This invocation of `Run Check` will not re-validate the credentials.
 
-* The four-stage checks will be displayed under `Credential Check` with any errors surfaced to the right of the check name.  A `Live Log` will appear beneath with additional detail.
+## Other
 
-### Health Checks
-
-* Click on `Health Check` to view or customize the list of checks run against your environments.  By default, all are selected.
-
-* Each check is accompanied by a short description (longer descriptions are available in this document).  These descriptions also accompany the completed checks.
-
-* Checks may be excluded / included individually or by Component category.
-  * To disable an entire Component category, deselect the component under `Components` or above the list of checks.
-* Checks for which failure is known to block a VCF 9.x upgrade are prefaced with a **[B]**.
-* Checks that require `root` credentials to SDDC Manager are prefaced with an **[R]**.
-
-#### Disabling a Check (Debugging)
+### Disabling a Check (Debugging)
 
 * If a check routinely misbehaves (e.g. it errors out or produces unreliable results in your environment), it can be turned off without deleting it from `Data/CheckCatalog.json`. Add `"disabled": true` to that check's entry:
 
@@ -233,12 +221,29 @@ Under `Aria Components (optional)`, you may register endpoints such as Aria Oper
 * A disabled check no longer appears in the `Health Checks` list in the UI and cannot be selected or run - including via a full ("all checks") run.
 * Remove the `"disabled": true` line (or set it to `false`) to restore the check.
 
-### Run Check
+### Interacting with Run Check
 
-* The check workflow validates connectivity and credentials for the selected environment(s) automatically before proceeding with the checks themselves - the same validation `Discover Workload Domains` performs (see `Discover Workload Domains (Optional)` for details), so running it first is optional.
-* A Progress Bar will appear, showing how many checks out of the total have completed, the time elapsed, and details on the running check.
-* You may scroll down to see details on the checks that have completed; a floating "mini progress bar" will keep you apprised of the overall scan progress.
-* You may apply post-check filters in real time, filtering out statuses or components at will. These will be dynamically applied to your view and will not impact the underlying data.
+**NOTE** During the course of a run, the check results will dynamically reorder themselves with higher priority issues (blocking failures for example) rising to the top.
+
+### Filters
+
+* Filters are available for component and for severity,
+* They may be applied at any time during the scan (running or complete) and impact the view only, not the underlying data.
+* The filters are even available in the downloaded HTML report.
+
+### Progress bars
+
+* Once the scan begins, a progress bar will appear under health checks showing the following information:
+  * Number of completed checks divided by total checks.
+  * Elapsed time.
+  * Current running check (and how long it has run).
+  * If the running check has sub-status or numerous poll attempts (for example, in the case of the SDDC Manager Health Summary), its data
+* A "mini-status" status pill will show up at the bottom of the screen to summarize the job status.
+* Once the scan is complete, a total elapsed time will appear in the place fo the first progress bar.
+* **NOTE** the total execution time for each individual check appears within its expanded pane in the lower right (ex: "4 seconds to execute".)
+
+### Check structures and descriptions
+
 * The check results will dynamically reorder themselves with higher priority issues (blocking failures for example) rising to the top.
 * One check result will appear per workload domain.
 * Click the `i` icon to view a description of the check.
@@ -251,7 +256,7 @@ Under `Aria Components (optional)`, you may register endpoints such as Aria Oper
 * Checks skipped due to missing optional components can be reviewed in detail by clicking on the summary bar to view individual skipped checks and why they were skipped.
 * `Info-only` badge.  This badge indicates that there is no check criteria. The data is presented as informational only.
 
-### Export (Reports)
+### Exporting your Report
 
 * Once your report is complete, it becomes available for export.
 * Scroll up to the top of the screen and in the top right corner choose one of the following:
@@ -265,16 +270,15 @@ Under `Aria Components (optional)`, you may register endpoints such as Aria Oper
   * If a run is interrupted (browser closed, PowerShell process killed, etc.) before it completes, the rename never happens - the JSON and HTML files for that run are left named with the run ID rather than a timestamp.
   * `latest.json` in the same folder always holds a copy of the most recent run's data, under that fixed name, regardless of whether the run completed or was interrupted.
 
-### Collect Logs
+### Collecting Logs
 
 * If you need technical support, you may click on `Collect Logs` in the upper-right corner of the screen at any time.
 * This log bundle contains:
   * `$env:VcfCheckBaseDirectory/Findings/*`
   * `$env:VcfCheckBaseDirectory/Logs/*`
 * Notes
-  * No passwords are stored in this data.
-  * You will be prompted to accept a warning that this data does contain FQDNs and other details about your environment.
-  * If you need to sanitize FQDN or other details about your environment, manually collect the data from the aforementioned directories and transform accordingly.
+  * No passwords are stored in this data, as they are not collected in the first place.
+  * You will be prompted to accept a warning that this data does contain FQDNs and other details about your environment (from the Findings and Log files).
 
 #### Optional Scrubbing
 
@@ -291,13 +295,13 @@ Under `Aria Components (optional)`, you may register endpoints such as Aria Oper
 
 * The UI supports Dark and Light mode.  Light mode is the default.
 
+### General Notes
+
+* Expirations dates for password and certificates are presented in YYYY-MM-DD in the HTML.  For further granularity, please review the JSON export.
+
 ## Check Details
 
 * 96 checks total
-
-## General Notes
-
-* Expirations dates for password and certificates are presented in YYYY-MM-DD in the HTML.  For further granularity, please review the JSON export.
 
 ### Aria
 
