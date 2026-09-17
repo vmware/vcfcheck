@@ -121,13 +121,26 @@ function Test-VcfAriaAutomationLicensing {
           unrecognized table output, etc.).
         - Fail: The table has no rows (Aria Automation is unlicensed), or none of its rows has
           Valid = 'True'.
-        - Pass: At least one license row has Valid = 'True'.
+        - Warning: At least one license row has Valid = 'True', but a valid row's Expiration is
+          expired or expires within WarningThresholdDays. A blank Expiration (no expiry date
+          reported) is treated as never expiring and never raises a Warning on its own.
+        - Pass: At least one license row has Valid = 'True', and no valid row is expired or
+          expiring within WarningThresholdDays.
+
+        The parsed table rows (minus the license Key column) are reported via the result's Rows
+        property, matching the breakdown-table presentation used by the other Aria Suite
+        licensing checks, rather than being embedded as preformatted text in Detail.
 
         .PARAMETER Context
         The VcfCheck.Context object. Must already be connected to SDDC Manager.
 
         .PARAMETER DisplayName
         Optional friendly display name for the check result.
+
+        .PARAMETER WarningThresholdDays
+        Number of days before expiry to raise a Warning instead of a Pass, for a valid license
+        with a parsable Expiration date. Default 30, matching the other Aria Suite licensing
+        checks.
 
         .OUTPUTS
         [Object[]] One VcfCheck.Result object per known Aria Automation instance with guestOS
@@ -138,7 +151,8 @@ function Test-VcfAriaAutomationLicensing {
     [OutputType([Object[]])]
     Param (
         [Parameter(Mandatory = $true)] [PSObject]$Context,
-        [Parameter(Mandatory = $false)] [String]$DisplayName = ''
+        [Parameter(Mandatory = $false)] [String]$DisplayName = '',
+        [Parameter(Mandatory = $false)] [ValidateRange(1, 3650)] [Int]$WarningThresholdDays = 30
     )
 
     $startedAt = Get-Date
@@ -151,6 +165,8 @@ function Test-VcfAriaAutomationLicensing {
             -Detail 'Aria Automation is not deployed in this environment.' -SkipReasonTag 'Aria Automation not deployed' `
             -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $DisplayName -Component 'Aria Automation'
     }
+
+    $now = Get-Date
 
     $results = foreach ($target in $targets) {
         $resultDisplayName = if ($targets.Count -gt 1) { "$DisplayName ($($target.Name))" } else { $DisplayName }
@@ -225,20 +241,41 @@ function Test-VcfAriaAutomationLicensing {
                 $row.PSObject.Properties.Remove('Key')
             }
         }
-        $licenseTable = ($licenseRows | Format-Table -AutoSize | Out-String -Width 200).Trim()
         $validRows = @($licenseRows | Where-Object { $_.Valid -eq 'True' })
 
         if ($validRows.Count -eq 0) {
             New-VcfCheckResult -CheckId $checkId -Status Fail `
-                -TargetComponent $target.Fqdn `
-                -Detail "Aria Automation has no valid license active.`n`n$licenseTable" `
+                -TargetComponent $target.Fqdn -Detail 'Aria Automation has no valid license active.' -Rows $licenseRows `
+                -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $resultDisplayName -Component 'Aria Automation'
+            continue
+        }
+
+        $flagged = [System.Collections.Generic.List[String]]::new()
+        foreach ($row in $validRows) {
+            $expirationDate = $null
+            if (-not [String]::IsNullOrWhiteSpace($row.Expiration)) {
+                $expirationDate = [DateTime]::Parse($row.Expiration, [System.Globalization.CultureInfo]::InvariantCulture)
+            }
+            if (-not $expirationDate) {
+                continue
+            }
+            $daysRemaining = [Math]::Floor(($expirationDate - $now).TotalDays)
+            if ($expirationDate -lt $now) {
+                $flagged.Add("License `"$($row.Product)`" expired on $($row.Expiration)")
+            } elseif ($expirationDate -lt $now.AddDays($WarningThresholdDays)) {
+                $flagged.Add("License `"$($row.Product)`" expires on $($row.Expiration) ($daysRemaining day(s) remaining)")
+            }
+        }
+
+        if ($flagged.Count -gt 0) {
+            New-VcfCheckResult -CheckId $checkId -Status Warning `
+                -TargetComponent $target.Fqdn -Detail ($flagged.ToArray() -join '; ') -Rows $licenseRows `
                 -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $resultDisplayName -Component 'Aria Automation'
             continue
         }
 
         New-VcfCheckResult -CheckId $checkId -Status Pass `
-            -TargetComponent $target.Fqdn `
-            -Detail "Active license(s):`n`n$licenseTable" `
+            -TargetComponent $target.Fqdn -Detail "Aria Automation has $($validRows.Count) active license(s)." -Rows $licenseRows `
             -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $resultDisplayName -Component 'Aria Automation'
     }
 
