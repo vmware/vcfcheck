@@ -14,10 +14,20 @@
         });
     }
 
+    function totalCheckCount() {
+        var count = 0;
+        Object.keys(VcfCheckUI.checksByArea).forEach(function (area) {
+            count += (VcfCheckUI.checksByArea[area] || []).length;
+        });
+        return count;
+    }
+
     // Applies a saved "Save Defaults" selection (VcfCheckUI.savedDefaultCheckIds/savedDefaultAreaIds,
     // populated by loadSettings from /api/settings) to checkSelectionState before the first render, so
     // the UI opens with the user's customized subset instead of every check. Absent entirely (null) means
-    // no defaults have ever been saved, so the full catalog stays selected as before.
+    // no defaults have ever been saved, so the full catalog stays selected as before. The hint is only
+    // shown when the saved selection actually excludes checks, since selecting every check is equivalent
+    // to having no saved override.
     function applySavedCheckDefaults() {
         var hint = document.getElementById("checks-card-custom-defaults-hint");
         if (!Array.isArray(VcfCheckUI.savedDefaultCheckIds)) {
@@ -28,15 +38,21 @@
         var savedCheckIds = {};
         VcfCheckUI.savedDefaultCheckIds.forEach(function (checkId) { savedCheckIds[checkId] = true; });
         var checkCount = 0;
+        var selectedCount = 0;
         Object.keys(VcfCheckUI.checksByArea).forEach(function (area) {
             (VcfCheckUI.checksByArea[area] || []).forEach(function (check) {
-                VcfCheckUI.checkSelectionState[check.id] = !!savedCheckIds[check.id];
+                var isSelected = !!savedCheckIds[check.id];
+                VcfCheckUI.checkSelectionState[check.id] = isSelected;
                 checkCount++;
+                if (isSelected) selectedCount++;
             });
         });
 
-        hint.classList.remove("hidden");
-        console.info("[VcfCheck] Loaded a customized default health check selection (" + VcfCheckUI.savedDefaultCheckIds.length + " of " + checkCount + " checks) instead of the full catalog.");
+        var isFullCatalog = selectedCount >= checkCount;
+        hint.classList.toggle("hidden", isFullCatalog);
+        if (!isFullCatalog) {
+            console.info("[VcfCheck] Loaded a customized default health check selection (" + selectedCount + " of " + checkCount + " checks) instead of the full catalog.");
+        }
     }
 
     VcfCheckUI.checkedValues = function (containerId, scopeSelector) {
@@ -384,7 +400,7 @@
         VcfCheckUI.postJson("/api/settings", { defaultCheckIds: selectedCheckIds, defaultAreaIds: selectedAreaIds }).then(function () {
             VcfCheckUI.savedDefaultCheckIds = selectedCheckIds;
             VcfCheckUI.savedDefaultAreaIds = selectedAreaIds;
-            document.getElementById("checks-card-custom-defaults-hint").classList.remove("hidden");
+            document.getElementById("checks-card-custom-defaults-hint").classList.toggle("hidden", selectedCheckIds.length >= totalCheckCount());
             var originalText = button.textContent;
             button.textContent = "Saved!";
             button.disabled = true;
