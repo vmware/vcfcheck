@@ -590,6 +590,11 @@ function Write-VcfCheckConsoleSummary {
 
     Write-Host ''
     Write-Host "Pass: $($passed.Count)  Skipped: $($skipped.Count)  Warning: $($warnings.Count)  Fail: $($nonBlockingFailures.Count)  Blocking Fail: $($blockingFailures.Count)  Error: $($errors.Count)  Total: $($Results.Count)" -ForegroundColor Cyan
+    if ($errors.Count -gt 0) {
+        Write-Host "RUN STATUS: INCOMPLETE - $($errors.Count) check(s) above could not complete (see TOOL ERRORS)" -ForegroundColor DarkYellow
+    } else {
+        Write-Host 'RUN STATUS: SUCCESS - all checks completed' -ForegroundColor Green
+    }
     Write-Host '================================' -ForegroundColor Cyan
     Write-Host ''
 }
@@ -1006,6 +1011,14 @@ function Format-VcfCheckHtmlRunSummary {
     }
     $tilesHtml = Format-VcfCheckHtmlSummaryTile -Summary $Report.summary -Results @($Report.results)
 
+    $toolErrorCount = [Int]$Report.summary.error
+    $runStatusText = if ($toolErrorCount -gt 0) {
+        "&#9888; Incomplete - $toolErrorCount check(s) could not complete"
+    } else {
+        'Success - all checks completed'
+    }
+    $runStatusColor = if ($toolErrorCount -gt 0) { '#b36b00' } else { '#2e7d32' }
+
     return @"
 <div>
 <h1>VCF Check Report</h1>
@@ -1017,6 +1030,7 @@ function Format-VcfCheckHtmlRunSummary {
 <tr><th>Started</th><td>$(ConvertTo-VcfCheckHtmlEncoded -Value $Report.startedAt)</td></tr>
 <tr><th>Completed</th><td>$(ConvertTo-VcfCheckHtmlEncoded -Value $Report.completedAt)</td></tr>
 <tr><th>Total Execution Time</th><td>$totalExecutionTimeText</td></tr>
+<tr><th>Run Status</th><td style="color: $runStatusColor; font-weight: bold;">$runStatusText</td></tr>
 </table>
 $tilesHtml
 </div>
@@ -1246,9 +1260,9 @@ function Format-VcfCheckHtmlRowsTable {
         }
     }
     $statusClasses = @{
-        'PASS' = 'pass'; 'GREEN' = 'pass'
-        'WARNING' = 'warning'; 'YELLOW' = 'warning'
-        'FAIL' = 'fail'; 'RED' = 'fail'
+        'PASS' = 'pass'; 'PASSED' = 'pass'; 'GREEN' = 'pass'
+        'WARNING' = 'warning'; 'WARNED' = 'warning'; 'YELLOW' = 'warning'
+        'FAIL' = 'fail'; 'FAILED' = 'fail'; 'RED' = 'fail'
         'ERROR' = 'error'
         'SKIPPED' = 'skipped'
     }
@@ -1596,6 +1610,27 @@ function Format-VcfCheckHtmlResultCardDetail {
         'aria_ops_lifecycle_status'         = 'Aria Operations'
         'aria_ops_license'                  = 'Aria Operations'
         'aria_ops_sizing_overview'          = 'Aria Operations'
+        'aria_ops_ssh_server_status'        = 'Aria Operations'
+        'aria_automation_lifecycle_status'           = 'Aria Automation'
+        'aria_automation_cloud_account_health'       = 'Aria Automation'
+        'aria_automation_vro_integration_health'     = 'Aria Automation'
+        'aria_automation_project_zone_configuration' = 'Aria Automation'
+        'aria_automation_appliance_health'           = 'Aria Automation'
+        'aria_automation_disk_space'                 = 'Aria Automation'
+        'aria_automation_dns_configuration'          = 'Aria Automation'
+        'aria_automation_fips_status'                = 'Aria Automation'
+        'aria_automation_licensing'                  = 'Aria Automation'
+        'aria_automation_ntp_status'                 = 'Aria Automation'
+        'aria_automation_orchestrator_extensions'    = 'Aria Automation'
+        'aria_automation_orchestrator_properties'    = 'Aria Automation'
+        'aria_automation_ssh_server_status'          = 'Aria Automation'
+        'aria_ops_for_logs_certificate_expiration'   = 'Aria Operations for Logs'
+        'aria_ops_for_logs_license'                  = 'Aria Operations for Logs'
+        'aria_ops_for_logs_lifecycle_status'         = 'Aria Operations for Logs'
+        'aria_ops_for_logs_vsphere_integration_status' = 'Aria Operations for Logs'
+        'aria_ops_for_logs_log_forwarder_status'     = 'Aria Operations for Logs'
+        'aria_ops_for_logs_vidm_status'              = 'Aria Operations for Logs'
+        'aria_ops_for_logs_ssh_server_status'        = 'Aria Operations for Logs'
     }
     $targetComponentText = $Result.TargetComponent
     if (-not [String]::IsNullOrWhiteSpace($targetComponentText)) {

@@ -219,7 +219,21 @@ function ConvertTo-VcfCheckNsxCredentialRow {
         }
     }
 
-    $expiryDate = [DateTime]::Parse($Expiry.ExpiryDate, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AssumeUniversal -bor [System.Globalization.DateTimeStyles]::AdjustToUniversal)
+    try {
+        $expiryDate = [DateTime]::Parse($Expiry.ExpiryDate, [System.Globalization.CultureInfo]::InvariantCulture, [System.Globalization.DateTimeStyles]::AssumeUniversal -bor [System.Globalization.DateTimeStyles]::AdjustToUniversal)
+    } catch {
+        Write-LogMessage -Type WARNING -Message "Could not parse expiry date `"$($Expiry.ExpiryDate)`" for `"$username`" on `"$hostname`": $($_.Exception.Message)"
+        return [PSCustomObject]@{
+            Hostname            = $hostname
+            Username            = $username
+            'Expiry Date'       = $Expiry.ExpiryDate
+            'Days Until'        = 'Unknown'
+            Status              = 'Error'
+            'Rotation Schedule' = $rotationSchedule
+            'Next Rotation'     = $nextRotation
+            Detail              = "SDDC Manager returned an unparseable expiry date `"$($Expiry.ExpiryDate)`" for `"$username`" on `"$hostname`"."
+        }
+    }
     $daysUntilExpiry = [Math]::Floor(($expiryDate - [DateTime]::UtcNow).TotalDays)
     $rotationDetail = 'automatic rotation is disabled in SDDC Manager; manual action will be required to rotate this password'
     if ($rotationEnabled) {
@@ -282,6 +296,7 @@ function Test-VcfNsxtPasswordExpiration {
 
     [CmdletBinding()]
     [OutputType([PSObject])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'Context', Justification = 'Required by Invoke-VcfCheck''s generic -Context call convention (Orchestrator.ps1); this check does not need it directly.')]
     Param (
         [Parameter(Mandatory = $true)] [PSObject]$Context,
         [Parameter(Mandatory = $false)] [String]$DisplayName = '',

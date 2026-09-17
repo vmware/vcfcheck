@@ -46,6 +46,7 @@
 #   Private/InteropMatrixHelpers.ps1 - Broadcom public Interop Matrix API wrapper (fallback release-existence check)
 #   Private/NsxHelpers.ps1          - Mockable wrappers around NSX Policy SDK cmdlets
 #   Private/VrslcmHelpers.ps1       - Aria Suite Lifecycle Manager connection + REST helper
+#   Private/AriaOpsForLogsHelpers.ps1 - Aria Operations for Logs session-token connection + REST helper
 #   Private/NsxManagerApiHelpers.ps1 - NSX Manager node/fabric/cluster REST API helper
 #   Private/Tools.ps1               - Start-/Stop-/Get-/Restart-VcfCheckServer (Python report viewer lifecycle)
 #   Private/Reporting.ps1           - JSON report writing
@@ -57,6 +58,7 @@ $privatePath = Join-Path -Path $PSScriptRoot -ChildPath 'Private'
 $privateFiles = @(
     'ApplianceCommand.ps1'
     'AriaAutomationHelpers.ps1'
+    'AriaOpsForLogsHelpers.ps1'
     'AriaOpsHelpers.ps1'
     'BomHelpers.ps1'
     'Catalog.ps1'
@@ -99,7 +101,7 @@ if (Test-Path -LiteralPath $checksPath) {
 
 # Module constants - set once at load time, never mutate.
 $Script:VcfCheckModuleLoaded = $true
-$Script:VcfCheckVersion      = '2.0.0.1007'
+$Script:VcfCheckVersion      = '2.0.0.1008'
 
 # Environment variable that stores the active base directory (set by Initialize-VcfCheck).
 $Script:VCF_CHECK_ENV_VAR     = 'VcfCheckBaseDirectory'
@@ -129,33 +131,34 @@ $Script:CHECK_TOOL_FILE_NAMES = @(
     'Manage-VcfCheckServer.py'
     'Start-VcfCheckServer.py'
     'vcf-check-ui.html'
-    'vcfcheck_server\__init__.py'
-    'vcfcheck_server\check_catalog.py'
-    'vcfcheck_server\environments.py'
-    'vcfcheck_server\json_utils.py'
-    'vcfcheck_server\logs.py'
-    'vcfcheck_server\paths.py'
-    'vcfcheck_server\sizing.py'
-    'vcfcheck_server\vcf_release.py'
-    'ui\common.js'
-    'ui\environments.js'
-    'ui\export.js'
-    'ui\filters.js'
-    'ui\fqdn-validation.js'
-    'ui\health-checks.js'
-    'ui\init.js'
-    'ui\live-log-filter.js'
-    'ui\logbundle-export.js'
-    'ui\password-toggle.js'
-    'ui\report-render.js'
-    'ui\run-actions-polling.js'
-    'ui\run-scan.js'
-    'ui\sizing-wizard-core.js'
-    'ui\sizing-wizard-detect.js'
-    'ui\sizing-wizard-steps.js'
-    'ui\state.js'
-    'ui\theme.js'
-    'ui\zip-writer.js'
+    'vcfcheck_server/__init__.py'
+    'vcfcheck_server/check_catalog.py'
+    'vcfcheck_server/environments.py'
+    'vcfcheck_server/json_utils.py'
+    'vcfcheck_server/log_scrub.py'
+    'vcfcheck_server/logs.py'
+    'vcfcheck_server/paths.py'
+    'vcfcheck_server/sizing.py'
+    'vcfcheck_server/vcf_release.py'
+    'ui/common.js'
+    'ui/environments.js'
+    'ui/export.js'
+    'ui/filters.js'
+    'ui/fqdn-validation.js'
+    'ui/health-checks.js'
+    'ui/init.js'
+    'ui/live-log-filter.js'
+    'ui/logbundle-export.js'
+    'ui/password-toggle.js'
+    'ui/report-render.js'
+    'ui/run-actions-polling.js'
+    'ui/run-scan.js'
+    'ui/sizing-wizard-core.js'
+    'ui/sizing-wizard-detect.js'
+    'ui/sizing-wizard-steps.js'
+    'ui/state.js'
+    'ui/theme.js'
+    'ui/zip-writer.js'
 )
 
 # Multiple simultaneous vCenter connections are required so Invoke-VMScript can address VMs

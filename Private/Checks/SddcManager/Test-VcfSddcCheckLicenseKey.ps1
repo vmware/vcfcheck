@@ -80,6 +80,7 @@ function Test-VcfSddcCheckLicenseKey {
     $now = Get-Date
     $expired = [System.Collections.Generic.List[String]]::new()
     $expiringSoon = [System.Collections.Generic.List[String]]::new()
+    $unparseable = [System.Collections.Generic.List[String]]::new()
     $rows = [System.Collections.Generic.List[PSCustomObject]]::new()
 
     foreach ($licenseKey in $licenseKeys) {
@@ -101,7 +102,20 @@ function Test-VcfSddcCheckLicenseKey {
             continue
         }
 
-        $expiryDateTime = [DateTime]$expiryDate
+        try {
+            $expiryDateTime = [DateTime]$expiryDate
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not parse expiry date `"$expiryDate`" for license key `"$label`": $($_.Exception.Message)"
+            $unparseable.Add($label)
+            $rows.Add([PSCustomObject]@{
+                    ProductType   = $licenseKey.ProductType
+                    Description   = $licenseKey.Description
+                    Status        = 'Error'
+                    ExpiryDate    = $expiryDate
+                    DaysRemaining = 'Unknown'
+                })
+            continue
+        }
         $daysRemaining = [Math]::Ceiling(($expiryDateTime - $now).TotalDays)
 
         if ($expiryDateTime -lt $now) {
@@ -132,6 +146,12 @@ function Test-VcfSddcCheckLicenseKey {
     if ($expiringSoon.Count -gt 0) {
         return New-VcfCheckResult -CheckId $checkId -Status Warning `
             -TargetComponent $Context.SddcManagerFqdn -Detail "License key(s) expiring within $WarningThresholdDays day(s): $($expiringSoon -join '; ')" `
+            -Rows $rows.ToArray() -ValidationCriteria $validationCriteria -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $displayName
+    }
+
+    if ($unparseable.Count -gt 0) {
+        return New-VcfCheckResult -CheckId $checkId -Status Warning `
+            -TargetComponent $Context.SddcManagerFqdn -Detail "License key(s) with an unparseable expiry date: $($unparseable -join '; ')" `
             -Rows $rows.ToArray() -ValidationCriteria $validationCriteria -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $displayName
     }
 

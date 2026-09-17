@@ -55,6 +55,7 @@ function Test-VcfSddcCheckFailedTasks {
 
     [CmdletBinding()]
     [OutputType([PSObject])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Renaming would break existing callers, Pester tests, and the check catalog entry keyed on this function name.')]
     Param (
         [Parameter(Mandatory = $true)] [PSObject]$Context,
         [Parameter(Mandatory = $false)] [String]$DisplayName = '',
@@ -79,7 +80,15 @@ function Test-VcfSddcCheckFailedTasks {
 
     if ($failedTasks.Count -gt 0) {
         $rows = @($failedTasks | Group-Object -Property Name | ForEach-Object {
-            $timestamps = @($_.Group | Where-Object { $_.CreationTimestamp } | ForEach-Object { [DateTime]$_.CreationTimestamp } | Sort-Object)
+            $groupName = $_.Name
+            $timestamps = @($_.Group | Where-Object { $_.CreationTimestamp } | ForEach-Object {
+                $task = $_
+                try {
+                    [DateTime]$task.CreationTimestamp
+                } catch {
+                    Write-LogMessage -Type WARNING -Message "Could not parse CreationTimestamp `"$($task.CreationTimestamp)`" for failed task `"$groupName`": $($_.Exception.Message)"
+                }
+            } | Sort-Object)
             $failedSubTaskNames = @($_.Group | ForEach-Object { $_.SubTasks } | Where-Object { $_.Status -eq 'Failed' } |
                 Select-Object -ExpandProperty Name -Unique)
             [PSCustomObject]@{

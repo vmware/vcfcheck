@@ -39,6 +39,9 @@ function Test-VcfEsxExecInstalledOnlyCheck {
         environments with many hosts - Write-VcfCheckSubProgress reports "Current/Total (hostname)"
         progress between hosts). This standard ESX security-hardening setting (part of the vSphere
         Security Configuration Guide) enforces that only digitally-signed, installed executables can run.
+        Skips any host that is disconnected or not responding (Get-AdvancedSetting requires a
+        Connected or Maintenance-mode host) and logs the skipped hostname, rather than failing the
+        whole check.
 
         Informational only: reports each host's execInstalledOnly state ('Enabled' or 'Disabled')
         in a per-vCenter table containing Cluster, Hostname, and Status. The check yields a
@@ -83,6 +86,10 @@ function Test-VcfEsxExecInstalledOnlyCheck {
         $outcome = try {
             Connect-VcfCheckVCenter -Context $Context -Fqdn $vcenterFqdn
             $vmHosts = @(Get-VcfCheckVMHostInventory -Server $vcenterFqdn)
+            foreach ($skippedHost in @($vmHosts | Where-Object { -not (Test-VcfCheckVMHostIsResponding -VMHost $_) })) {
+                Write-LogMessage -Type WARNING -Message "Skipping disconnected/not-responding ESX host `"$($skippedHost.Name)`" (ConnectionState: $($skippedHost.ConnectionState)) - unable to query its execInstalledOnly setting."
+            }
+            $vmHosts = @($vmHosts | Where-Object { Test-VcfCheckVMHostIsResponding -VMHost $_ })
             $hostIndex = 0
             $settings = @($vmHosts | ForEach-Object {
                 $hostIndex++

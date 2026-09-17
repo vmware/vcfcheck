@@ -34,9 +34,8 @@ function Test-VcfAriaOpsSizingOverview {
         for reviewer visibility.
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1), resolves the instance's self-monitoring adapter kind key via
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1), resolves the instance's self-monitoring adapter kind key via
         Get-VcfCheckAriaOpsSelfMonitoringAdapterKind (discovered from the instance's own adapter
         inventory rather than a hardcoded key - a hardcoded 'VCOPS_VCOPS_ADAPTER' guess was
         confirmed live to return zero resources, see ARIA_OPS_CONNECTOR_PLAN.md), enumerates that

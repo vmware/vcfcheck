@@ -130,7 +130,19 @@ function Test-VcfCheckAriaNodeDiskSpace {
     $worstStatus = 'Pass'
     $statusRank = @{ Pass = 0; Warning = 1; Full = 2 }
     foreach ($mount in $monitoredMounts) {
-        $usedPercent = [int]($mount.UsedPercent.TrimEnd('%'))
+        try {
+            $usedPercent = [int]($mount.UsedPercent.TrimEnd('%'))
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not parse used-space percentage `"$($mount.UsedPercent)`" for `"$($mount.MountedOn)`" on `"$Fqdn`": $($_.Exception.Message)"
+            $mountDetails.Add("Could not determine utilization for $($mount.MountedOn) on $Product (`"$Fqdn`"); reported value was `"$($mount.UsedPercent)`".")
+            if ($statusRank['Warning'] -gt $statusRank[$worstStatus]) {
+                $worstStatus = 'Warning'
+            }
+            foreach ($row in @($rows | Where-Object { $_.MountedOn -eq $mount.MountedOn })) {
+                $row.Status = 'Warning'
+            }
+            continue
+        }
         $thresholds = $MountThresholds[$mount.MountedOn]
         if ($usedPercent -ge $thresholds.FailPercent) {
             $mountStatus = 'Full'

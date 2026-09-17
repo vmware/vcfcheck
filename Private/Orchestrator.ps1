@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Broadcom. All Rights Reserved.
+﻿# Copyright (c) 2026 Broadcom. All Rights Reserved.
 # Broadcom Confidential. The term "Broadcom" refers to Broadcom Inc.
 # and/or its subsidiaries.
 #
@@ -193,6 +193,9 @@ function Invoke-VcfCheck {
     [CmdletBinding()]
     [OutputType([Object[]])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'AriaOpsEndpointCredentials', Justification = 'Object[] of Fqdn/Username/Password triplets, not a password itself - each element''s Password field is already a SecureString.')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'AriaAutomationEndpointCredentials', Justification = 'Object[] of Fqdn/Username/Password triplets, not a password itself - each element''s Password field is already a SecureString.')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'AriaOpsForLogsEndpointCredentials', Justification = 'Object[] of Fqdn/Username/Password triplets, not a password itself - each element''s Password field is already a SecureString.')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'AriaVCenterCredentials', Justification = 'Object[] of Fqdn/Username/Password/CredentialType entries, not a password itself - each element''s Password field is already a SecureString.')]
     Param (
         [Parameter(Mandatory = $false)] [String[]]$CheckId = @(),
         [Parameter(Mandatory = $false)] [String[]]$Domain = @(),
@@ -209,7 +212,10 @@ function Invoke-VcfCheck {
         [Parameter(Mandatory = $false)] [AllowEmptyString()] [String]$VcfDestinationRelease = '',
         [Parameter(Mandatory = $false)] [Int]$HealthSummaryMaxPollAttempts = 0,
         [Parameter(Mandatory = $false)] [Int]$PreUpgradeCheckSetMaxPollAttempts = 0,
-        [Parameter(Mandatory = $false)] [Object[]]$AriaOpsEndpointCredentials = @()
+        [Parameter(Mandatory = $false)] [Object[]]$AriaOpsEndpointCredentials = @(),
+        [Parameter(Mandatory = $false)] [Object[]]$AriaAutomationEndpointCredentials = @(),
+        [Parameter(Mandatory = $false)] [Object[]]$AriaOpsForLogsEndpointCredentials = @(),
+        [Parameter(Mandatory = $false)] [Object[]]$AriaVCenterCredentials = @()
     )
 
     # PowerCLI cmdlets (Invoke-VMScript in particular) render their own Write-Progress records as
@@ -258,7 +264,9 @@ function Invoke-VcfCheck {
     try {
         $settings = Get-VcfCheckSettings -Path $SettingsPath
     } catch {
-        Write-LogMessage -Type DEBUG -Message "Could not read settings.json (falling back to explicit parameters/interactive prompts): $($_.Exception.Message)"
+        if ($_.Exception.Message -notmatch 'missing required key') {
+            Write-LogMessage -Type WARNING -Message "Could not read settings.json (falling back to explicit parameters/interactive prompts): $($_.Exception.Message)"
+        }
     }
     $credential = Get-VcfCheckCredential -Settings $settings -SddcManagerFqdn $SddcManagerFqdn -SddcManagerUser $SddcManagerUser -SddcManagerPassword $SddcManagerPassword
     $Context = New-VcfCheckContext -Settings $settings
@@ -269,13 +277,33 @@ function Invoke-VcfCheck {
         $Context.SddcManagerRootCredential = [PSCredential]::new('root', $SddcManagerRootPassword)
     }
 
-    # Standalone Aria Operations endpoints (Private/Environments.ps1's Integrations field) are
-    # attached to a saved environment, not SDDC Manager - resolve them here by EnvironmentName so
-    # every Test-VcfAriaOps* check can fan out across them via Get-VcfCheckAriaOpsTargets.
+    # Browser-supplied Aria-component-vCenter SSO/root guestOS credentials - pre-populate the
+    # same caches Get-VcfCheckAriaVCenterCredential/Get-VcfCheckAriaVCenterRootCredential check
+    # before falling back to Read-Host, so a headless -NonInteractive launcher run (every
+    # server-driven run) never hits that prompt.
+    foreach ($vCenterCredential in $AriaVCenterCredentials) {
+        if (-not $vCenterCredential.Fqdn -or -not $vCenterCredential.Password) {
+            continue
+        }
+        $vCenterCacheKey = $vCenterCredential.Fqdn.ToLowerInvariant()
+        $resolvedVCenterCredential = [PSCredential]::new($vCenterCredential.Username, $vCenterCredential.Password)
+        if ($vCenterCredential.CredentialType -eq 'vCenterRoot') {
+            $Context.AriaVCenterRootCredentials[$vCenterCacheKey] = $resolvedVCenterCredential
+        } else {
+            $Context.AriaVCenterEndpointCredentials[$vCenterCacheKey] = $resolvedVCenterCredential
+        }
+    }
+
+    # Standalone Aria Operations/Aria Automation endpoints (Private/Environments.ps1's Integrations
+    # field) are attached to a saved environment, not SDDC Manager - resolve them here by
+    # EnvironmentName so every Test-VcfAriaOps*/Test-VcfAriaAutomation* check can fan out across
+    # them via Get-VcfCheckAriaOpsTargets/Get-VcfCheckAriaAutomationTargets.
     if (-not [String]::IsNullOrWhiteSpace($EnvironmentName)) {
         $matchedEnvironment = @(Get-VcfCheckEnvironments) | Where-Object { $_.Name -eq $EnvironmentName } | Select-Object -First 1
         if ($matchedEnvironment) {
             $Context.AriaOpsEndpoints = @(Get-VcfCheckEnvironmentAriaOpsEndpoints -Environment $matchedEnvironment)
+            $Context.AriaAutomationEndpoints = @(Get-VcfCheckEnvironmentAriaAutomationEndpoints -Environment $matchedEnvironment)
+            $Context.AriaOpsForLogsEndpoints = @(Get-VcfCheckEnvironmentAriaOpsForLogsEndpoints -Environment $matchedEnvironment)
         }
     }
     if ($Context.AriaOpsEndpoints -and @($Context.AriaOpsEndpoints).Count -gt 0) {
@@ -289,6 +317,24 @@ function Invoke-VcfCheck {
             Write-LogMessage -Type WARNING -Message "Could not resolve credentials for one or more standalone Aria Operations endpoints: $($_.Exception.Message)"
         }
     }
+    if ($Context.AriaAutomationEndpoints -and @($Context.AriaAutomationEndpoints).Count -gt 0) {
+        # Same non-fatal treatment as the Aria Operations block above - a per-target ConnectError
+        # from Get-VcfCheckAriaAutomationTargets keeps every other check running normally.
+        try {
+            Resolve-VcfCheckAriaAutomationEndpointCredentials -Context $Context -Endpoints $Context.AriaAutomationEndpoints -PreSuppliedCredentials $AriaAutomationEndpointCredentials
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not resolve credentials for one or more standalone Aria Automation endpoints: $($_.Exception.Message)"
+        }
+    }
+    if ($Context.AriaOpsForLogsEndpoints -and @($Context.AriaOpsForLogsEndpoints).Count -gt 0) {
+        # Same non-fatal treatment as the Aria Operations block above - a per-target ConnectError
+        # from Get-VcfCheckAriaOpsForLogsTargets keeps every other check running normally.
+        try {
+            Resolve-VcfCheckAriaOpsForLogsEndpointCredentials -Context $Context -Endpoints $Context.AriaOpsForLogsEndpoints -PreSuppliedCredentials $AriaOpsForLogsEndpointCredentials
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not resolve credentials for one or more standalone Aria Operations for Logs endpoints: $($_.Exception.Message)"
+        }
+    }
 
     $runId = if ([String]::IsNullOrWhiteSpace($RunId)) { (Get-Date).ToString('yyyyMMdd-HHmmss') } else { $RunId }
     $startedAt = Get-Date
@@ -297,6 +343,7 @@ function Invoke-VcfCheck {
     try {
         $connectionFailed = $false
         try {
+            Write-Host "[STATUS] Connecting to SDDC Manager `"$($credential.Fqdn)`"..." -ForegroundColor Gray
             Connect-VcfCheckSddcManager -Context $Context -Fqdn $credential.Fqdn -User $credential.User -Password $credential.Password `
                 -IgnoreInvalidCertificate:$allowInsecureTls -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds
         } catch {
@@ -312,15 +359,18 @@ function Invoke-VcfCheck {
         $vcfVersion = ''
         if (-not $connectionFailed) {
             try {
+                Write-Host "[STATUS] Resolving VCF version..." -ForegroundColor Gray
                 $vcfVersion = Get-VcfCheckVcfVersion -Context $Context
             } catch {
                 Write-LogMessage -Type WARNING -Message "Could not resolve the VCF version for this run: $($_.Exception.Message)"
             }
 
+            Write-Host "[STATUS] Resolving the list of checks to run..." -ForegroundColor Gray
             $checks = Resolve-VcfCheckCheckList -CheckId $CheckId
 
             $checksRequireRootCredential = @($checks | Where-Object { $_.RequiresSddcManagerRootCredential }).Count -gt 0
             if ($checksRequireRootCredential -and $Context.SddcManagerRootCredential) {
+                Write-Host "[STATUS] Validating SDDC Manager root credential before checks begin..." -ForegroundColor Gray
                 Write-LogMessage -Type INFO -Message "Validating SDDC Manager root credential before checks begin..."
                 $Script:VcfCheckCurrentCheckId = 'sddc_manager_root_validation'
                 $credentialValidation = Test-VcfCheckSddcManagerRootCredential -Context $Context -RootCredential $Context.SddcManagerRootCredential
@@ -449,7 +499,11 @@ function Invoke-VcfCheck {
 
     $finalReport = ConvertTo-VcfCheckReportJson -RunId $runId -SddcManagerFqdn $credential.Fqdn -CheckId $CheckId -Results $results.ToArray() -StartedAt $startedAt -CompletedAt (Get-Date) -VcfVersion $vcfVersion
     $reportPath = Write-VcfCheckReport -Report $finalReport -OutputPath $resolvedOutputPath -EnvironmentName $EnvironmentName
-    Write-LogMessage -Type INFO -Message "Run `"$runId`" complete. Report written to `"$reportPath`"."
+    $runElapsed = (Get-Date) - $startedAt
+    $runElapsedText = "{0}m {1}s" -f [Int][Math]::Floor($runElapsed.TotalMinutes), $runElapsed.Seconds
+    $runToolErrorCount = $finalReport.summary.error
+    $runStatusText = if ($runToolErrorCount -gt 0) { "INCOMPLETE - $runToolErrorCount check(s) could not complete (see TOOL ERRORS)" } else { 'SUCCESS' }
+    Write-LogMessage -Type INFO -Message "Run `"$runId`" complete in $runElapsedText. Status: $runStatusText. Report written to `"$reportPath`"."
 
     try {
         # Swaps the run ID in the findings filename for a completion timestamp, once the run is

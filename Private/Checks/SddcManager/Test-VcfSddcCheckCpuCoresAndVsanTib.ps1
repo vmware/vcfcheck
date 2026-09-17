@@ -84,7 +84,9 @@ function Test-VcfSddcCheckCpuCoresAndVsanTib {
                 $vcenterDomainMap[[string]$d.vcenter.fqdn] = $domName
             }
         }
-    } catch {}
+    } catch {
+        Write-LogMessage -Type WARNING -Message "Could not retrieve SDDC Manager domains to map vCenter FQDNs to domain names: $($_.Exception.Message)"
+    }
 
     $outcomes = foreach ($vcenterFqdn in $vcenterFqdns) {
         $iterationStartedAt = Get-Date
@@ -94,24 +96,37 @@ function Test-VcfSddcCheckCpuCoresAndVsanTib {
             # 1. Compute Host CPU Cores
             $hosts = @(Get-VcfCheckVMHostInventory -Server $vcenterFqdn)
             $vCenterTotalCores = 0
+            $skippedHostCount = 0
             foreach ($h in $hosts) {
-                $cores = if ($h.ExtensionData.Hardware.CpuInfo.NumCpuCores) {
-                    [int]$h.ExtensionData.Hardware.CpuInfo.NumCpuCores
-                } else {
-                    [int]$h.NumCpu
+                try {
+                    $cores = if ($h.ExtensionData.Hardware.CpuInfo.NumCpuCores) {
+                        [int]$h.ExtensionData.Hardware.CpuInfo.NumCpuCores
+                    } else {
+                        [int]$h.NumCpu
+                    }
+                } catch {
+                    Write-LogMessage -Type WARNING -Message "Could not determine CPU core count for host `"$($h.Name)`" on `"$vcenterFqdn`": $($_.Exception.Message)"
+                    $skippedHostCount++
+                    continue
                 }
                 $vCenterTotalCores += $cores
             }
 
             # 2. Query vSAN Datastores & Aggregate Capacity (in TiB)
             $vsanDatastores = @(Get-Datastore -Server $vcenterFqdn -ErrorAction SilentlyContinue | Where-Object { $_.Type -eq 'vsan' })
+            $skippedDatastoreCount = 0
             if ($vsanDatastores.Count -gt 0) {
                 $vsanTotalBytes = 0
                 foreach ($ds in $vsanDatastores) {
-                    if ($ds.ExtensionData.Summary.Capacity) {
-                        $vsanTotalBytes += [int64]$ds.ExtensionData.Summary.Capacity
-                    } elseif ($ds.CapacityBytes) {
-                        $vsanTotalBytes += [int64]$ds.CapacityBytes
+                    try {
+                        if ($ds.ExtensionData.Summary.Capacity) {
+                            $vsanTotalBytes += [int64]$ds.ExtensionData.Summary.Capacity
+                        } elseif ($ds.CapacityBytes) {
+                            $vsanTotalBytes += [int64]$ds.CapacityBytes
+                        }
+                    } catch {
+                        Write-LogMessage -Type WARNING -Message "Could not determine capacity for vSAN datastore `"$($ds.Name)`" on `"$vcenterFqdn`": $($_.Exception.Message)"
+                        $skippedDatastoreCount++
                     }
                 }
                 $vsanTotalTiB = [Math]::Round($vsanTotalBytes / 1TB, 2)
@@ -135,6 +150,9 @@ function Test-VcfSddcCheckCpuCoresAndVsanTib {
             )
 
             $detail = "Total domain inventory: $vCenterTotalCores core(s), ${vsanTotalTiB} TiB vSAN capacity across $($hosts.Count) host(s)"
+            if ($skippedHostCount -gt 0 -or $skippedDatastoreCount -gt 0) {
+                $detail += " ($skippedHostCount host(s) and $skippedDatastoreCount vSAN datastore(s) skipped due to unparseable inventory data)"
+            }
 
             [PSCustomObject]@{
                 VCenterFqdn = $vcenterFqdn

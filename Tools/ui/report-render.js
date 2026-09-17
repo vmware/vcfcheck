@@ -76,8 +76,9 @@
     // the ESX/vSAN checks above, so their TargetComponent is a vCenter FQDN too, despite the
     // "SDDC Manager" area - the Area-based table alone would mislabel these as targeting SDDC
     // Manager itself.
-    // The "Aria Suite" area also covers aria_ops_* checks, whose TargetComponent is an Aria
-    // Operations FQDN, not vRSLCM's - the TARGET_TYPE_LABELS "Aria Suite" entry alone would
+    // The "Aria Suite" area also covers aria_ops_*, aria_automation_*, and aria_ops_for_logs_*
+    // checks, whose TargetComponent is an Aria Operations / Aria Automation / Aria Operations
+    // for Logs FQDN, not vRSLCM's - the TARGET_TYPE_LABELS "Aria Suite" entry alone would
     // mislabel every one of them as targeting Aria Suite Lifecycle Manager.
     var TARGET_TYPE_OVERRIDES_BY_CHECK_ID = {
         "sddc_check_vlcm_vum": "vCenter",
@@ -90,7 +91,28 @@
         "aria_ops_certificate_expiration": "Aria Operations",
         "aria_ops_license": "Aria Operations",
         "aria_ops_lifecycle_status": "Aria Operations",
-        "aria_ops_sizing_overview": "Aria Operations"
+        "aria_ops_sizing_overview": "Aria Operations",
+        "aria_ops_ssh_server_status": "Aria Operations",
+        "aria_automation_lifecycle_status": "Aria Automation",
+        "aria_automation_cloud_account_health": "Aria Automation",
+        "aria_automation_vro_integration_health": "Aria Automation",
+        "aria_automation_project_zone_configuration": "Aria Automation",
+        "aria_automation_appliance_health": "Aria Automation",
+        "aria_automation_disk_space": "Aria Automation",
+        "aria_automation_dns_configuration": "Aria Automation",
+        "aria_automation_fips_status": "Aria Automation",
+        "aria_automation_licensing": "Aria Automation",
+        "aria_automation_ntp_status": "Aria Automation",
+        "aria_automation_orchestrator_extensions": "Aria Automation",
+        "aria_automation_orchestrator_properties": "Aria Automation",
+        "aria_automation_ssh_server_status": "Aria Automation",
+        "aria_ops_for_logs_certificate_expiration": "Aria Operations for Logs",
+        "aria_ops_for_logs_license": "Aria Operations for Logs",
+        "aria_ops_for_logs_lifecycle_status": "Aria Operations for Logs",
+        "aria_ops_for_logs_vsphere_integration_status": "Aria Operations for Logs",
+        "aria_ops_for_logs_log_forwarder_status": "Aria Operations for Logs",
+        "aria_ops_for_logs_vidm_status": "Aria Operations for Logs",
+        "aria_ops_for_logs_ssh_server_status": "Aria Operations for Logs"
     };
 
     VcfCheckUI.targetComponentLabel = function (checkId, area, targetComponent) {
@@ -419,6 +441,14 @@
             totalRunTimeElement.classList.remove("hidden");
         } else {
             totalRunTimeElement.classList.add("hidden");
+        }
+        var runIncompleteElement = document.getElementById("run-incomplete-banner");
+        var errorCount = (report.summary || {}).error || 0;
+        if (errorCount > 0) {
+            runIncompleteElement.textContent = errorCount + " check" + (errorCount === 1 ? "" : "s") + " did not complete - see the Error tile below";
+            runIncompleteElement.classList.remove("hidden");
+        } else {
+            runIncompleteElement.classList.add("hidden");
         }
         document.getElementById("tiles-hint").classList.remove("hidden");
         document.getElementById("area-tiles-hint").classList.remove("hidden");

@@ -143,8 +143,10 @@ function Resolve-VcfCheckCheckList {
 
         .DESCRIPTION
         Cross-references Get-VcfCheckCatalog to build a de-duplicated, ordered dispatch list.
-        When CheckId is empty, every check in the catalog is returned (in catalog order) - the
-        "full run" path.
+        When CheckId is empty, every non-disabled check in the catalog is returned (in catalog
+        order) - the "full run" path. A catalog entry with "disabled": true is treated as absent
+        from the catalog - it is skipped from the default run and rejected if explicitly
+        requested by id, so a misbehaving check can be turned off without deleting it.
 
         .PARAMETER CheckId
         One or more explicit check IDs to run. Empty (default) runs every check in the catalog.
@@ -173,7 +175,7 @@ function Resolve-VcfCheckCheckList {
             }
         }
     } else {
-        $orderedIds = @($catalog.Keys)
+        $orderedIds = @($catalog.Keys | Where-Object { -not [bool]$catalog[$_].disabled })
     }
 
     $resolved = [System.Collections.Generic.List[PSObject]]::new()
@@ -182,6 +184,9 @@ function Resolve-VcfCheckCheckList {
             throw [System.InvalidOperationException]::new("Check id `"$id`" is not present in the check catalog.")
         }
         $entry = $catalog[$id]
+        if ([bool]$entry.disabled) {
+            throw [System.InvalidOperationException]::new("Check id `"$id`" is not present in the check catalog.")
+        }
         $resolved.Add([PSCustomObject]@{
             Id                                 = $id
             Function                           = $entry.function

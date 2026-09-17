@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Broadcom. All Rights Reserved.
+﻿# Copyright (c) 2026 Broadcom. All Rights Reserved.
 # Broadcom Confidential. The term "Broadcom" refers to Broadcom Inc.
 # and/or its subsidiaries.
 #
@@ -227,7 +227,8 @@ function Write-VcfCheckRuntimeInfo {
         Writes a single INFO log line with PowerShell version, VMware PowerCLI version,
         VcfCheck module version, Python version, and OS. Called once per precheck run
         immediately after Initialize-VcfCheckLogging. Detects Python version from the
-        environment variable if set, otherwise attempts to query python3/python executable.
+        environment variable if set, otherwise attempts to query the python3, python, or py
+        executable on PATH, logging a DEBUG line with the reason when detection fails.
         Non-fatal — continues even if detection fails.
 
         .EXAMPLE
@@ -251,22 +252,40 @@ function Write-VcfCheckRuntimeInfo {
             $pyVer = $env:VCF_CHECK_PYTHON_VERSION
         } else {
             try {
-                # Try python3 first, then python - suppress errors if not found
-                $pythonExe = @('python3', 'python') |
+                $pythonExe = @('python3', 'python', 'py') |
                     Where-Object { $null -ne (Get-Command $_ -ErrorAction SilentlyContinue) } |
                     Select-Object -First 1
                 if ($pythonExe) {
                     $pyVersionOutput = & $pythonExe --version 2>&1
                     if ($pyVersionOutput -match '(\d+\.\d+(?:\.\d+)?)') {
                         $pyVer = $matches[1]
+                    } else {
+                        Write-LogMessage -Type DEBUG -Message "Python detection: '$pythonExe --version' produced unparsable output '$pyVersionOutput'"
                     }
+                } else {
+                    Write-LogMessage -Type DEBUG -Message 'Python detection: no python3, python, or py executable found on PATH'
                 }
             } catch {
-                # Silently ignore Python detection errors - logging still succeeds with 'unknown'
+                Write-LogMessage -Type DEBUG -Message "Python detection failed: $($_.Exception.Message)"
             }
         }
 
-        Write-LogMessage -Type INFO -Message "Runtime: PowerShell=$($PSVersionTable.PSVersion) | VCF.PowerCLI=$pcliVer | VcfCheck=v$checkVer | Python=$pyVer | OS=$($PSVersionTable.OS)"
+        # $PSVersionTable.OS reports the kernel build (e.g. "10.0.20348"), which is ambiguous
+        # between Windows Server 2022 and Windows 10/11 21H2+. ProductName from the registry
+        # disambiguates on Windows; other platforms keep the $PSVersionTable.OS string.
+        $osInfo = $PSVersionTable.OS
+        if ($PSVersionTable.Platform -eq 'Win32NT') {
+            try {
+                $winVer = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion' -ErrorAction Stop
+                if ($winVer.ProductName) {
+                    $osInfo = "$($winVer.ProductName) $($winVer.CurrentBuildNumber)"
+                }
+            } catch {
+                Write-LogMessage -Type DEBUG -Message "Windows ProductName detection failed: $($_.Exception.Message)"
+            }
+        }
+
+        Write-LogMessage -Type INFO -Message "Runtime: PowerShell=$($PSVersionTable.PSVersion) | VCF.PowerCLI=$pcliVer | VcfCheck=v$checkVer | Python=$pyVer | OS=$osInfo"
     } catch {
         # Non-fatal: still log even if something fails above
         Write-LogMessage -Type INFO -Message "Runtime: PowerShell=$($PSVersionTable.PSVersion) | VCF.PowerCLI=unknown | VcfCheck=unknown | Python=unknown | OS=$($PSVersionTable.OS)"

@@ -123,6 +123,17 @@
         border: 1px solid var(--accent);
         border-radius: 6px;
     }
+    .run-incomplete-banner {
+        display: inline-block;
+        margin: 0 0 14px 8px;
+        padding: 4px 10px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--fail);
+        background: rgba(224, 71, 62, 0.12);
+        border: 1px solid var(--fail);
+        border-radius: 6px;
+    }
     .error-banner {
         background: rgba(224, 71, 62, 0.12);
         border: 1px solid var(--fail);
@@ -222,7 +233,7 @@
         color: #2a7de1;
         cursor: pointer;
     }
-    dt .result-info-icon, h3 .result-info-icon { margin-left: 8px; }
+    dt .result-info-icon, h3 .result-info-icon, label .result-info-icon { margin-left: 8px; }
     .result-info-icon svg { display: block; }
     .result-info-icon[data-tooltip]::after {
         content: attr(data-tooltip);
@@ -231,7 +242,7 @@
         left: 0;
         margin-top: 6px;
         width: max-content;
-        max-width: 280px;
+        max-width: 200px;
         background: #eceef1;
         color: #14161a;
         font-size: 12px;
@@ -378,6 +389,8 @@
         padding: 7px 10px;
         font-size: 13px;
     }
+    .field input.field-input-invalid { border-color: var(--fail); }
+    .field-hint-error { color: var(--fail); }
     .chk-mini-link {
         background: none;
         border: none;
@@ -475,12 +488,9 @@
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 6px;
-        padding: 10px 12px 70px 12px;
+        padding: 10px 12px;
         max-height: 600px;
         overflow-y: auto;
-    }
-    .env-list {
-        padding-bottom: 12px;
     }
     .chk-area-group { margin-bottom: 12px; }
     .chk-area-group:last-child { margin-bottom: 0; }
@@ -506,6 +516,17 @@
     .chk-area-group.collapsed .chk-area-items { display: none; }
     .chk-area-header-count { margin-left: auto; font-weight: 400; font-size: 12px; color: var(--muted); }
     .chk-area-items { display: flex; flex-direction: column; gap: 2px; }
+    .chk-subgroup-divider {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        margin-top: 10px;
+        padding-top: 6px;
+        border-top: 1px dashed var(--border);
+    }
+    .chk-subgroup-divider:first-child { margin-top: 0; padding-top: 0; border-top: none; }
     .chk-item-row {
         display: flex;
         align-items: baseline;
@@ -550,7 +571,7 @@
         right: 0;
         margin-top: 6px;
         width: max-content;
-        max-width: 280px;
+        max-width: 340px;
         background: #eceef1;
         color: #14161a;
         font-size: 12px;
@@ -765,11 +786,12 @@
     .env-badge[data-tooltip]::after {
         content: attr(data-tooltip);
         position: absolute;
-        top: 100%;
-        right: 0;
-        margin-top: 6px;
+        top: 50%;
+        right: 100%;
+        margin-right: 8px;
+        transform: translateY(-50%);
         width: max-content;
-        max-width: 280px;
+        max-width: 340px;
         background: #eceef1;
         color: #14161a;
         font-size: 12px;
@@ -826,10 +848,24 @@
     }
     .run-scan-env-row:last-child { margin-bottom: 0; }
     .run-scan-env-row-main { display: flex; align-items: center; gap: 10px; }
-    .run-scan-env-credentials { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+    .run-scan-env-credentials { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
     .run-scan-env-credentials .field { flex: 0 1 auto; }
-    .run-scan-env-credentials .field label { white-space: nowrap; }
-    .run-scan-env-credentials-heading { flex-basis: 100%; font-weight: 600; }
+    .run-scan-env-credentials .field label { white-space: nowrap; font-size: 13px; }
+    .run-scan-env-credentials-heading { font-weight: 600; }
+    .run-scan-sddc-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .run-scan-aria-heading { font-weight: 600; margin-top: 16px; }
+    .component-password-row { display: flex; align-items: center; gap: 10px; padding: 2px 0; }
+    .component-name { font-weight: 600; font-size: 14px; min-width: 220px; }
+    .component-user { color: var(--muted); font-size: 12px; min-width: 220px; white-space: nowrap; margin-right: -6px; }
+    .component-pw-wrap { flex: 1 1 auto; max-width: 280px; }
+    .component-pw-wrap input {
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 7px 10px;
+        font-size: 13px;
+    }
     .queue-strip { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
     .queue-item {
         display: flex;
@@ -986,20 +1022,20 @@
 
 <div class="modal-overlay" id="logbundle-modal-overlay">
     <div class="modal-box">
-        <h3>⚠ Security Warning</h3>
-        <p>The log bundle contains sensitive infrastructure data:</p>
+        <h3>⚠ Security Advisory</h3>
+        <p>This bundle contains sensitive infrastructure data. Passwords are not stored or logged, so they will not appear in this archive.</p>
         <ul>
             <li>Endpoint FQDNs and IP addresses (SDDC Manager, vCenter, NSX, etc.)</li>
             <li>Environment names and configuration topology</li>
             <li>Service account usernames</li>
             <li>All log file contents (may include errors exposing configuration)</li>
         </ul>
-        <p><strong style="color: var(--fail)">Do NOT share this archive with untrusted parties.</strong></p>
-        <p><strong>Best Practices:</strong><br>
-            &bull; Store securely (encrypted storage or password-protected)<br>
-            &bull; Share only with authorized Broadcom personnel<br>
-            &bull; Delete after support review<br>
-            &bull; If compromised, review logs for exposed data</p>
+        <p><strong style="color: var(--fail)">Do NOT share this archive with untrusted parties.</strong> Share only with Broadcom or an authorized Broadcom partner, and delete it after support review.</p>
+        <label style="display: block; margin-top: 12px; font-size: 11px;">
+            <input type="checkbox" id="logbundle-scrub-checkbox">
+            Scrub identifying environment details from this archive
+        </label>
+        <p style="margin: 2px 0 0 22px; font-size: 12px; color: var(--muted);">Only the downloaded archive is scrubbed - your saved log and findings files are unchanged.  Only choose this option if your InfoSec policies require it, as it may slow down troubleshooting.</p>
         <div class="modal-actions">
             <button type="button" id="logbundle-cancel-button">Cancel</button>
             <button type="button" id="logbundle-proceed-button">I Understand, Proceed</button>
@@ -1044,19 +1080,23 @@
                     </div>
                     <div class="checkbox-row">
                         <input type="checkbox" id="env-form-root-checks" checked>
-                        <label for="env-form-root-checks">Enable SDDC Manager root-credential checks (VMware Tools guest operations)</label>
+                        <label for="env-form-root-checks">Enable SDDC Manager and vCenter GuestOS-based checks</label>
+                        <span class="result-info-icon" id="env-form-root-checks-info-icon" tabindex="0" data-tooltip="These checks rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. They do not utilize SSH."></span>
                     </div>
                     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
                         <div class="chk-search-row">
                             <h3 style="margin:0;flex:1;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Aria Components (optional)<span class="result-info-icon" id="env-form-integrations-info-icon" tabindex="0" data-tooltip="Note: These checks connect directly to each Aria Component's API are independent of Aria Lifecycle Manager. Add an endpoint here to run its checks; leave it out to skip them."></span></h3>
                         </div>
                         <div style="font-size:13px;color:var(--muted);font-style:italic;margin:8px 0;">Note: These checks connect directly to each Aria component's API and are independent of Aria Lifecycle Manager (vRSLCM).</div>
+                        <div id="env-form-aria-guestos-controls"></div>
                         <div id="env-form-integrations-list"></div>
                         <div class="launcher-row" style="align-items:flex-end;">
                             <div class="field" style="max-width:220px;">
                                 <label for="env-form-integration-type-select">Add component</label>
                                 <select id="env-form-integration-type-select">
+                                    <option value="AriaAutomation">Aria Automation</option>
                                     <option value="AriaOperations">Aria Operations</option>
+                                    <option value="AriaOpsForLogs">Aria Operations for Logs</option>
                                 </select>
                             </div>
                             <button type="button" id="env-form-add-integration-button" class="secondary">+ Add component</button>
@@ -1442,7 +1482,7 @@
                     </div>
                     <span class="chk-header-summary">
                         <span class="chk-count" id="checks-card-summary"></span>
-                        <span class="chk-root-excluded-hint hidden" id="checks-card-root-hint" tabindex="0" data-tooltip="Root-required checks are excluded because no environment has Root-credential checks enabled.">Root checks excluded</span>
+                        <span class="chk-root-excluded-hint hidden" id="checks-card-root-hint" tabindex="0" data-tooltip="GuestOS-based checks are excluded because no environment has GuestOS-based checks enabled.">GuestOS checks excluded</span>
                     </span>
                 </div>
                 <div class="card-body" id="checks-card-body">
@@ -1456,14 +1496,14 @@
                     <div class="chk-search-row">
                         <input type="text" class="search-input" id="check-search-input" placeholder="Search checks by name or area...">
                         <button type="button" class="filter-chip" id="select-blocking-chip" aria-pressed="false" title="Select only checks whose failure will block a VCF 9.x upgrade"><span class="chk-tag chk-tag-blocking" aria-hidden="true">B</span> Select Blocking Only Checks</button>
-                        <button type="button" class="filter-chip" id="filter-root-chip" aria-pressed="false" title="Show only checks that require the SDDC Manager appliance root/OS password, not just the admin login."><span class="chk-tag chk-tag-root" aria-hidden="true">R</span> Show Checks Requiring Root Credentials</button>
+                        <button type="button" class="filter-chip" id="filter-root-chip" aria-pressed="false" title="These checks rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. They do not utilize SSH."><span class="chk-tag chk-tag-root" aria-hidden="true">G</span> Show GuestOS-based Checks</button>
                         <button type="button" id="clear-filters-button" title="Clears all filters and selects all relevant checks">Clear Filters</button>
-                        <span class="chk-legend" title="B = Blocking: a failure blocks the VCF upgrade until resolved.&#10;R = Root: requires the virtual appliance root/OS password (VMware Tools guest operations), not just the SSO administrative user login.">
-                            <span class="result-info-icon" id="chk-legend-info-icon"></span> Tag key: B/R
+                        <span class="chk-legend" title="B = Blocking: a failure blocks the VCF upgrade until resolved.&#10;G = GuestOS: executed through Invoke-VMScript using VMware Tools and user-provided credentials, not the SSO administrative user login and not SSH.">
+                            <span class="result-info-icon" id="chk-legend-info-icon"></span> Tag key: B/G
                         </span>
                         <span class="chk-count" id="check-filter-count"></span>
                     </div>
-                    <div class="chk-root-hint hidden" id="chk-root-hint"><span class="chk-tag chk-tag-root" aria-hidden="true">R</span> Root-required checks are excluded because no environment has Root-credential checks enabled.</div>
+                    <div class="chk-root-hint hidden" id="chk-root-hint"><span class="chk-tag chk-tag-root" aria-hidden="true">G</span> GuestOS-based checks are excluded because no environment has GuestOS-based checks enabled.</div>
                     <div class="chk-list" id="check-checkboxes"></div>
                 </div>
             </div>
@@ -1526,6 +1566,7 @@
         <select id="report-environment-select"></select>
     </div>
     <p class="total-run-time hidden" id="total-run-time"></p>
+    <p class="run-incomplete-banner hidden" id="run-incomplete-banner"></p>
     <div id="domain-scope-summary" class="hidden" style="margin-bottom:16px;"></div>
     <p class="tiles-intro hidden" id="tiles-hint">Click a tile to filter the results below - combine any status and component tiles at once.</p>
     <div class="tiles-section">

@@ -3,6 +3,8 @@
 (function () {
     // ---- Health checks card (component/check picker) - unchanged from the single-environment UI ----
 
+    var ARIA_SUBAREA_ORDER = ["Aria Operations for Logs", "Aria Operations", "Aria Automation", "Aria Suite Lifecycle Manager"];
+
     VcfCheckUI.loadChecks = function () {
         return VcfCheckUI.fetchJson("/api/checks").then(function (data) {
             VcfCheckUI.checksByArea = data.areas || {};
@@ -172,9 +174,22 @@
             group.appendChild(header);
 
             var items = VcfCheckUI.el("div", "chk-area-items");
+            var isAriaSuiteArea = area === "Aria Suite";
+            var lastAriaSubgroup = null;
             checks.slice().sort(function (a, b) {
+                if (isAriaSuiteArea) {
+                    var subAreaOrder = ARIA_SUBAREA_ORDER.indexOf(a.subArea || "") - ARIA_SUBAREA_ORDER.indexOf(b.subArea || "");
+                    if (subAreaOrder !== 0) return subAreaOrder;
+                }
                 return (a.displayName || a.id).localeCompare(b.displayName || b.id, undefined, { sensitivity: "base" });
             }).forEach(function (check) {
+                if (isAriaSuiteArea) {
+                    var ariaSubgroup = check.subArea || "Aria Suite Lifecycle Manager";
+                    if (ariaSubgroup !== lastAriaSubgroup) {
+                        items.appendChild(VcfCheckUI.el("div", "chk-subgroup-divider", ariaSubgroup + " Checks"));
+                        lastAriaSubgroup = ariaSubgroup;
+                    }
+                }
                 var requiresRoot = VcfCheckUI.rootCredentialCheckIds.indexOf(check.id) !== -1;
                 var row = VcfCheckUI.el("div", "chk-item-row");
                 var item = VcfCheckUI.el("label", "checkbox-group-item");
@@ -199,8 +214,8 @@
                     item.appendChild(blockingTag);
                 }
                 if (requiresRoot) {
-                    var rootTag = VcfCheckUI.el("span", "chk-tag chk-tag-root", "R");
-                    rootTag.title = "Root: requires the virtual appliance root/OS password (VMware Tools guest operations), not just the SSO administrative user login.";
+                    var rootTag = VcfCheckUI.el("span", "chk-tag chk-tag-root", "G");
+                    rootTag.title = "GuestOS: executed through Invoke-VMScript using VMware Tools and user-provided credentials, not the SSO administrative user login and not SSH.";
                     item.appendChild(rootTag);
                 }
                 row.appendChild(item);

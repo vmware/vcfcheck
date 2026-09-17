@@ -34,9 +34,8 @@ function Test-VcfAriaOpsLifecycleStatus {
         upgrade-path status, queried directly from Aria Operations rather than vRSLCM.
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1) and, for each, calls the new Get-VcfCheckAriaOpsVersion
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1) and, for each, calls the new Get-VcfCheckAriaOpsVersion
         wrapper (Invoke-VcfOpsGetCurrentVersionOfServer) to obtain Aria Operations' installed
         version directly from its own API. Test-VcfVrslcmFetchProducts already reports this same
         version by reading it out of vRSLCM's registered-product list, but that path only exists

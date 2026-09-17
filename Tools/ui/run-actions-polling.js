@@ -67,7 +67,9 @@
         document.getElementById("sticky-progress-bar").classList.toggle("hidden", !running);
         if (!running) {
             document.getElementById("queue-strip").classList.add("hidden");
-            document.getElementById("live-log-wrap").classList.add("hidden");
+            // Collapsed, not hidden - the log stays reachable so the user can expand it
+            // again to review what happened during the run.
+            document.getElementById("live-log-wrap").classList.add("collapsed");
         }
     }
 
@@ -98,7 +100,7 @@
         // the next run's own setRunningState(true), so it sits on screen alongside the next
         // run's credential-check panel.
         if (VcfCheckUI.isRunning) {
-            document.getElementById("live-log-wrap").classList.remove("hidden");
+            document.getElementById("live-log-wrap").classList.remove("hidden", "collapsed");
         }
     }
 
@@ -128,15 +130,20 @@
                 var elapsedMs = Date.now() - VcfCheckUI.runStartTime;
                 var elapsedTime = VcfCheckUI.formatElapsedTime(elapsedMs);
 
-                // Extract currently running check from log - reads the raw, unfiltered buffer
-                // (not the displayed box) since these "[N/M] Running ..." lines are INFO-level
-                // and would otherwise be invisible whenever the WARNING display filter is active.
+                // Extract currently running check (or, before the check loop starts, the current
+                // startup activity - "[STATUS] ..." lines emitted while connecting to SDDC Manager,
+                // resolving the check list, etc.) from the log. Reads the raw, unfiltered buffer
+                // (not the displayed box) since these lines are INFO-level and would otherwise be
+                // invisible whenever the WARNING display filter is active. Scanning from the most
+                // recent line means once real "[N/M] Running ..." lines appear they naturally take
+                // over from the startup status lines, since they're always more recent.
                 if (VcfCheckUI.liveLogRawText) {
                     var logLines = VcfCheckUI.liveLogRawText.split('\n');
                     for (var i = logLines.length - 1; i >= 0; i--) {
                         var match = logLines[i].match(/\[\d+\/\d+\]\s+Running\s+(.+?)\.\.\./);
-                        if (match) {
-                            var newCheckName = match[1];
+                        var statusMatch = match ? null : logLines[i].match(/\[STATUS\]\s+(.+?)\.\.\./);
+                        if (match || statusMatch) {
+                            var newCheckName = match ? match[1] : statusMatch[1];
                             if (newCheckName !== currentCheckName) {
                                 currentCheckName = newCheckName;
                                 currentCheckStartTime = Date.now();
@@ -146,9 +153,19 @@
                     }
                 }
 
-                var progressText = VcfCheckUI.lastQueue.length > 1
-                    ? "Progress: " + completed + "/" + total + " checks (" + VcfCheckUI.lastQueue.length + " environments)"
-                    : "Progress: " + completed + "/" + total + " checks";
+                // Before the first check finishes, completed/total legitimately reads 0/78 -
+                // during that window the log is only showing connection/auth activity, not an
+                // actual check, so "Progress: 0/78 checks" reads as stalled even though work is
+                // visibly happening. Gate on completed === 0 alone (not on log line format) since
+                // setup log lines vary in shape and shouldn't have to match a specific regex.
+                var progressText;
+                if (completed === 0) {
+                    progressText = "Preparing environment...";
+                } else {
+                    progressText = VcfCheckUI.lastQueue.length > 1
+                        ? "Progress: " + completed + "/" + total + " checks (" + VcfCheckUI.lastQueue.length + " environments)"
+                        : "Progress: " + completed + "/" + total + " checks";
+                }
                 document.getElementById("launcher-progress-text").textContent = progressText;
                 document.getElementById("launcher-elapsed-text").textContent = "Elapsed: " + elapsedTime;
 
@@ -166,7 +183,12 @@
                     currentCheckElement.textContent = "";
                     stickyText.textContent = "Running checks...";
                 }
-                var stickyCountText = completed > total ? completed + " result(s)" : completed + "/" + total;
+                var stickyCountText;
+                if (completed === 0) {
+                    stickyCountText = "preparing...";
+                } else {
+                    stickyCountText = completed > total ? completed + " result(s)" : completed + "/" + total;
+                }
                 document.getElementById("sticky-progress-bar-count").textContent = stickyCountText;
 
                 // Sub-progress (e.g. "Host 3/12") is optional and check-specific - only checks
@@ -235,6 +257,8 @@
         if (VcfCheckUI.pollTimer) clearInterval(VcfCheckUI.pollTimer);
         VcfCheckUI.runStartTime = Date.now();
         VcfCheckUI.finalRunTime = null;
+        currentCheckName = null;
+        currentCheckStartTime = null;
         VcfCheckUI.pollTimer = setInterval(pollOnce, 2000);
         pollOnce();
     }
@@ -325,27 +349,20 @@
                 envGroup.appendChild(envHeader);
 
                 var phaseList = VcfCheckUI.el("div", "credential-check-phases");
-                step.phases.forEach(function (phase, idx) {
+                step.phases.forEach(function (phase) {
                     var phaseRow = VcfCheckUI.el("div", "credential-check-phase pi-" + phase.status);
                     var iconSpan = VcfCheckUI.el("span", "pi-icon");
 
                     // Show spinning icon only if phase is pending AND step is still checking
                     var isPhaseComplete = phase.status === "pass" || phase.status === "fail";
                     var isStepComplete = step.status === "success" || step.status === "failed";
-                    console.log("Rendering phase " + idx + " '" + phase.name + "': status=" + phase.status + ", isPhaseComplete=" + isPhaseComplete + ", isStepComplete=" + isStepComplete);
 
                     if (!isPhaseComplete && !isStepComplete) {
-                        // Phase is pending and step is still checking
-                        console.log("  -> Showing spinner for phase " + idx);
                         iconSpan.appendChild(VcfCheckUI.el("span", "spin", "↻"));
                     } else {
                         var statusMap = { pass: "✓", fail: "✗", skipped: "–", pending: "–" };
                         var icon = statusMap[phase.status] || "–";
-                        console.log("  -> Showing icon '" + icon + "' for phase " + idx);
                         iconSpan.textContent = icon;
-                        if (phase.status !== "pass" && phase.status !== "fail" && phase.status !== "pending") {
-                            console.log("Unexpected phase status: " + phase.status + " (phase=" + phase.name + ")");
-                        }
                     }
 
                     phaseRow.appendChild(iconSpan);
@@ -392,6 +409,44 @@
         }).catch(function () { /* log tail is best-effort - never blocks the credential check itself */ });
     }
 
+    // TEST-EXTRACT-MERGECREDENTIALPHASES-START
+    // Merges server-reported phases onto the client's guessed phase list, keeping the client's
+    // descriptive (FQDN-qualified) name for every phase the server also reports, positionally.
+    // The client's initialPhases guess can be shorter than what the server ends up reporting
+    // (e.g. "Aria Suite Lifecycle Manager Connectivity" is only added server-side when VRSLCM is
+    // registered with SDDC Manager) - those unanticipated phases are appended using the server's
+    // own (unqualified) name rather than dropping them or discarding the whole guessed list.
+    // Shared by the mid-run progress poller and the final POST response handler so both apply the
+    // same rule.
+    function mergeCredentialPhases(clientPhases, serverPhases) {
+        return serverPhases.map(function (serverPhase, index) {
+            var clientPhase = clientPhases[index];
+            if (clientPhase) {
+                return { name: clientPhase.name, status: serverPhase.status, error: serverPhase.error || null };
+            }
+            return serverPhase;
+        });
+    }
+    // TEST-EXTRACT-MERGECREDENTIALPHASES-END
+
+    // Applies mid-run phase statuses from /api/validate-credentials/progress onto the currently
+    // checking step - lets the checklist flip checkmarks as each phase completes instead of only
+    // once the whole step's request resolves. Skipped once the step has already finished, since
+    // the final POST response's own phases merge is authoritative and this fetch can still resolve
+    // afterward (its own network delay racing the request that just settled step.status), which
+    // would otherwise overwrite the confirmed final phases with an earlier, possibly-stale
+    // progress snapshot.
+    function pollCredentialProgress(step, steps) {
+        if (step.status === "success" || step.status === "failed") { return Promise.resolve(); }
+        return VcfCheckUI.fetchJson("/api/validate-credentials/progress").then(function (data) {
+            var progressPhases = data.phases;
+            if (!progressPhases || !Array.isArray(progressPhases) || !step.phases) { return; }
+            if (step.status === "success" || step.status === "failed") { return; }
+            step.phases = mergeCredentialPhases(step.phases, progressPhases);
+            renderCredentialCheckItems(steps);
+        }).catch(function () { /* progress polling is best-effort - never blocks the credential check itself */ });
+    }
+
     document.getElementById("credential-log-copy-button").addEventListener("click", function () {
         var button = this;
         // Copies the full, unfiltered transcript regardless of the current display filter -
@@ -426,12 +481,13 @@
             }
             (item.integrationCredentials || []).forEach(function (credential) {
                 var integration = environment && environment.integrations ? environment.integrations[credential.integrationIndex] : null;
-                if (!integration || integration.type !== 'AriaOperations') { return; }
+                if (!integration || (integration.type !== 'AriaOperations' && integration.type !== 'AriaAutomation' && integration.type !== 'AriaOpsForLogs')) { return; }
+                var typeDisplayName = VcfCheckUI.integrationTypeDisplayName(integration.type);
                 var endpoints = integration.sharedCredentials ? (integration.endpoints || []) : [integration.endpoints[credential.endpointIndex]];
                 endpoints.forEach(function (endpoint) {
                     if (!endpoint) { return; }
-                    initialPhases.push({ name: 'Aria Operations Network Reachability (' + endpoint.fqdn + ')', status: 'pending', error: null });
-                    initialPhases.push({ name: 'Aria Operations Authentication (' + endpoint.fqdn + ')', status: 'pending', error: null });
+                    initialPhases.push({ name: typeDisplayName + ' Network Reachability (' + endpoint.fqdn + ')', status: 'pending', error: null });
+                    initialPhases.push({ name: typeDisplayName + ' Authentication (' + endpoint.fqdn + ')', status: 'pending', error: null });
                 });
             });
             return {
@@ -474,58 +530,24 @@
                     step.status = "checking";
                     step.detail = null;
                     renderCredentialCheckItems(steps);
-                    var logTimer = setInterval(pollCredentialLog, 800);
+                    var logTimer = setInterval(function () {
+                        pollCredentialLog();
+                        pollCredentialProgress(step, steps);
+                    }, 800);
 
                     return VcfCheckUI.postJson("/api/validate-credentials", { items: [step.item] }, { signal: credentialCheckAbortController.signal }).then(function (data) {
                         var result = (data.results || [])[0] || {};
-                        console.log("Credential check response for " + step.item.fqdn + ":", result);
                         step.status = result.success ? "success" : "failed";
 
                         (result.domains || []).forEach(function (domain) {
                             if (domain && domain.name) { testedDomains[domain.name] = domain.type || ""; }
                         });
 
-                        // Merge response phases with initial phases (real-time updates)
-                        console.log("Before merge - step.phases:", step.phases);
                         if (result.phases && Array.isArray(result.phases)) {
-                            console.log("Response has " + result.phases.length + " phases:", result.phases);
-                            // Positional merge only holds when both sides agree on phase count -
-                            // PowerShell can return phases the client's initialPhases placeholder
-                            // list never anticipated (e.g. "Aria Suite Lifecycle Manager
-                            // Connectivity", only added server-side when VRSLCM is registered with
-                            // SDDC Manager). A straight index-by-index map would silently drop any
-                            // such extra phase instead of rendering it, so fall back to the
-                            // server's own phases (with their own names) whenever the counts
-                            // differ, rather than assuming the client guessed the full set upfront.
-                            if (step.phases && Array.isArray(step.phases) && step.phases.length === result.phases.length) {
-                                console.log("Merging " + step.phases.length + " initial phases with " + result.phases.length + " result phases");
-                                // Update existing phases by position (PowerShell returns phases in same order)
-                                // Preserve the FQDN-specific phase names from initial phases, but update status and error
-                                step.phases = step.phases.map(function (initialPhase, index) {
-                                    var resultPhase = result.phases[index];
-                                    console.log("Merging phase " + index + ": initial=" + initialPhase.name + ", result=" + (resultPhase ? resultPhase.name + " (status=" + resultPhase.status + ")" : "undefined"));
-                                    if (resultPhase) {
-                                        var merged = {
-                                            name: initialPhase.name, // Keep the FQDN-specific name from UI
-                                            status: resultPhase.status,
-                                            error: resultPhase.error || null // Explicitly set error (may be null)
-                                        };
-                                        console.log("Merged phase " + index + ": " + JSON.stringify(merged));
-                                        return merged;
-                                    }
-                                    return initialPhase;
-                                });
-                                console.log("After merge - step.phases:", step.phases);
-                            } else {
-                                // No initial phases, or the server returned a different count than
-                                // the client guessed upfront - use result phases directly.
-                                step.phases = result.phases;
-                            }
-                            // Immediately render updated phases
-                            console.log("Calling renderCredentialCheckItems with updated step.phases");
+                            step.phases = (step.phases && Array.isArray(step.phases) && step.phases.length > 0)
+                                ? mergeCredentialPhases(step.phases, result.phases)
+                                : result.phases;
                             renderCredentialCheckItems(steps);
-                        } else {
-                            console.log("No phases in response (phases=" + result.phases + ")");
                         }
 
                         step.detail = result.success ? null : (result.error || "Credentials could not be validated.");

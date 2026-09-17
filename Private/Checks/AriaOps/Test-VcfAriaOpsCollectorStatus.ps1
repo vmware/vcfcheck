@@ -33,9 +33,8 @@ function Test-VcfAriaOpsCollectorStatus {
         Verifies that every Aria Operations collector reports an UP state.
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCollectors against each,
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCollectors against each,
         returning one result per target. Evaluates each collector's State property.
 
         Outcome behavior:

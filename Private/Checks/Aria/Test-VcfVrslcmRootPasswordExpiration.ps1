@@ -60,6 +60,68 @@ function ConvertFrom-VcfCheckChageOutput {
     }
     return @($fields)
 }
+function Test-VcfCheckApplianceProductIdentity {
+
+    <#
+        .SYNOPSIS
+        Confirms an Aria appliance's guest OS identifies as the expected product.
+
+        .DESCRIPTION
+        Helper for Test-VcfCheckAriaNodePasswordExpiration. Runs `egrep "<GrepPattern>" <FilePath>`
+        via Invoke-VcfApplianceCommand to confirm the VM registered in SDDC Manager as -Product is
+        actually running that product's appliance image, rather than trusting the registered FQDN
+        alone - a stale or mismatched SDDC Manager inventory entry could otherwise point this
+        check at the wrong VM.
+
+        .PARAMETER VmName
+        Short VM name to pass to Invoke-VcfApplianceCommand.
+
+        .PARAMETER VCenterFqdn
+        FQDN of the already-connected vCenter that manages the appliance VM.
+
+        .PARAMETER Fqdn
+        Appliance FQDN as registered in SDDC Manager.
+
+        .PARAMETER Credential
+        Guest OS credential for the appliance.
+
+        .PARAMETER FilePath
+        Guest OS file to grep (e.g. "/etc/vmware-prelude/va-release.conf" or "/opt/vmware/etc/ovfEnv.xml").
+
+        .PARAMETER GrepPattern
+        Full egrep pattern expected to match in -FilePath (e.g. "va.name.*Automation" or "VMware.*Operations").
+
+        .PARAMETER Description
+        Friendly product identity fragment (e.g. "Automation") to include in the Detail message.
+
+        .OUTPUTS
+        [PSCustomObject] with Confirmed (bool) and Detail (string, populated only when not confirmed).
+    #>
+
+    [CmdletBinding()]
+    [OutputType([PSCustomObject])]
+    Param (
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$VmName,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$VCenterFqdn,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Fqdn,
+        [Parameter(Mandatory = $true)] [PSCredential]$Credential,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$FilePath,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$GrepPattern,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Description
+    )
+
+    $commandResult = Invoke-VcfApplianceCommand -VmName $VmName -Server $VCenterFqdn -Fqdn $Fqdn `
+        -Credential $Credential -ScriptText "egrep `"$GrepPattern`" $FilePath"
+
+    if (-not $commandResult.Success -or [String]::IsNullOrWhiteSpace($commandResult.ScriptOutput)) {
+        return [PSCustomObject]@{
+            Confirmed = $false
+            Detail    = "`"$Fqdn`" does not identify as a `"$Description`" appliance in $FilePath; skipping root password check to avoid checking the wrong VM."
+        }
+    }
+
+    return [PSCustomObject]@{ Confirmed = $true; Detail = '' }
+}
 function Test-VcfCheckAriaNodePasswordExpiration {
 
     <#
@@ -71,6 +133,12 @@ function Test-VcfCheckAriaNodePasswordExpiration {
         from -Fqdn, runs `chage -l <Username>` via Invoke-VcfApplianceCommand (guest operations
         through vCenter, not a direct SSH session), and parses the result with
         ConvertFrom-VcfCheckChageOutput.
+
+        If -IdentityCheck is supplied, first confirms the node's guest OS identity via
+        Test-VcfCheckApplianceProductIdentity (matching -IdentityCheck.GrepPattern against
+        -IdentityCheck.FilePath) and returns an Error result without running `chage` if the
+        identity does not match - a registered FQDN that no longer points at the expected
+        appliance should not be trusted for a password-expiration verdict.
 
         A finite "Maximum number of days between password change" (chage's default fresh-appliance
         value is 99999, effectively "never") or a "Password expires" date means the account is
@@ -95,6 +163,11 @@ function Test-VcfCheckAriaNodePasswordExpiration {
         .PARAMETER Credential
         Guest OS credential for -Username.
 
+        .PARAMETER IdentityCheck
+        Optional [PSCustomObject] with FilePath, GrepPattern, and Description properties. When
+        supplied, the node's identity is confirmed via Test-VcfCheckApplianceProductIdentity
+        before the password check runs.
+
         .OUTPUTS
         [PSCustomObject] with Fqdn, Username, Status ('Pass'/'Warning'/'Fail'/'Error'), Detail,
         ExpirationDate, DaysRemaining, and Fields (the parsed chage output, empty on failure)
@@ -108,10 +181,29 @@ function Test-VcfCheckAriaNodePasswordExpiration {
         [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Fqdn,
         [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Product,
         [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Username,
-        [Parameter(Mandatory = $true)] [PSCredential]$Credential
+        [Parameter(Mandatory = $true)] [PSCredential]$Credential,
+        [Parameter(Mandatory = $false)] [PSCustomObject]$IdentityCheck = $null
     )
 
     $vmName = ($Fqdn -split '\.')[0]
+
+    if ($IdentityCheck) {
+        $identity = Test-VcfCheckApplianceProductIdentity -VmName $vmName -VCenterFqdn $VCenterFqdn `
+            -Fqdn $Fqdn -Credential $Credential -FilePath $IdentityCheck.FilePath `
+            -GrepPattern $IdentityCheck.GrepPattern -Description $IdentityCheck.Description
+        if (-not $identity.Confirmed) {
+            return [PSCustomObject]@{
+                Fqdn           = $Fqdn
+                Username       = $Username
+                Status         = 'Error'
+                Detail         = $identity.Detail
+                ExpirationDate = 'Unknown'
+                DaysRemaining  = 'Unknown'
+                Fields         = @()
+            }
+        }
+    }
+
     $commandResult = Invoke-VcfApplianceCommand -VmName $vmName -Server $VCenterFqdn -Fqdn $Fqdn `
         -Credential $Credential -ScriptText "chage -l $Username"
 
@@ -212,9 +304,11 @@ function Test-VcfVrslcmRootPasswordExpiration {
         Enumerates every Aria Suite product with credentials registered in SDDC Manager (vRSLM,
         VRLI, VROPS, VRA, WSA) via Invoke-VcfGetCredentials, then for each SSH-credentialed node
         runs Test-VcfCheckAriaNodePasswordExpiration - which executes `chage -l <user>` on the
-        appliance through vCenter guest operations (Invoke-VcfApplianceCommand). Reports per-node
-        sub-progress via Write-VcfCheckSubProgress as each appliance node is checked to ensure
-        real-time status updates during execution.
+        appliance through vCenter guest operations (Invoke-VcfApplianceCommand). For VRA and VROPS
+        nodes, the guest OS identity is confirmed first (va-release.conf and ovfEnv.xml
+        respectively) before `chage` runs. Reports per-node sub-progress via
+        Write-VcfCheckSubProgress as each appliance node is checked to ensure real-time status
+        updates during execution.
 
         Outcome behavior:
         - Skipped: Returns 'Skipped' if Aria Suite Lifecycle Manager is not deployed in the environment.
@@ -256,6 +350,11 @@ function Test-VcfVrslcmRootPasswordExpiration {
         'VRA'    = 'Aria Automation'
         'WSA'    = 'Workspace ONE Access'
     }
+    $productIdentityChecks = @{
+        'VRA'   = [PSCustomObject]@{ FilePath = '/etc/vmware-prelude/va-release.conf'; GrepPattern = 'va.name.*Automation'; Description = 'Automation' }
+        'VROPS' = [PSCustomObject]@{ FilePath = '/opt/vmware/etc/ovfEnv.xml'; GrepPattern = 'VMware.*Operations'; Description = 'Operations' }
+        'VRLI'  = [PSCustomObject]@{ FilePath = '/etc/vmware/.buildInfo'; GrepPattern = 'Operations for Logs'; Description = 'Operations for Logs' }
+    }
 
     try {
         $connection = Get-VcfCheckVrslcmConnection -Context $Context
@@ -289,8 +388,9 @@ function Test-VcfVrslcmRootPasswordExpiration {
         }
         $friendlyProduct = if ($productFriendlyNames.ContainsKey($product)) { $productFriendlyNames[$product] } else { $product }
         $entries = @($response.Elements) | Where-Object { $_.CredentialType -eq 'SSH' }
+        $identityCheck = if ($productIdentityChecks.ContainsKey($product)) { $productIdentityChecks[$product] } else { $null }
         foreach ($entry in $entries) {
-            $nodeTasks.Add([PSCustomObject]@{ FriendlyProduct = $friendlyProduct; Entry = $entry })
+            $nodeTasks.Add([PSCustomObject]@{ FriendlyProduct = $friendlyProduct; Entry = $entry; IdentityCheck = $identityCheck })
         }
     }
 
@@ -309,7 +409,8 @@ function Test-VcfVrslcmRootPasswordExpiration {
         $nodeCredential = [PSCredential]::new($entry.Username, $secure)
 
         $outcome = Test-VcfCheckAriaNodePasswordExpiration -VCenterFqdn $vcenterFqdn `
-            -Fqdn $nodeFqdn -Product $nodeTask.FriendlyProduct -Username $entry.Username -Credential $nodeCredential
+            -Fqdn $nodeFqdn -Product $nodeTask.FriendlyProduct -Username $entry.Username -Credential $nodeCredential `
+            -IdentityCheck $nodeTask.IdentityCheck
         Remove-Variable -Name nodeCredential, secure -ErrorAction SilentlyContinue
 
         if ($outcome.Status -eq 'Fail') {

@@ -99,7 +99,7 @@ try:
     import fcntl
 except ImportError:  # Windows has no fcntl - see _acquire_active_run_lock's docstring.
     fcntl = None
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -123,9 +123,11 @@ from vcfcheck_server.environments import (
     reject_unsafe_cli_value,
 )
 from vcfcheck_server.json_utils import _extract_json_object, _load_json_file, _load_latest_findings_json
+from vcfcheck_server.log_scrub import build_domain_suffixes, build_identifier_map, discover_domain_suffix_types, scrub_text
 from vcfcheck_server.logs import (
-    _engine_log_path,
     _list_log_files,
+    _read_credential_progress,
+    _reset_credential_progress,
     _tail_credential_log,
     _tail_log_file,
 )
@@ -151,9 +153,7 @@ from vcfcheck_server.vcf_release import (
     _families_from_versions,
     _fetch_vcf_destination_release_options,
     _get_vcf_destination_release,
-    _INTEROP_MATRIX_SDDC_MANAGER_DATA_FILE,
     _parse_dotted_version,
-    _vcf_destination_release_options_cache,
 )
 
 MODULE_DIR = Path(__file__).resolve().parent
@@ -209,6 +209,7 @@ ENVIRONMENT_ID_ROUTE_PATTERN = re.compile(
 # allowlist so unrelated parent-shell secrets can never leak into the child's environment.
 _SUBPROCESS_ENV_ALLOWLIST = (
     "PATH",
+    "PATHEXT",
     "PSModulePath",
     "HOME",
     "USERPROFILE",
@@ -481,7 +482,11 @@ class RunQueue:
         logger.info("===== Run %s started %s - %s (%d check(s)) =====", run_id, started_at, item['name'], len(item['checkIds']))
         logger.info("Findings will be written to: %s", latest_findings_file)
 
-        env = _build_launcher_env(base_directory, item["password"], item.get("rootPassword", ""), item.get("ariaOpsCredentials"))
+        env = _build_launcher_env(
+            base_directory, item["password"], item.get("rootPassword", ""),
+            item.get("ariaOpsCredentials"), item.get("ariaAutomationCredentials"),
+            item.get("ariaOpsForLogsCredentials"), item.get("ariaVCenterCredentials")
+        )
         args = [
             "pwsh", "-NoProfile", "-NonInteractive", "-File", str(LAUNCHER_SCRIPT),
             "-SddcManagerFqdn", item["fqdn"],
@@ -924,7 +929,11 @@ def _tail_launcher_log(base_directory: Path, since: int) -> dict:
     return _tail_log_file(log_path, since, marker=marker)
 
 
-def _build_launcher_env(base_directory: Path, sddc_password: str, root_password: str, aria_ops_credentials: list = None) -> dict:
+def _build_launcher_env(
+    base_directory: Path, sddc_password: str, root_password: str, aria_ops_credentials: list = None,
+    aria_automation_credentials: list = None, aria_ops_for_logs_credentials: list = None,
+    aria_vcenter_credentials: list = None
+) -> dict:
     env = {name: os.environ[name] for name in _SUBPROCESS_ENV_ALLOWLIST if name in os.environ}
     env["VcfCheckBaseDirectory"] = str(base_directory)
     env["VCFCHECK_MODULE_PSD1"] = str(_MODULE_PSD1)
@@ -933,14 +942,20 @@ def _build_launcher_env(base_directory: Path, sddc_password: str, root_password:
         env["VCFCHECK_ROOT_PASSWORD"] = root_password
     if aria_ops_credentials:
         env["VCFCHECK_ARIAOPS_CREDENTIALS_JSON"] = json.dumps(aria_ops_credentials)
+    if aria_automation_credentials:
+        env["VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON"] = json.dumps(aria_automation_credentials)
+    if aria_ops_for_logs_credentials:
+        env["VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON"] = json.dumps(aria_ops_for_logs_credentials)
+    if aria_vcenter_credentials:
+        env["VCFCHECK_ARIAVCENTER_CREDENTIALS_JSON"] = json.dumps(aria_vcenter_credentials)
     return env
 
 
-def _resolve_aria_ops_credentials(environment: dict, integration_credentials) -> list:
-    """Resolves the browser-supplied per-endpoint Aria Operations passwords
-    (environment.integrations[].endpoints[] indices) against the environment's stored
-    Integrations, into the {Name, Fqdn, Username, Password} list Invoke-VcfCheckValidateCredentials.ps1
-    expects on VCFCHECK_ARIAOPS_CREDENTIALS_JSON."""
+def _resolve_integration_credentials(environment: dict, integration_credentials, integration_type: str) -> list:
+    """Resolves the browser-supplied per-endpoint passwords (environment.integrations[].endpoints[]
+    indices) against the environment's stored Integrations of the given type, into the
+    {Name, Fqdn, Username, Password} list Invoke-VcfCheckValidateCredentials.ps1 expects on
+    VCFCHECK_ARIAOPS_CREDENTIALS_JSON / VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON."""
     resolved = []
     if not isinstance(integration_credentials, list):
         return resolved
@@ -958,7 +973,7 @@ def _resolve_aria_ops_credentials(environment: dict, integration_credentials) ->
         if integration_index < 0 or integration_index >= len(integrations):
             continue
         integration = integrations[integration_index] or {}
-        if integration.get("type") != "AriaOperations":
+        if integration.get("type") != integration_type:
             continue
         endpoints = integration.get("endpoints") or []
 
@@ -982,6 +997,63 @@ def _resolve_aria_ops_credentials(environment: dict, integration_credentials) ->
                 "Username": username,
                 "Password": password,
             })
+    return resolved
+
+
+def _resolve_aria_ops_credentials(environment: dict, integration_credentials) -> list:
+    return _resolve_integration_credentials(environment, integration_credentials, "AriaOperations")
+
+
+def _resolve_aria_automation_credentials(environment: dict, integration_credentials) -> list:
+    return _resolve_integration_credentials(environment, integration_credentials, "AriaAutomation")
+
+
+def _resolve_aria_ops_for_logs_credentials(environment: dict, integration_credentials) -> list:
+    return _resolve_integration_credentials(environment, integration_credentials, "AriaOpsForLogs")
+
+
+def _resolve_aria_vcenter_credentials(environment: dict, aria_vcenter_credentials) -> list:
+    """Resolves the browser-supplied Aria-component-vCenter SSO/root passwords
+    (ariaVCenterCredentials entries, keyed by integrationIndex/endpointIndex/credentialType) into
+    the {Fqdn, Username, Password, CredentialType} list Invoke-VcfCheckLauncher.ps1 forwards on
+    VCFCHECK_ARIAVCENTER_CREDENTIALS_JSON. Fqdn/Username are read from AriaVCenterFqdn/
+    AriaVCenterUsername when the integration shares one vCenter across its endpoints, else from
+    the specific endpoint's own VCenterFqdn/VCenterUsername - mirroring
+    Get-VcfCheckEnvironmentAriaAutomationEndpoints' resolution rule."""
+    resolved = []
+    if not isinstance(aria_vcenter_credentials, list):
+        return resolved
+    integrations = environment.get("integrations") or []
+    for entry in aria_vcenter_credentials:
+        if not isinstance(entry, dict):
+            continue
+        password = str(entry.get("password", "") or "")
+        credential_type = entry.get("credentialType")
+        if not password or credential_type not in ("vCenterUser", "vCenterRoot"):
+            continue
+        integration_index = entry.get("integrationIndex")
+        endpoint_index = entry.get("endpointIndex")
+        if not isinstance(integration_index, int) or integration_index < 0 or integration_index >= len(integrations):
+            continue
+        integration = integrations[integration_index] or {}
+        if not integration.get("enableGuestOsChecks"):
+            continue
+        if integration.get("ariaVCenterSharedAcrossEndpoints", True):
+            fqdn = integration.get("ariaVCenterFqdn")
+            vcenter_username = integration.get("ariaVCenterUsername")
+        else:
+            endpoints = integration.get("endpoints") or []
+            if not isinstance(endpoint_index, int) or endpoint_index < 0 or endpoint_index >= len(endpoints):
+                continue
+            endpoint = endpoints[endpoint_index] or {}
+            fqdn = endpoint.get("vCenterFqdn")
+            vcenter_username = endpoint.get("vCenterUsername")
+        if not fqdn:
+            continue
+        username = "root" if credential_type == "vCenterRoot" else vcenter_username
+        if not username:
+            continue
+        resolved.append({"Fqdn": fqdn, "Username": username, "Password": password, "CredentialType": credential_type})
     return resolved
 
 
@@ -1109,6 +1181,7 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
         "/api/run/status": "_get_run_status",
         "/api/run/log": "_get_run_log",
         "/api/validate-credentials/log": "_get_validate_credentials_log",
+        "/api/validate-credentials/progress": "_get_validate_credentials_progress",
         "/api/export/logbundle": "_get_logbundle_export",
         "/api/environments": "_get_environments_list",
         "/api/vcf-destination-releases": "_get_vcf_destination_releases",
@@ -1294,6 +1367,9 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
             since = 0
         self._send_json(HTTPStatus.OK, _tail_credential_log(self.base_directory, since))
 
+    def _get_validate_credentials_progress(self, parsed) -> None:
+        self._send_json(HTTPStatus.OK, _read_credential_progress(self.base_directory))
+
     def _get_logbundle_export(self, parsed) -> None:
         # Explicit origin check required - success path streams a ZIP archive, not via
         # _send_json(). _reject_cross_origin()'s own docstring frames this guard as being
@@ -1310,21 +1386,50 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
         if environment_id and not ENVIRONMENT_ID_PATTERN.match(environment_id):
             self._send_json(HTTPStatus.BAD_REQUEST, {"error": "Invalid environment id"})
             return
+        scrub = parse_qs(parsed.query).get("scrub", ["0"])[0].lower() in ("1", "true")
         log_files = _list_log_files(self.base_directory)
         findings_files = _list_findings_files(self.base_directory, environment_id)
         if not log_files and not findings_files:
             self._send_json(HTTPStatus.NOT_FOUND, {"error": "No logs or findings found to bundle."})
             return
         findings_root = _findings_dir(self.base_directory)
+        # Pooled across every known environment (not just environment_id) since Logs/ is shared -
+        # an unrelated environment's FQDN/username can still appear in a log line from a prior run.
+        environments = _load_environments(self.base_directory) if scrub else []
+        identifier_map = build_identifier_map(environments) if scrub else {}
+        # Domain suffixes cover per-domain vCenter/NSX/host FQDNs discovered at check run-time -
+        # never persisted to environments.json, so identifier_map's literal pass never learns them.
+        domain_suffixes = build_domain_suffixes(environments) if scrub else set()
+        # Read every file's text once up front (rather than streaming file-by-file into the
+        # ZIP) so discover_domain_suffix_types() can look across the whole export - a host typed
+        # unambiguously in one file must not lose that type to a context-free mention of the
+        # same host in whichever file happens to be scrubbed first.
+        log_texts = {log_file: log_file.read_text(encoding="utf-8", errors="replace") for log_file in log_files} if scrub else {}
+        findings_texts = {findings_file: findings_file.read_text(encoding="utf-8", errors="replace") for findings_file in findings_files} if scrub else {}
+        discovered_types = discover_domain_suffix_types(list(log_texts.values()) + list(findings_texts.values()), domain_suffixes) if scrub else {}
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         zip_name = f"VcfCheck-logbundle-{stamp}.zip"
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
             for log_file in log_files:
-                zf.write(log_file, f"Logs/{log_file.name}")
+                arcname = f"Logs/{log_file.name}"
+                if scrub:
+                    zf.writestr(arcname, scrub_text(log_texts[log_file], identifier_map, domain_suffixes, discovered_types))
+                else:
+                    zf.write(log_file, arcname)
             for findings_file in findings_files:
-                zf.write(findings_file, f"Findings/{findings_file.relative_to(findings_root)}")
+                arcname = f"Findings/{findings_file.relative_to(findings_root)}"
+                if scrub:
+                    zf.writestr(arcname, scrub_text(findings_texts[findings_file], identifier_map, domain_suffixes, discovered_types))
+                else:
+                    zf.write(findings_file, arcname)
         body = buf.getvalue()
+        client = f"{self.client_address[0]}:{self.client_address[1]}" if self.client_address else "unknown"
+        logger.info(
+            "Log bundle export streamed to %s (scrubbing %s)",
+            client,
+            "enabled" if scrub else "disabled",
+        )
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", "application/zip")
         self.send_header("Content-Disposition", f'attachment; filename="{zip_name}"')
@@ -1776,13 +1881,21 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
         self._send_json(HTTPStatus.OK, {"deleted": environment_id})
 
     def _run_validate_credentials_script(
-        self, fqdn: str, username: str, password: str, root_password: str, aria_ops_credentials: list = None
+        self, fqdn: str, username: str, password: str, root_password: str, aria_ops_credentials: list = None,
+        aria_automation_credentials: list = None, aria_ops_for_logs_credentials: list = None
     ) -> dict:
         """Runs Invoke-VcfCheckValidateCredentials.ps1 once and returns its parsed result (or a
         synthesized failure dict on a timeout/start/parse failure) - shared by both the
         back-compat single-target body and the multi-environment items body in
         _handle_validate_credentials below."""
-        env = _build_launcher_env(self.base_directory, password, root_password, aria_ops_credentials)
+        env = _build_launcher_env(
+            self.base_directory, password, root_password, aria_ops_credentials, aria_automation_credentials,
+            aria_ops_for_logs_credentials
+        )
+        # Cleared here rather than left to the subprocess's own first Write-CredentialCheckProgress
+        # call - otherwise a poll landing before pwsh starts up reads the previous run's stale
+        # "pass" phases and the browser flashes green checkmarks it hasn't actually earned yet.
+        _reset_credential_progress(self.base_directory)
         tcp_timeout_seconds = _get_tcp_timeout_seconds(self.base_directory)
         args = [
             "pwsh", "-NoProfile", "-NonInteractive", "-File", str(VALIDATE_CREDENTIALS_SCRIPT),
@@ -1856,8 +1969,11 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                     continue
                 root_password = str(raw_item.get("rootPassword", "") or "")
                 aria_ops_credentials = _resolve_aria_ops_credentials(environment, raw_item.get("integrationCredentials"))
+                aria_automation_credentials = _resolve_aria_automation_credentials(environment, raw_item.get("integrationCredentials"))
+                aria_ops_for_logs_credentials = _resolve_aria_ops_for_logs_credentials(environment, raw_item.get("integrationCredentials"))
                 outcome = self._run_validate_credentials_script(
-                    environment["sddcManagerFqdn"], environment["sddcManagerUser"], password, root_password, aria_ops_credentials
+                    environment["sddcManagerFqdn"], environment["sddcManagerUser"], password, root_password,
+                    aria_ops_credentials, aria_automation_credentials, aria_ops_for_logs_credentials
                 )
                 outcome["environmentId"] = environment_id
                 results.append(outcome)
@@ -1948,11 +2064,17 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                     )
                     return
                 aria_ops_credentials = _resolve_aria_ops_credentials(environment, raw_item.get("integrationCredentials"))
+                aria_automation_credentials = _resolve_aria_automation_credentials(environment, raw_item.get("integrationCredentials"))
+                aria_ops_for_logs_credentials = _resolve_aria_ops_for_logs_credentials(environment, raw_item.get("integrationCredentials"))
+                aria_vcenter_credentials = _resolve_aria_vcenter_credentials(environment, raw_item.get("ariaVCenterCredentials"))
                 queue_items.append({
                     "environmentId": environment_id, "name": environment["name"],
                     "findingsSlug": _slugify_environment_name(environment["name"]),
                     "fqdn": environment["sddcManagerFqdn"], "username": environment["sddcManagerUser"],
                     "password": password, "rootPassword": root_password, "ariaOpsCredentials": aria_ops_credentials,
+                    "ariaAutomationCredentials": aria_automation_credentials,
+                    "ariaOpsForLogsCredentials": aria_ops_for_logs_credentials,
+                    "ariaVCenterCredentials": aria_vcenter_credentials,
                     "checkIds": item_check_ids, "domains": selected_domains, "status": "pending", "runId": None,
                     "totalChecks": len(item_check_ids),
                 })

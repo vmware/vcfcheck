@@ -33,9 +33,8 @@ function Test-VcfAriaOpsAdapterCollectionStatus {
         Verifies that every Aria Operations adapter instance is actively collecting data.
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsAdapterInstances against each to
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsAdapterInstances against each to
         enumerate every configured adapter instance, returning one result per target. For each
         adapter instance, calls Get-VcfCheckAriaOpsAdapterResources to retrieve its monitored
         resources and inspects their ResourceStatusStates entries for that adapter instance's Id.

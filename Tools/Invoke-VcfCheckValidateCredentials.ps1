@@ -39,14 +39,17 @@
 
     When `VCFCHECK_ARIAOPS_CREDENTIALS_JSON` is supplied (a JSON array of `{Name, Fqdn, Username, Password}`),
     additionally verifies reachability and authentication for each standalone Aria Operations endpoint declared
-    on the environment via `Connect-VcfCheckAriaOpsEndpoint`.
+    on the environment via `Connect-VcfCheckAriaOpsEndpoint`. `VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON` does the
+    same for standalone Aria Automation endpoints via `Connect-VcfCheckAriaAutomationEndpoint`, and
+    `VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON` does the same for standalone Aria Operations for Logs endpoints via
+    `Connect-VcfCheckAriaOpsForLogsEndpoint`.
 
     Outputs a structured JSON payload to stdout detailing validation status, execution phases, and discovered domains:
     - `success`: Boolean indicating overall credential validation success.
     - `error`: Error message string if validation failed at the top level.
     - `phases`: Array of validation phase results (Network Reachability, SDDC Manager Authentication,
-      Aria Suite Lifecycle Manager Connectivity, Aria Operations Network Reachability/Authentication per
-      endpoint, ESX Host Connectivity, VMware Tools Status, SDDC Manager Root Authentication).
+      Aria Suite Lifecycle Manager Connectivity, Aria Operations/Aria Automation Network Reachability/
+      Authentication per endpoint, ESX Host Connectivity, VMware Tools Status, SDDC Manager Root Authentication).
     - `domains`: Array of discovered VCF domain names and domain types.
 
     Writes audit log entries using `Write-LogMessage` throughout the validation process.
@@ -102,11 +105,51 @@ if ([String]::IsNullOrEmpty($sddcPasswordPlainText)) {
     exit 1
 }
 
+$credentialProgressPath = $null
+if (-not [String]::IsNullOrWhiteSpace($env:VcfCheckBaseDirectory)) {
+    $credentialProgressPath = Join-Path -Path $env:VcfCheckBaseDirectory.Trim() -ChildPath 'validate-credentials-progress.json'
+}
+
+function Write-CredentialCheckProgress {
+    Param (
+        [Parameter(Mandatory = $true)] [Array]$Phases
+    )
+    # Best-effort mid-run status for the browser UI to poll; the final stdout JSON stays authoritative.
+    if (-not $credentialProgressPath) { return }
+    try {
+        Set-Content -LiteralPath $credentialProgressPath -Value (@{ phases = $Phases } | ConvertTo-Json -Depth 4 -Compress) -ErrorAction Stop
+    } catch {
+        Write-LogMessage -Type DEBUG -Message "Could not write credential check progress file: $($_.Exception.Message)"
+    }
+}
+
+function Set-CredentialCheckPhase {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Mutates an in-memory phase list local to this script''s own run, not external system state - no destructive action for -WhatIf/-Confirm to gate.')]
+    Param (
+        [Parameter(Mandatory = $true)] [String]$Name,
+        [Parameter(Mandatory = $true)] [String]$Status,
+        [Parameter(Mandatory = $false)] [String]$ErrorMessage
+    )
+    # Updates a phase already in $script:phases in place (e.g. a callback's early "pass" later
+    # confirmed or overridden by the caller's own final determination) rather than appending a
+    # second entry for the same name - keeps $script:phases the single source of truth so every
+    # progress write and the final stdout JSON agree on one entry per phase name.
+    $existingPhase = $script:phases | Where-Object { $_.name -eq $Name } | Select-Object -First 1
+    if ($existingPhase) {
+        $existingPhase.status = $Status
+        $existingPhase.error = $ErrorMessage
+    } else {
+        $script:phases += @{ name = $Name; status = $Status; error = $ErrorMessage }
+    }
+    Write-CredentialCheckProgress -Phases $script:phases
+}
+
 $sddcPassword = $null
 $rootPassword = $null
 $Context = $null
 $phases = @()
 $domains = @()
+Write-CredentialCheckProgress -Phases $phases
 
 try {
     $sddcPassword = ConvertTo-SecureString -String $sddcPasswordPlainText -AsPlainText -Force
@@ -116,10 +159,27 @@ try {
     Write-LogMessage -Type INFO -Message "Checking credentials for SDDC Manager `"$SddcManagerFqdn`" as `"$SddcManagerUser`"."
     try {
         Connect-VcfCheckSddcManager -Context $Context -Fqdn $SddcManagerFqdn -User $SddcManagerUser -Password $sddcPassword `
-            -IgnoreInvalidCertificate:$Context.AllowInsecureTls -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds
+            -IgnoreInvalidCertificate:$Context.AllowInsecureTls -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds `
+            -OnReachable { Set-CredentialCheckPhase -Name 'Network Reachability' -Status 'pass' }
         Write-LogMessage -Type INFO -Message "Authentication successful: SDDC Manager `"$SddcManagerFqdn`"."
-        $phases += @{ name = 'Network Reachability'; status = 'pass'; error = $null }
-        $phases += @{ name = 'SDDC Manager Authentication'; status = 'pass'; error = $null }
+        Set-CredentialCheckPhase -Name 'Network Reachability' -Status 'pass'
+        Set-CredentialCheckPhase -Name 'SDDC Manager Authentication' -Status 'pass'
+
+        try {
+            $sddcManagerVersion = Get-VcfCheckVcfVersion -Context $Context
+            Write-LogMessage -Type INFO -Message "SDDC Manager `"$SddcManagerFqdn`" version: $sddcManagerVersion."
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not retrieve SDDC Manager version for `"$SddcManagerFqdn`": $($_.Exception.Message)"
+        }
+
+        try {
+            $nsxManagerFqdn = Get-VcfCheckManagementNsxManagerFqdn -Context $Context
+            Connect-VcfCheckNsxManager -Context $Context -Fqdn $nsxManagerFqdn
+            $nsxManagerVersion = Get-VcfCheckNsxManagerVersion -Context $Context -Server $nsxManagerFqdn
+            Write-LogMessage -Type INFO -Message "NSX Manager `"$nsxManagerFqdn`" version: $nsxManagerVersion."
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not retrieve NSX Manager version: $($_.Exception.Message)"
+        }
 
         # Populate VCF domain inventory for UI selection filters.
         try {
@@ -148,6 +208,7 @@ try {
                     error  = "Aria Suite Lifecycle Manager (`"$($vrslcmConnection.Fqdn)`") is not reachable on port 443. Check VPN/network connectivity, firewall rules, and DNS resolution. Aria Suite checks will fail or time out until this is resolved."
                 }
             }
+            Write-CredentialCheckProgress -Phases $phases
         }
 
         # Validate reachability and authentication for each standalone Aria Operations endpoint
@@ -168,8 +229,14 @@ try {
 
                 Write-LogMessage -Type INFO -Message "Checking credentials for Aria Operations `"$($ariaOpsEntry.Fqdn)`" as `"$($ariaOpsEntry.Username)`"."
                 try {
-                    Connect-VcfCheckAriaOpsEndpoint -Context $Context -Fqdn $ariaOpsEntry.Fqdn -Credential $ariaOpsCredential -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds | Out-Null
+                    $ariaOpsConnection = Connect-VcfCheckAriaOpsEndpoint -Context $Context -Fqdn $ariaOpsEntry.Fqdn -Credential $ariaOpsCredential -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds
                     Write-LogMessage -Type INFO -Message "Authentication successful: Aria Operations `"$($ariaOpsEntry.Fqdn)`"."
+                    try {
+                        $ariaOpsVersion = Get-VcfCheckAriaOpsVersion -Connection $ariaOpsConnection
+                        Write-LogMessage -Type INFO -Message "Aria Operations `"$($ariaOpsEntry.Fqdn)`" version: $ariaOpsVersion."
+                    } catch {
+                        Write-LogMessage -Type WARNING -Message "Could not retrieve Aria Operations version for `"$($ariaOpsEntry.Fqdn)`": $($_.Exception.Message)"
+                    }
                     $phases += @{ name = "Aria Operations Network Reachability ($ariaOpsLabel)"; status = 'pass'; error = $null }
                     $phases += @{ name = "Aria Operations Authentication ($ariaOpsLabel)"; status = 'pass'; error = $null }
                 } catch {
@@ -183,21 +250,110 @@ try {
                         $phases += @{ name = "Aria Operations Authentication ($ariaOpsLabel)"; status = 'fail'; error = "Invalid username or password for Aria Operations (`"$($ariaOpsEntry.Fqdn)`"). Verify the credential entered for this endpoint." }
                     }
                 }
+                Write-CredentialCheckProgress -Phases $phases
             }
             Remove-Variable -Name ariaOpsCredentialsJson, ariaOpsCredentialEntries, ariaOpsSecurePassword, ariaOpsCredential -ErrorAction SilentlyContinue
+        }
+
+        # Validate reachability and authentication for each standalone Aria Automation endpoint
+        # (Environment.Integrations) that the browser supplied a session-only password for.
+        $ariaAutomationCredentialsJson = $env:VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON
+        if (-not [String]::IsNullOrEmpty($ariaAutomationCredentialsJson)) {
+            try {
+                $ariaAutomationCredentialEntries = @(ConvertFrom-Json -InputObject $ariaAutomationCredentialsJson -ErrorAction Stop)
+            } catch {
+                Write-LogMessage -Type WARNING -Message "Could not parse VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON: $($_.Exception.Message)"
+                $ariaAutomationCredentialEntries = @()
+            }
+
+            foreach ($ariaAutomationEntry in $ariaAutomationCredentialEntries) {
+                $ariaAutomationLabel = $ariaAutomationEntry.Fqdn
+                $ariaAutomationSecurePassword = ConvertTo-SecureString -String $ariaAutomationEntry.Password -AsPlainText -Force
+                $ariaAutomationCredential = [PSCredential]::new($ariaAutomationEntry.Username, $ariaAutomationSecurePassword)
+
+                Write-LogMessage -Type INFO -Message "Checking credentials for Aria Automation `"$($ariaAutomationEntry.Fqdn)`" as `"$($ariaAutomationEntry.Username)`"."
+                try {
+                    $ariaAutomationConnection = Connect-VcfCheckAriaAutomationEndpoint -Context $Context -Fqdn $ariaAutomationEntry.Fqdn -Credential $ariaAutomationCredential -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds
+                    Write-LogMessage -Type INFO -Message "Authentication successful: Aria Automation `"$($ariaAutomationEntry.Fqdn)`"."
+                    try {
+                        $ariaAutomationVersion = Get-VcfCheckAriaAutomationVersion -CredentialInfo $ariaAutomationConnection
+                        Write-LogMessage -Type INFO -Message "Aria Automation `"$($ariaAutomationEntry.Fqdn)`" version: $ariaAutomationVersion."
+                    } catch {
+                        Write-LogMessage -Type WARNING -Message "Could not retrieve Aria Automation version for `"$($ariaAutomationEntry.Fqdn)`": $($_.Exception.Message)"
+                    }
+                    $phases += @{ name = "Aria Automation Network Reachability ($ariaAutomationLabel)"; status = 'pass'; error = $null }
+                    $phases += @{ name = "Aria Automation Authentication ($ariaAutomationLabel)"; status = 'pass'; error = $null }
+                } catch {
+                    $ariaAutomationErrorMsg = $_.Exception.Message
+                    Write-LogMessage -Type WARNING -Message "Authentication failed: Aria Automation `"$($ariaAutomationEntry.Fqdn)`" - $ariaAutomationErrorMsg"
+
+                    if ($ariaAutomationErrorMsg -match 'Could not reach.*on port \d+') {
+                        $phases += @{ name = "Aria Automation Network Reachability ($ariaAutomationLabel)"; status = 'fail'; error = "Aria Automation (`"$($ariaAutomationEntry.Fqdn)`") is not reachable on port 443. Check VPN/network connectivity, firewall rules, and DNS resolution." }
+                    } else {
+                        $phases += @{ name = "Aria Automation Network Reachability ($ariaAutomationLabel)"; status = 'pass'; error = $null }
+                        $phases += @{ name = "Aria Automation Authentication ($ariaAutomationLabel)"; status = 'fail'; error = "Invalid username or password for Aria Automation (`"$($ariaAutomationEntry.Fqdn)`"). Verify the credential entered for this endpoint." }
+                    }
+                }
+                Write-CredentialCheckProgress -Phases $phases
+            }
+            Remove-Variable -Name ariaAutomationCredentialsJson, ariaAutomationCredentialEntries, ariaAutomationSecurePassword, ariaAutomationCredential -ErrorAction SilentlyContinue
+        }
+
+        # Validate reachability and authentication for each standalone Aria Operations for Logs
+        # endpoint (Environment.Integrations) that the browser supplied a session-only password for.
+        $ariaOpsForLogsCredentialsJson = $env:VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON
+        if (-not [String]::IsNullOrEmpty($ariaOpsForLogsCredentialsJson)) {
+            try {
+                $ariaOpsForLogsCredentialEntries = @(ConvertFrom-Json -InputObject $ariaOpsForLogsCredentialsJson -ErrorAction Stop)
+            } catch {
+                Write-LogMessage -Type WARNING -Message "Could not parse VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON: $($_.Exception.Message)"
+                $ariaOpsForLogsCredentialEntries = @()
+            }
+
+            foreach ($ariaOpsForLogsEntry in $ariaOpsForLogsCredentialEntries) {
+                $ariaOpsForLogsLabel = $ariaOpsForLogsEntry.Fqdn
+                $ariaOpsForLogsSecurePassword = ConvertTo-SecureString -String $ariaOpsForLogsEntry.Password -AsPlainText -Force
+                $ariaOpsForLogsCredential = [PSCredential]::new($ariaOpsForLogsEntry.Username, $ariaOpsForLogsSecurePassword)
+
+                Write-LogMessage -Type INFO -Message "Checking credentials for Aria Operations for Logs `"$($ariaOpsForLogsEntry.Fqdn)`" as `"$($ariaOpsForLogsEntry.Username)`"."
+                try {
+                    $ariaOpsForLogsSession = Connect-VcfCheckAriaOpsForLogsEndpoint -Context $Context -Fqdn $ariaOpsForLogsEntry.Fqdn -Credential $ariaOpsForLogsCredential -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds
+                    Write-LogMessage -Type INFO -Message "Authentication successful: Aria Operations for Logs `"$($ariaOpsForLogsEntry.Fqdn)`"."
+                    try {
+                        $ariaOpsForLogsVersion = Get-VcfCheckAriaOpsForLogsVersion -Session $ariaOpsForLogsSession
+                        Write-LogMessage -Type INFO -Message "Aria Operations for Logs `"$($ariaOpsForLogsEntry.Fqdn)`" version: $ariaOpsForLogsVersion."
+                    } catch {
+                        Write-LogMessage -Type WARNING -Message "Could not retrieve Aria Operations for Logs version for `"$($ariaOpsForLogsEntry.Fqdn)`": $($_.Exception.Message)"
+                    }
+                    $phases += @{ name = "Aria Operations for Logs Network Reachability ($ariaOpsForLogsLabel)"; status = 'pass'; error = $null }
+                    $phases += @{ name = "Aria Operations for Logs Authentication ($ariaOpsForLogsLabel)"; status = 'pass'; error = $null }
+                } catch {
+                    $ariaOpsForLogsErrorMsg = $_.Exception.Message
+                    Write-LogMessage -Type WARNING -Message "Authentication failed: Aria Operations for Logs `"$($ariaOpsForLogsEntry.Fqdn)`" - $ariaOpsForLogsErrorMsg"
+
+                    if ($ariaOpsForLogsErrorMsg -match 'Could not reach.*on port \d+') {
+                        $phases += @{ name = "Aria Operations for Logs Network Reachability ($ariaOpsForLogsLabel)"; status = 'fail'; error = "Aria Operations for Logs (`"$($ariaOpsForLogsEntry.Fqdn)`") is not reachable on port 9543. Check VPN/network connectivity, firewall rules, and DNS resolution." }
+                    } else {
+                        $phases += @{ name = "Aria Operations for Logs Network Reachability ($ariaOpsForLogsLabel)"; status = 'pass'; error = $null }
+                        $phases += @{ name = "Aria Operations for Logs Authentication ($ariaOpsForLogsLabel)"; status = 'fail'; error = "Invalid username or password for Aria Operations for Logs (`"$($ariaOpsForLogsEntry.Fqdn)`"). Verify the credential entered for this endpoint." }
+                    }
+                }
+                Write-CredentialCheckProgress -Phases $phases
+            }
+            Remove-Variable -Name ariaOpsForLogsCredentialsJson, ariaOpsForLogsCredentialEntries, ariaOpsForLogsSecurePassword, ariaOpsForLogsCredential -ErrorAction SilentlyContinue
         }
     } catch {
         $errorMsg = $_.Exception.Message
         Write-LogMessage -Type ERROR -Message "Authentication failed: SDDC Manager `"$SddcManagerFqdn`" - $errorMsg"
 
         if ($errorMsg -match 'Could not reach.*on port \d+') {
-            $phases += @{ name = 'Network Reachability'; status = 'fail'; error = 'SDDC Manager is not reachable on port 443. Check VPN/network connectivity, firewall rules, and DNS resolution.' }
+            Set-CredentialCheckPhase -Name 'Network Reachability' -Status 'fail' -ErrorMessage 'SDDC Manager is not reachable on port 443. Check VPN/network connectivity, firewall rules, and DNS resolution.'
         } elseif ($errorMsg -match '(?i)UNAUTHORIZED|not authorized|invalid credentials|incorrect.*password|authentication failed|401') {
-            $phases += @{ name = 'Network Reachability'; status = 'pass'; error = $null }
-            $phases += @{ name = 'SDDC Manager Authentication'; status = 'fail'; error = 'Invalid username or password. Verify your SDDC Manager credentials.' }
+            Set-CredentialCheckPhase -Name 'Network Reachability' -Status 'pass'
+            Set-CredentialCheckPhase -Name 'SDDC Manager Authentication' -Status 'fail' -ErrorMessage 'Invalid username or password. Verify your SDDC Manager credentials.'
         } else {
-            $phases += @{ name = 'Network Reachability'; status = 'pass'; error = $null }
-            $phases += @{ name = 'SDDC Manager Authentication'; status = 'fail'; error = 'Check your network connectivity and SDDC Manager credentials.' }
+            Set-CredentialCheckPhase -Name 'Network Reachability' -Status 'pass'
+            Set-CredentialCheckPhase -Name 'SDDC Manager Authentication' -Status 'fail' -ErrorMessage 'Check your network connectivity and SDDC Manager credentials.'
         }
 
         @{
@@ -220,9 +376,12 @@ try {
             $vcenterFqdn = Get-VcfCheckManagementVCenterFqdn -Context $Context
             Connect-VcfCheckVCenter -Context $Context -Fqdn $vcenterFqdn
             Write-LogMessage -Type DEBUG -Message "Connected to management vCenter `"$vcenterFqdn`"."
+
+            $vcenterVersion = ($global:DefaultVIServers | Where-Object { $_.Name -eq $vcenterFqdn } | Select-Object -First 1).Version
+            Write-LogMessage -Type INFO -Message "vCenter `"$vcenterFqdn`" version: $vcenterVersion."
         } catch {
             Write-LogMessage -Type ERROR -Message "Failed to resolve/connect to management vCenter: $($_.Exception.Message)"
-            $phases += @{ name = 'VMware Tools Status'; status = 'fail'; error = 'Could not connect to the management vCenter. Verify SDDC Manager connection and management domain configuration.' }
+            Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'fail' -ErrorMessage 'Could not connect to the management vCenter. Verify SDDC Manager connection and management domain configuration.'
             @{
                 success = $false
                 error   = $null
@@ -239,8 +398,8 @@ try {
         if ($esxHostCheck.Hostname) {
             if (-not $esxHostCheck.Success) {
                 Write-LogMessage -Type WARNING -Message "ESX host connectivity check failed: $($esxHostCheck.Error)"
-                $phases += @{ name = 'ESX Host Connectivity'; status = 'fail'; error = $esxHostCheck.Error }
-                $phases += @{ name = 'VMware Tools Status'; status = 'fail'; error = 'Could not verify ESX host connectivity. Resolve ESX host issues before retrying.' }
+                Set-CredentialCheckPhase -Name 'ESX Host Connectivity' -Status 'fail' -ErrorMessage $esxHostCheck.Error
+                Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'fail' -ErrorMessage 'Could not verify ESX host connectivity. Resolve ESX host issues before retrying.'
                 @{
                     success = $false
                     error   = $null
@@ -250,28 +409,32 @@ try {
                 exit 1
             }
             Write-LogMessage -Type INFO -Message "ESX host `"$($esxHostCheck.Hostname)`" is reachable on required ports."
-            $phases += @{ name = 'ESX Host Connectivity'; status = 'pass'; error = $null }
+            Set-CredentialCheckPhase -Name 'ESX Host Connectivity' -Status 'pass'
         }
 
-        $rootCheck = Test-VcfCheckSddcManagerRootCredential -Context $Context -RootCredential $rootCredential
+        # OnToolsRunning fires as soon as VMware Tools is confirmed running on the appliance,
+        # before the guest command that verifies the root credential itself is attempted - lets
+        # the UI flip "VMware Tools Status" to pass without waiting on root authentication too.
+        $rootCheck = Test-VcfCheckSddcManagerRootCredential -Context $Context -RootCredential $rootCredential `
+            -OnToolsRunning { Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'pass' }
         Write-LogMessage -Type INFO -Message "Root credential validation completed. Success=$($rootCheck.Success)"
 
         if ($rootCheck.Success) {
             Write-LogMessage -Type INFO -Message "Root credential verified: SDDC Manager `"$SddcManagerFqdn`"."
-            $phases += @{ name = 'VMware Tools Status'; status = 'pass'; error = $null }
-            $phases += @{ name = 'SDDC Manager Root Authentication'; status = 'pass'; error = $null }
+            Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'pass'
+            Set-CredentialCheckPhase -Name 'SDDC Manager Root Authentication' -Status 'pass'
         } else {
             Write-LogMessage -Type WARNING -Message "Root credential check failed: SDDC Manager `"$SddcManagerFqdn`" - $($rootCheck.ErrorMessage)"
 
             if ($rootCheck.ErrorMessage -match 'The SSL connection could not be established') {
-                $phases += @{ name = 'VMware Tools Status'; status = 'fail'; error = 'SSL connection to vCenter failed. Check your Set-PowerCLIConfiguration InvalidCertificateAction setting.' }
+                Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'fail' -ErrorMessage 'SSL connection to vCenter failed. Check your Set-PowerCLIConfiguration InvalidCertificateAction setting.'
             } elseif ($rootCheck.ErrorMessage -match 'Failed to authenticate with the guest operating system') {
-                $phases += @{ name = 'VMware Tools Status'; status = 'pass'; error = $null }
-                $phases += @{ name = 'SDDC Manager Root Authentication'; status = 'fail'; error = 'Invalid root password. Verify the SDDC Manager appliance root password.' }
+                Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'pass'
+                Set-CredentialCheckPhase -Name 'SDDC Manager Root Authentication' -Status 'fail' -ErrorMessage 'Invalid root password. Verify the SDDC Manager appliance root password.'
             } elseif ($rootCheck.ErrorMessage -match 'VMware Tools is not running' -or $rootCheck.ErrorCategory -eq 'ToolsNotRunning') {
-                $phases += @{ name = 'VMware Tools Status'; status = 'fail'; error = 'VMware Tools is not running on the SDDC Manager appliance.' }
+                Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'fail' -ErrorMessage 'VMware Tools is not running on the SDDC Manager appliance.'
             } else {
-                $phases += @{ name = 'VMware Tools Status'; status = 'fail'; error = $rootCheck.ErrorMessage }
+                Set-CredentialCheckPhase -Name 'VMware Tools Status' -Status 'fail' -ErrorMessage $rootCheck.ErrorMessage
             }
 
             @{
@@ -308,6 +471,8 @@ try {
     $sddcPasswordPlainText = $null
     $rootPasswordPlainText = $null
     $env:VCFCHECK_ARIAOPS_CREDENTIALS_JSON = $null
+    $env:VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON = $null
+    $env:VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON = $null
     if ($Context) { Disconnect-VcfCheckAll -Context $Context }
     Remove-Variable -Name sddcPasswordPlainText, rootPasswordPlainText, sddcPassword, rootPassword -ErrorAction SilentlyContinue
     [System.GC]::Collect()

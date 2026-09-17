@@ -27,7 +27,7 @@
 # =============================================================================
 #region Aria
 
-function ConvertTo-VcfCheckBytes {
+function ConvertTo-VcfCheckByte {
 
     <#
         .SYNOPSIS
@@ -170,14 +170,21 @@ function Test-VcfVrslcmDiskSpace {
     }
 
     # Calculate free space in bytes
-    $totalBytes = ConvertTo-VcfCheckBytes $rootDisk.totalStorage
-    $usedBytes  = ConvertTo-VcfCheckBytes $rootDisk.usedStorage
+    $totalBytes = ConvertTo-VcfCheckByte $rootDisk.totalStorage
+    $usedBytes  = ConvertTo-VcfCheckByte $rootDisk.usedStorage
 
     if ($totalBytes -gt 0) {
         if ($usedBytes -gt 0) {
             $freeBytes = $totalBytes - $usedBytes
         } elseif ($rootDisk.storagePercentage) {
-            $usedPercent = [double]($rootDisk.storagePercentage -replace '[^\d\.]', '')
+            try {
+                $usedPercent = [double]($rootDisk.storagePercentage -replace '[^\d\.]', '')
+            } catch {
+                return New-VcfCheckResult -CheckId $checkId -Status Error `
+                    -TargetComponent $connection.Fqdn `
+                    -Exception "Unable to parse storage percentage for /root volume (`"$($rootDisk.storagePercentage)`"): $($_.Exception.Message)" `
+                    -StartedAt $startedAt -CompletedAt (Get-Date) -DisplayName $DisplayName
+            }
             $freeBytes = $totalBytes * (1 - ($usedPercent / 100))
         } else {
             $freeBytes = 0

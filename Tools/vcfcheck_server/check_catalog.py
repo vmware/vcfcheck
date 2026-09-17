@@ -41,17 +41,17 @@ def _load_check_descriptions(base_directory: Path) -> dict:
 
 
 def _checks_by_area(catalog: dict, descriptions: dict) -> dict:
-    """Group real (non-Sample) catalog checks by area for the browser's check picker.
+    """Group real (non-Sample, non-disabled) catalog checks by area for the browser's check picker.
 
     The browser lists individual checks straight from the catalog, grouped by area,
-    defaulting to all selected.
+    defaulting to all selected. Entries with "disabled": true are omitted entirely.
     """
     areas: dict = {}
     for check_id, entry in sorted(catalog.items()):
         if not isinstance(entry, dict):
             continue
         area = entry.get("area")
-        if not area or area == "Sample":
+        if not area or area == "Sample" or entry.get("disabled") is True:
             continue
         display_name = entry.get("displayName") or check_id
         areas.setdefault(area, []).append(
@@ -60,6 +60,7 @@ def _checks_by_area(catalog: dict, descriptions: dict) -> dict:
                 "displayName": display_name,
                 "blocking": bool(entry.get("blocking")),
                 "description": descriptions.get(area, {}).get(display_name, ""),
+                "subArea": entry.get("subArea"),
             }
         )
     return areas

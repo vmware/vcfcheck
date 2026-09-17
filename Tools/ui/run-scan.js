@@ -15,11 +15,16 @@
             Array.prototype.slice.call(row.querySelectorAll(".rs-integration-password")).forEach(function (input) {
                 integrationPasswords[input.id] = input.value;
             });
+            var ariaVCenterPasswords = {};
+            Array.prototype.slice.call(row.querySelectorAll(".rs-aria-vcenter-user-password, .rs-aria-vcenter-root-password")).forEach(function (input) {
+                ariaVCenterPasswords[input.id] = input.value;
+            });
             previousState[row.dataset.environmentId] = {
                 checked: true,
                 password: row.querySelector(".rs-password") ? row.querySelector(".rs-password").value : "",
                 rootPassword: row.querySelector(".rs-root-password") ? row.querySelector(".rs-root-password").value : "",
-                integrationPasswords: integrationPasswords
+                integrationPasswords: integrationPasswords,
+                ariaVCenterPasswords: ariaVCenterPasswords
             };
         });
 
@@ -43,46 +48,140 @@
             main.appendChild(checkbox);
             main.appendChild(VcfCheckUI.el("span", "env-name", environment.name));
             if (environment.enableRootCredentialChecks) {
-                var rootBadge = VcfCheckUI.el("span", "env-badge", "Root checks");
-                rootBadge.setAttribute("data-tooltip", "This environment can run checks that require the SDDC Manager appliance root/OS password, not just the admin login.");
+                var rootBadge = VcfCheckUI.el("span", "env-badge", "GuestOS checks enabled");
+                rootBadge.setAttribute("data-tooltip", "These checks rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. They do not utilize SSH.");
                 main.appendChild(rootBadge);
             }
             row.appendChild(main);
 
             var credentialsRow = VcfCheckUI.el("div", "run-scan-env-credentials hidden");
-            credentialsRow.appendChild(VcfCheckUI.el("div", "run-scan-env-credentials-heading", "Enter the passwords for " + environment.name));
-            var passwordField = VcfCheckUI.buildPasswordField("rs-password-" + environment.id, "Password for User " + environment.sddcManagerUser);
+            credentialsRow.appendChild(VcfCheckUI.el("div", "run-scan-env-credentials-heading", "Enter the passwords for SDDC Manager"));
+
+            var sddcRow = VcfCheckUI.el("div", "run-scan-sddc-row");
+            var passwordField = VcfCheckUI.buildPasswordField("rs-password-" + environment.id, "Password for " + environment.sddcManagerUser);
             passwordField.querySelector("input").classList.add("rs-password");
-            credentialsRow.appendChild(passwordField);
+            sddcRow.appendChild(passwordField);
             if (environment.enableRootCredentialChecks) {
-                var rootField = VcfCheckUI.buildPasswordField("rs-root-password-" + environment.id, "SDDC Manager root password");
+                var rootField = VcfCheckUI.buildPasswordField("rs-root-password-" + environment.id, "Password for root user");
                 rootField.querySelector("input").classList.add("rs-root-password");
-                credentialsRow.appendChild(rootField);
+                sddcRow.appendChild(rootField);
             }
+            credentialsRow.appendChild(sddcRow);
+
+            if ((environment.integrations || []).length > 0) {
+                credentialsRow.appendChild(VcfCheckUI.el("div", "run-scan-aria-heading", "Enter the password for configured Aria Components"));
+            }
+
+            // Aria components sharing one vCenter (the common case) log into the exact same FQDN
+            // with the exact same SSO account, so render that connection once above the
+            // per-component fields instead of once per integration. Each component's own guestOS
+            // root password stays a sibling of its service-account field below, since - unlike the
+            // vCenter connection - the appliance being targeted differs per component.
+            var sharedAriaVCenterGroups = {};
+            var unconfiguredAriaVCenterTypes = [];
+            (environment.integrations || []).forEach(function (integration, integrationIndex) {
+                if (!integration.enableGuestOsChecks || !integration.ariaVCenterSharedAcrossEndpoints) return;
+                var fqdn = (integration.ariaVCenterFqdn || "").trim();
+                var username = (integration.ariaVCenterUsername || "").trim();
+                if (!fqdn || !username) {
+                    // Saved without a vCenter FQDN/username (an environment created before this field
+                    // was required, or edited outside validation) - the backend silently skips this
+                    // component's guestOS checks rather than failing the scan, so surface that here
+                    // instead of rendering a credential row with nothing to label it.
+                    unconfiguredAriaVCenterTypes.push(VcfCheckUI.integrationTypeDisplayName(integration.type));
+                    return;
+                }
+                var groupKey = fqdn + "|" + username;
+                if (!sharedAriaVCenterGroups[groupKey]) {
+                    sharedAriaVCenterGroups[groupKey] = {
+                        fqdn: fqdn,
+                        username: username,
+                        integrationIndices: []
+                    };
+                }
+                sharedAriaVCenterGroups[groupKey].integrationIndices.push(integrationIndex);
+            });
+            if (unconfiguredAriaVCenterTypes.length > 0) {
+                credentialsRow.appendChild(VcfCheckUI.el("div", "chk-count field-hint-error",
+                    "GuestOS checks against the vCenter for " + unconfiguredAriaVCenterTypes.join(", ") +
+                    " will be skipped - no vCenter FQDN/username is configured. Edit this environment to add one."));
+            }
+            Object.keys(sharedAriaVCenterGroups).forEach(function (groupKey, groupIndex) {
+                var group = sharedAriaVCenterGroups[groupKey];
+                var vCenterUserRow = VcfCheckUI.buildComponentPasswordField(
+                    "rs-integration-aria-vcenter-" + environment.id + "-shared-" + groupIndex + "-user",
+                    "Aria Components vCenter (" + group.fqdn + ")",
+                    group.username
+                );
+                var vCenterUserInput = vCenterUserRow.querySelector("input");
+                vCenterUserInput.classList.add("rs-aria-vcenter-user-password");
+                vCenterUserInput.dataset.integrationIndices = group.integrationIndices.join(",");
+                vCenterUserInput.dataset.label = "Aria Components vCenter (" + group.fqdn + ") user";
+                credentialsRow.appendChild(vCenterUserRow);
+            });
+
             (environment.integrations || []).forEach(function (integration, integrationIndex) {
                 var typeLabel = VcfCheckUI.integrationTypeDisplayName(integration.type);
-                if (integration.sharedCredentials) {
-                    var sharedField = VcfCheckUI.buildPasswordField(
-                        "rs-integration-password-" + environment.id + "-" + integrationIndex,
-                        "Password for " + typeLabel + " user " + (integration.username || "")
+
+                function appendRootRow(componentLabel, endpointIndex) {
+                    var idSuffix = endpointIndex === null ? String(integrationIndex) : integrationIndex + "-" + endpointIndex;
+                    var rootRow = VcfCheckUI.buildComponentPasswordField(
+                        "rs-integration-aria-vcenter-" + environment.id + "-" + idSuffix + "-root",
+                        componentLabel,
+                        "root"
                     );
-                    var sharedInput = sharedField.querySelector("input");
+                    var rootInput = rootRow.querySelector("input");
+                    rootInput.classList.add("rs-aria-vcenter-root-password");
+                    rootInput.dataset.integrationIndices = String(integrationIndex);
+                    if (endpointIndex !== null) rootInput.dataset.endpointIndex = endpointIndex;
+                    rootInput.dataset.label = componentLabel + " root";
+                    credentialsRow.appendChild(rootRow);
+                }
+
+                if (integration.sharedCredentials) {
+                    var sharedRow = VcfCheckUI.buildComponentPasswordField(
+                        "rs-integration-password-" + environment.id + "-" + integrationIndex,
+                        typeLabel,
+                        integration.username || ""
+                    );
+                    var sharedInput = sharedRow.querySelector("input");
                     sharedInput.classList.add("rs-integration-password");
                     sharedInput.dataset.integrationIndex = integrationIndex;
                     sharedInput.dataset.label = typeLabel;
-                    credentialsRow.appendChild(sharedField);
+                    credentialsRow.appendChild(sharedRow);
+                    if (integration.enableGuestOsChecks) appendRootRow(typeLabel, null);
                 } else {
                     (integration.endpoints || []).forEach(function (endpoint, endpointIndex) {
-                        var endpointField = VcfCheckUI.buildPasswordField(
+                        var componentLabel = typeLabel + " (" + (endpoint.name || endpoint.fqdn) + ")";
+                        var endpointRow = VcfCheckUI.buildComponentPasswordField(
                             "rs-integration-password-" + environment.id + "-" + integrationIndex + "-" + endpointIndex,
-                            "Password for " + typeLabel + " (" + (endpoint.name || endpoint.fqdn) + ") user " + (endpoint.username || "")
+                            componentLabel,
+                            endpoint.username || ""
                         );
-                        var endpointInput = endpointField.querySelector("input");
+                        var endpointInput = endpointRow.querySelector("input");
                         endpointInput.classList.add("rs-integration-password");
                         endpointInput.dataset.integrationIndex = integrationIndex;
                         endpointInput.dataset.endpointIndex = endpointIndex;
-                        endpointInput.dataset.label = typeLabel + " (" + (endpoint.name || endpoint.fqdn) + ")";
-                        credentialsRow.appendChild(endpointField);
+                        endpointInput.dataset.label = componentLabel;
+                        credentialsRow.appendChild(endpointRow);
+                        if (integration.enableGuestOsChecks) appendRootRow(componentLabel, endpointIndex);
+                    });
+                }
+
+                if (integration.enableGuestOsChecks && !integration.ariaVCenterSharedAcrossEndpoints) {
+                    (integration.endpoints || []).forEach(function (endpoint, endpointIndex) {
+                        var endpointVCenterLabel = (endpoint.name || endpoint.fqdn) + " vCenter (" + (endpoint.vCenterFqdn || "") + ")";
+                        var endpointVCenterUserRow = VcfCheckUI.buildComponentPasswordField(
+                            "rs-integration-aria-vcenter-" + environment.id + "-" + integrationIndex + "-" + endpointIndex + "-user",
+                            endpointVCenterLabel,
+                            endpoint.vCenterUsername || ""
+                        );
+                        var endpointVCenterUserInput = endpointVCenterUserRow.querySelector("input");
+                        endpointVCenterUserInput.classList.add("rs-aria-vcenter-user-password");
+                        endpointVCenterUserInput.dataset.integrationIndices = String(integrationIndex);
+                        endpointVCenterUserInput.dataset.endpointIndex = endpointIndex;
+                        endpointVCenterUserInput.dataset.label = endpointVCenterLabel + " user";
+                        credentialsRow.appendChild(endpointVCenterUserRow);
                     });
                 }
             });
@@ -114,6 +213,11 @@
                 Array.prototype.slice.call(credentialsRow.querySelectorAll(".rs-integration-password")).forEach(function (input) {
                     if (saved.integrationPasswords && saved.integrationPasswords[input.id] !== undefined) {
                         input.value = saved.integrationPasswords[input.id];
+                    }
+                });
+                Array.prototype.slice.call(credentialsRow.querySelectorAll(".rs-aria-vcenter-user-password, .rs-aria-vcenter-root-password")).forEach(function (input) {
+                    if (saved.ariaVCenterPasswords && saved.ariaVCenterPasswords[input.id] !== undefined) {
+                        input.value = saved.ariaVCenterPasswords[input.id];
                     }
                 });
             }
@@ -171,11 +275,46 @@
                 });
             }
 
+            var ariaVCenterCredentials = [];
+            var ariaUserInputs = Array.prototype.slice.call(row.querySelectorAll(".rs-aria-vcenter-user-password"));
+            for (var u = 0; u < ariaUserInputs.length; u++) {
+                var ariaUserInput = ariaUserInputs[u];
+                if (!ariaUserInput.value) {
+                    missingPassword = (environment ? environment.name : environmentId) + " - " + ariaUserInput.dataset.label;
+                    return;
+                }
+                ariaUserInput.dataset.integrationIndices.split(",").forEach(function (integrationIndex) {
+                    ariaVCenterCredentials.push({
+                        integrationIndex: Number(integrationIndex),
+                        endpointIndex: ariaUserInput.dataset.endpointIndex !== undefined ? Number(ariaUserInput.dataset.endpointIndex) : null,
+                        credentialType: "vCenterUser",
+                        password: ariaUserInput.value
+                    });
+                });
+            }
+            var ariaRootInputs = Array.prototype.slice.call(row.querySelectorAll(".rs-aria-vcenter-root-password"));
+            for (var r = 0; r < ariaRootInputs.length; r++) {
+                var ariaRootInput = ariaRootInputs[r];
+                if (!ariaRootInput.value) {
+                    missingPassword = (environment ? environment.name : environmentId) + " - " + ariaRootInput.dataset.label;
+                    return;
+                }
+                ariaRootInput.dataset.integrationIndices.split(",").forEach(function (integrationIndex) {
+                    ariaVCenterCredentials.push({
+                        integrationIndex: Number(integrationIndex),
+                        endpointIndex: ariaRootInput.dataset.endpointIndex !== undefined ? Number(ariaRootInput.dataset.endpointIndex) : null,
+                        credentialType: "vCenterRoot",
+                        password: ariaRootInput.value
+                    });
+                });
+            }
+
             items.push({
                 environmentId: environmentId,
                 password: password,
                 rootPassword: rootInput ? rootInput.value : "",
-                integrationCredentials: integrationCredentials
+                integrationCredentials: integrationCredentials,
+                ariaVCenterCredentials: ariaVCenterCredentials
             });
         });
 

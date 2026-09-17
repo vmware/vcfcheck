@@ -335,6 +335,7 @@
   "vrslcm_fetch_products": {
     "function": "Test-VcfVrslcmFetchProducts",
     "area": "Aria Suite",
+    "subArea": "Aria Suite Lifecycle Manager",
     "displayName": "Aria Suite Component Version Check",
     "blocking": true,
     "requiresConnections": [
@@ -347,6 +348,7 @@
   "vrslcm_root_password_expiration": {
     "function": "Test-VcfVrslcmRootPasswordExpiration",
     "area": "Aria Suite",
+    "subArea": "Aria Suite Lifecycle Manager",
     "displayName": "Aria Suite Appliance Root Password Expiration Check",
     "blocking": false,
     "requiresConnections": [
@@ -359,6 +361,7 @@
   "vrslcm_certificate_expiration": {
     "function": "Test-VcfVrslcmCertificateExpiration",
     "area": "Aria Suite",
+    "subArea": "Aria Suite Lifecycle Manager",
     "displayName": "Aria Suite Lifecycle Manager Certificate Expiration Check",
     "blocking": false,
     "requiresConnections": [
@@ -370,6 +373,7 @@
   "vrslcm_disk_space_report": {
     "function": "Test-VcfVrslcmDiskSpace",
     "area": "Aria Suite",
+    "subArea": "Aria Suite Lifecycle Manager",
     "displayName": "Aria Suite Lifecycle Manager Disk Space Check",
     "blocking": false,
     "requiresConnections": [
@@ -382,6 +386,7 @@
   "aria_ops_adapter_collection_status": {
     "function": "Test-VcfAriaOpsAdapterCollectionStatus",
     "area": "Aria Suite",
+    "subArea": "Aria Operations",
     "displayName": "Aria Operations Adapter Collection Status Check",
     "blocking": false,
     "requiresConnections": [
@@ -393,6 +398,7 @@
   "aria_ops_collector_status": {
     "function": "Test-VcfAriaOpsCollectorStatus",
     "area": "Aria Suite",
+    "subArea": "Aria Operations",
     "displayName": "Aria Operations Collector Status Check",
     "blocking": false,
     "requiresConnections": [
@@ -404,6 +410,7 @@
   "aria_ops_collector_type": {
     "function": "Test-VcfAriaOpsCollectorType",
     "area": "Aria Suite",
+    "subArea": "Aria Operations",
     "displayName": "Aria Operations Collector Type Inventory",
     "blocking": false,
     "informational": true,
@@ -416,6 +423,7 @@
   "aria_ops_critical_alerts": {
     "function": "Test-VcfAriaOpsCriticalAlerts",
     "area": "Aria Suite",
+    "subArea": "Aria Operations",
     "displayName": "Aria Operations Open Alerts",
     "blocking": false,
     "requiresConnections": [
@@ -427,6 +435,7 @@
   "aria_ops_certificate_expiration": {
     "function": "Test-VcfAriaOpsCertificateExpiration",
     "area": "Aria Suite",
+    "subArea": "Aria Operations",
     "displayName": "Aria Operations Certificate Expiration Check",
     "blocking": false,
     "requiresConnections": [
@@ -438,6 +447,7 @@
   "aria_ops_license": {
     "function": "Test-VcfAriaOpsLicensing",
     "area": "Aria Suite",
+    "subArea": "Aria Operations",
     "displayName": "Aria Operations Licensing Check",
     "blocking": false,
     "requiresConnections": [
@@ -446,10 +456,107 @@
     "validationCriteria": "Every non-permanent Aria Operations license should be valid for at least 30 days.",
     "remediation": "For an expired or soon-to-expire license, renew it in Aria Operations (Administration > Licensing) before proceeding with the upgrade."
   },
+  "aria_ops_ssh_server_status": {
+    "function": "Test-VcfAriaOpsSshServerStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations",
+    "displayName": "Aria Operations SSH Server Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every Aria Operations appliance node's SSH server (sshd) should be inactive.",
+    "remediation": "For a node reporting an active SSH server, disable and stop it with `systemctl disable --now sshd` once any required SSH-based troubleshooting session is complete."
+  },
+  "aria_ops_for_logs_certificate_expiration": {
+    "function": "Test-VcfAriaOpsForLogsCertificateExpiration",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations for Logs",
+    "displayName": "Aria Operations for Logs Certificate Expiration Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Aria Operations for Logs' appliance certificate should be valid for at least 30 days.",
+    "remediation": "For an expired or soon-to-expire certificate, replace it in Aria Operations for Logs (Administration > SSL Configuration)."
+  },
+  "aria_ops_for_logs_license": {
+    "function": "Test-VcfAriaOpsForLogsLicensing",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations for Logs",
+    "displayName": "Aria Operations for Logs Licensing Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every Aria Operations for Logs license should be Active, report no error, and, if not infinite, be valid for at least 30 days.",
+    "remediation": "For an expired, expiring, or errored license, review and renew it in Aria Operations for Logs (Administration > License Management) before proceeding with the upgrade."
+  },
+  "aria_ops_for_logs_ssh_server_status": {
+    "function": "Test-VcfAriaOpsForLogsSshServerStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations for Logs",
+    "displayName": "Aria Operations for Logs SSH Server Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every Aria Operations for Logs appliance node's SSH server (sshd) should be inactive.",
+    "remediation": "For a node reporting an active SSH server, disable and stop it with `systemctl disable --now sshd` once any required SSH-based troubleshooting session is complete."
+  },
+  "aria_ops_for_logs_lifecycle_status": {
+    "function": "Test-VcfAriaOpsForLogsLifecycleStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations for Logs",
+    "displayName": "Aria Operations for Logs Version Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Aria Operations for Logs' installed version should be compatible with the selected VCF destination release per Broadcom's Interop Matrix (or meet the minimum version floor).",
+    "remediation": "Upgrade Aria Operations for Logs to a version the Interop Matrix reports as Compatible with the target VCF destination release before proceeding."
+  },
+  "aria_ops_for_logs_vsphere_integration_status": {
+    "function": "Test-VcfAriaOpsForLogsVsphereIntegrationStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations for Logs",
+    "displayName": "Aria Operations for Logs vSphere Integration Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every vCenter Server integration configured in Aria Operations for Logs should report a collection status of Collecting.",
+    "remediation": "For an integration not reporting Collecting, review its configuration and credentials in Aria Operations for Logs (Administration > vSphere), and verify network connectivity to the vCenter Server."
+  },
+  "aria_ops_for_logs_log_forwarder_status": {
+    "function": "Test-VcfAriaOpsForLogsLogForwarderStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations for Logs",
+    "displayName": "Aria Operations for Logs Log Forwarder Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every log forwarder configured in Aria Operations for Logs should report a forwarder status of ACTIVE.",
+    "remediation": "For a forwarder not reporting ACTIVE, review its configuration and destination reachability in Aria Operations for Logs (Administration > Forwarding)."
+  },
+  "aria_ops_for_logs_vidm_status": {
+    "function": "Test-VcfAriaOpsForLogsVidmStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Operations for Logs",
+    "displayName": "Aria Operations for Logs vIDM Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "If vIDM is configured as an auth source for Aria Operations for Logs, it should report a connection status of CONNECTED.",
+    "remediation": "For a vIDM connection status not reporting CONNECTED, review the vIDM auth-source configuration and network connectivity in Aria Operations for Logs (Administration > Authentication)."
+  },
   "aria_ops_lifecycle_status": {
     "function": "Test-VcfAriaOpsLifecycleStatus",
     "area": "Aria Suite",
-    "displayName": "Aria Operations Lifecycle Status Check",
+    "subArea": "Aria Operations",
+    "displayName": "Aria Operations Version Check",
     "blocking": true,
     "requiresConnections": [
       "SddcManager"
@@ -460,6 +567,7 @@
   "aria_ops_sizing_overview": {
     "function": "Test-VcfAriaOpsSizingOverview",
     "area": "Aria Suite",
+    "subArea": "Aria Operations",
     "displayName": "Aria Operations Sizing Overview",
     "blocking": false,
     "requiresConnections": [
@@ -468,9 +576,172 @@
     "validationCriteria": "Reports Aria Operations' own self-monitored CPU, memory, disk, network, and object-count metrics for reviewer visibility, and flags any self-monitoring resource reporting no sizing-related metrics (resource kinds that never publish sizing metrics, such as Watchdog or Admin UI, are marked Skipped rather than Warning).",
     "remediation": "Investigate the self-monitoring resource(s) flagged Warning in the results table - a resource reporting no sizing-related metrics may indicate a stale, disconnected, or misconfigured Aria Operations node. Review the reported values against Aria Operations' sizing guidelines manually. Resources flagged Skipped are expected - those resource kinds do not publish sizing metrics and require no action."
   },
+  "aria_automation_lifecycle_status": {
+    "function": "Test-VcfAriaAutomationLifecycleStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Version Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Aria Automation's installed version should be compatible with the selected VCF destination release per Broadcom's Interop Matrix (or meet the minimum version floor).",
+    "remediation": "If Aria Automation is reported Incompatible or below the minimum version floor for the selected destination release, upgrade Aria Automation via Aria Suite Lifecycle to a version the Interop Matrix reports as compatible before proceeding."
+  },
+  "aria_automation_appliance_health": {
+    "function": "Test-VcfAriaAutomationApplianceHealth",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Appliance Health Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every `vracli health check` self-check on every Aria Automation appliance node should report a status of 'passed'.",
+    "remediation": "For a node reporting a non-'passed' status, run `vracli health check --json --checks-location /opt/health/default-specs/ --profile default` directly on that appliance node to see the full detail, and remediate the underlying resource (disk space, Kubernetes pods, node membership, etc.) named in the failing check's title."
+  },
+  "aria_automation_licensing": {
+    "function": "Test-VcfAriaAutomationLicensing",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Licensing Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Aria Automation should report an active, valid license via `vracli license current`.",
+    "remediation": "If Aria Automation reports no valid license, apply a valid license key via `vracli license add <key>` or confirm the VCF entitlement backing it is still valid, then re-run `vracli license current` to confirm."
+  },
+  "aria_automation_cloud_account_health": {
+    "function": "Test-VcfAriaAutomationCloudAccountHealth",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Cloud Account Health Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every cloud account configured in Aria Automation should report a healthy connection to its underlying cloud provider.",
+    "remediation": "For a cloud account reporting unhealthy, verify network connectivity from Aria Automation to the cloud provider and that the stored credentials are still valid, then re-validate the cloud account in Aria Automation (Infrastructure > Connections > Cloud Accounts)."
+  },
+  "aria_automation_vro_integration_health": {
+    "function": "Test-VcfAriaAutomationVroIntegrationHealth",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation vRO Integration Health Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every vRO Orchestrator integration in Aria Automation, embedded or externally registered, should have last reported a successful enumeration.",
+    "remediation": "If a vRO Orchestrator integration reports a non-'FINISHED' enumeration state, review Aria Automation's Infrastructure > Connections > Integrations page for that integration's last enumeration error, and re-trigger enumeration once the underlying issue is resolved."
+  },
+  "aria_automation_project_zone_configuration": {
+    "function": "Test-VcfAriaAutomationProjectZoneConfiguration",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Project Zone Configuration Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every project configured in Aria Automation should have at least one Cloud Zone assigned so it can place workloads.",
+    "remediation": "For a project reporting no Cloud Zone assigned, assign at least one Cloud Zone to it in Aria Automation (Infrastructure > Projects > <project> > Cloud Zones) before it is used for deployments."
+  },
+  "aria_automation_ntp_status": {
+    "function": "Test-VcfAriaAutomationNtpStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation NTP Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every Aria Automation appliance node should report its system clock as synchronized and its NTP service as active.",
+    "remediation": "For a node reporting a non-synchronized clock or inactive NTP service, run `vracli ntp status --local` directly on that appliance node and verify its configured NTP servers are reachable and correctly configured."
+  },
+  "aria_automation_ssh_server_status": {
+    "function": "Test-VcfAriaAutomationSshServerStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation SSH Server Status Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every Aria Automation appliance node's SSH server (sshd) should be inactive.",
+    "remediation": "For a node reporting an active SSH server, disable and stop it with `systemctl disable --now sshd` once any required SSH-based troubleshooting session is complete."
+  },
+  "aria_automation_dns_configuration": {
+    "function": "Test-VcfAriaAutomationDnsConfiguration",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation DNS Configuration Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every Aria Automation appliance node should report at least one configured DNS server.",
+    "remediation": "For a node reporting no configured DNS servers, run `vracli network dns status --local` directly on that appliance node and configure at least one reachable DNS server."
+  },
+  "aria_automation_fips_status": {
+    "function": "Test-VcfAriaAutomationFipsStatus",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation FIPS Status Check",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "Reports Aria Automation's FIPS mode setting (enabled or disabled) via `vracli security fips`.",
+    "validationCriteria": "",
+    "remediation": ""
+  },
+  "aria_automation_orchestrator_extensions": {
+    "function": "Test-VcfAriaAutomationOrchestratorExtensions",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Orchestrator Extensions Check",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "Reports every Aria Orchestrator extension and its active/inactive state via `vracli vro extensions`.",
+    "validationCriteria": "",
+    "remediation": ""
+  },
+  "aria_automation_orchestrator_properties": {
+    "function": "Test-VcfAriaAutomationOrchestratorProperties",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Orchestrator Properties Check",
+    "blocking": false,
+    "informational": true,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "information": "Reports every Aria Orchestrator advanced property, its default value, and its current value via `vracli vro properties advanced`.",
+    "validationCriteria": "",
+    "remediation": ""
+  },
+  "aria_automation_disk_space": {
+    "function": "Test-VcfAriaAutomationDiskSpace",
+    "area": "Aria Suite",
+    "subArea": "Aria Automation",
+    "displayName": "Aria Automation Appliance Disk Space Check",
+    "blocking": false,
+    "requiresConnections": [
+      "SddcManager"
+    ],
+    "validationCriteria": "Every mount reported by `vracli disk-mgr` on every Aria Automation appliance node should be within its Warn/Fail usage threshold.",
+    "remediation": "For a node reporting a mount above its Warn or Fail threshold, run `vracli disk-mgr` directly on that appliance node to see the full detail, and free up space on the reported mount before it fills."
+  },
   "aria_appliance_disk_space_report": {
     "function": "Test-VcfAriaApplianceDiskSpace",
     "area": "Aria Suite",
+    "subArea": "Aria Suite Lifecycle Manager",
     "displayName": "Aria Suite Appliance Disk Space Report",
     "blocking": true,
     "requiresConnections": [
@@ -634,7 +905,7 @@
     ],
     "requiresVcenterRootCredential": true,
     "information": "",
-    "validationCriteria": "Every filesystem on the vCenter appliance is below 80% disk space and inode utilization, and no .hprof (Java heap dump) files are present.",
+    "validationCriteria": "Every filesystem on the vCenter appliance is below 80% disk space and inode utilization, and no .hprof (Java heap dump) files are present. Includes vCenters SDDC Manager does not manage but that an Aria component references.",
     "remediation": "Free up disk space/inodes on the affected filesystem(s) before proceeding with the upgrade. If heap dump files are present, investigate the service crash that produced them, then remove them to reclaim disk space - see [Resolving storage/log disk space issues](https://knowledge.broadcom.com/external/article/375839/resolving-storagelog-disk-space-issues-c.html)."
   },
   "vcenter_root_credentials_validity": {

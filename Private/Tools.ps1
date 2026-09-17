@@ -205,7 +205,12 @@ function Test-VcfCheckRequiredJsonFiles {
 function Find-VcfCheckPythonInterpreter {
     <#
         .SYNOPSIS
-        Locates a usable python3 (or python) interpreter.
+        Locates a usable python3, python, or py interpreter.
+
+        .DESCRIPTION
+        Checks python3 and python on PATH first, then falls back to the Windows py
+        launcher (py.exe) - present on many Windows Python installs that do not put
+        python3/python on PATH.
 
         .OUTPUTS
         [String] path to the interpreter.
@@ -219,6 +224,9 @@ function Find-VcfCheckPythonInterpreter {
         $candidate = Get-Command -Name python -ErrorAction SilentlyContinue
     }
     if (-not $candidate) {
+        $candidate = Get-Command -Name py -ErrorAction SilentlyContinue
+    }
+    if (-not $candidate) {
         if ($IsWindows) {
             $installGuidance = 'Install it with "winget install --id Python.Python.3.13 -e", from the Microsoft Store ("Python 3.13"), or from https://www.python.org/downloads/windows/.'
         }
@@ -228,7 +236,7 @@ function Find-VcfCheckPythonInterpreter {
         else {
             $installGuidance = 'Install Python 3.13+ for your platform from https://www.python.org/downloads/.'
         }
-        throw [System.InvalidOperationException]::new("No python3/python interpreter found on PATH. $installGuidance")
+        throw [System.InvalidOperationException]::new("No python3/python/py interpreter found on PATH. $installGuidance")
     }
     return $candidate.Source
 }
@@ -282,7 +290,7 @@ function Get-VcfCheckTcpListenerProcessId {
 function Invoke-VcfCheckServerManager {
     <#
         .SYNOPSIS
-        Thin wrapper around `python3 Manage-VcfCheckServer.py <action> ...` (see file header for
+        Thin wrapper around `python3/python/py Manage-VcfCheckServer.py <action> ...` (see file header for
         why this wrapper exists - mirrors the project's established pattern of isolating external
         process calls behind a mockable function for unit testing).
 

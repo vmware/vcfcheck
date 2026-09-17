@@ -36,6 +36,8 @@ function Test-VcfEsxLockdownStatus {
         .DESCRIPTION
         Retrieves ESX host inventory for each connected vCenter domain using Get-VcfCheckVMHostInventory
         and checks the ExtensionData.Config.LockdownMode API property (HostConfigInfo.lockdownMode).
+        Skips any host that is disconnected or not responding (its HostAccessManager is not resolvable)
+        and logs the skipped hostname, rather than failing the whole check.
 
         ESX can be upgraded while Lockdown Mode is enabled as long as the host's VCF service account
         ('svc-vcf-<host_shortname>') is present in that host's Lockdown Mode Exception Users list - see
@@ -93,6 +95,10 @@ function Test-VcfEsxLockdownStatus {
         $outcome = try {
             Connect-VcfCheckVCenter -Context $Context -Fqdn $vcenterFqdn
             $hosts = @(Get-VcfCheckVMHostInventory -Server $vcenterFqdn)
+            foreach ($skippedHost in @($hosts | Where-Object { -not (Test-VcfCheckVMHostIsResponding -VMHost $_) })) {
+                Write-LogMessage -Type WARNING -Message "Skipping disconnected/not-responding ESX host `"$($skippedHost.Name)`" (ConnectionState: $($skippedHost.ConnectionState)) - unable to query its Lockdown Mode exception users."
+            }
+            $hosts = @($hosts | Where-Object { Test-VcfCheckVMHostIsResponding -VMHost $_ })
             $hostIndex = 0
 
             $missingAccounts = [System.Collections.Generic.List[String]]::new()
