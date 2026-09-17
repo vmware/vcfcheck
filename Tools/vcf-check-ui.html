@@ -871,18 +871,18 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 12px;
+        font-size: 14px;
         background: var(--bg);
         border: 1px solid var(--border);
         border-radius: 6px;
         padding: 8px 10px;
     }
     .queue-item-status {
-        font-size: 10px;
+        font-size: 12px;
         font-weight: 700;
         text-transform: uppercase;
         border-radius: 3px;
-        padding: 2px 6px;
+        padding: 3px 8px;
         flex-shrink: 0;
     }
     .queue-item-status.pending { color: var(--muted); border: 1px solid var(--muted); }
@@ -1454,7 +1454,7 @@
     <section class="launcher">
         <h2>Run Scan</h2>
         <p class="chk-count" style="margin-top:0;">Scans the selected environment(s) and reports any upgrade impediments that need to be resolved before upgrading to VCF 9.</p>
-        <div class="chk-search-row" style="margin-bottom:10px;">
+        <div class="chk-search-row" id="run-scan-select-row" style="margin-bottom:10px;">
             <span class="chk-count" style="flex:1;">Select environments to scan</span>
             <button type="button" id="select-all-envs-button">Select All</button>
             <button type="button" id="clear-envs-button">Clear</button>
