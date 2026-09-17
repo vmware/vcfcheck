@@ -26,41 +26,6 @@
 #
 # =============================================================================
 #region AriaAutomation
-function Protect-VcfCheckAriaAutomationLicenseKey {
-
-    <#
-        .SYNOPSIS
-        Masks an Aria Automation license key so only its last 4 characters are shown.
-
-        .DESCRIPTION
-        Helper for Test-VcfAriaAutomationLicensing. `vracli license current`'s activeLicenseKey
-        can be an actual license key (sensitive), so it is never surfaced verbatim in a check
-        result. The sentinel values 'VCF_ENABLED' and 'No license key' are not license keys and
-        are passed through unmasked.
-
-        .PARAMETER LicenseKey
-        The Key column value reported by `vracli license --detailed`.
-
-        .OUTPUTS
-        [String] The masked license key, or the original value for non-key sentinels.
-    #>
-
-    [CmdletBinding()]
-    [OutputType([String])]
-    Param (
-        [Parameter(Mandatory = $true)] [AllowEmptyString()] [String]$LicenseKey
-    )
-
-    if ([String]::IsNullOrWhiteSpace($LicenseKey) -or $LicenseKey -in @('VCF_ENABLED', 'No license key')) {
-        return $LicenseKey
-    }
-
-    if ($LicenseKey.Length -le 4) {
-        return '****'
-    }
-
-    return "****$($LicenseKey.Substring($LicenseKey.Length - 4))"
-}
 function ConvertFrom-VcfCheckVracliLicenseTable {
 
     <#
@@ -257,10 +222,10 @@ function Test-VcfAriaAutomationLicensing {
 
         foreach ($row in $licenseRows) {
             if ($row.PSObject.Properties.Name -contains 'Key') {
-                $row.Key = Protect-VcfCheckAriaAutomationLicenseKey -LicenseKey $row.Key
+                $row.PSObject.Properties.Remove('Key')
             }
         }
-        $licenseTable = ($licenseRows | Format-Table -AutoSize | Out-String).Trim()
+        $licenseTable = ($licenseRows | Format-Table -AutoSize | Out-String -Width 200).Trim()
         $validRows = @($licenseRows | Where-Object { $_.Valid -eq 'True' })
 
         if ($validRows.Count -eq 0) {

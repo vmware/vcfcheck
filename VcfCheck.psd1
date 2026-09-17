@@ -236,7 +236,6 @@
         'New-VcfCheckResult'
         'New-VcfCheckVersionAliasClusterRowSet'
         'New-VcfCheckVersionAliasRow'
-        'Protect-VcfCheckAriaAutomationLicenseKey'
         'Protect-VcfCheckLogMessage'
         'Remove-VcfCheckEnvironment'
         'Resolve-VcfCheckActiveBaseDirectory'

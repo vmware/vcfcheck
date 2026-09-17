@@ -458,8 +458,8 @@ class RunQueue:
             item["status"] = "blocked"
             item["blockReason"] = (
                 f"another process{f' (pid {blocking_pid})' if blocking_pid else ''} is still holding the "
-                f"run lock for this environment - if that run actually finished or crashed, use Force Clear "
-                f"and try again"
+                f"run lock for this environment - if that run actually finished or crashed, click Force "
+                f"Clear below and try again"
             )
             logger.warning(
                 "Skipping run for %r: another process%s already holds the active-run lock at %s "

@@ -11,7 +11,7 @@
             errorEl.appendChild(textNode);
 
             // Add Force Clear button if the error is about a stuck run
-            if (message.includes("already in progress")) {
+            if (message.includes("already in progress") || message.includes("holding the run lock")) {
                 var button = document.createElement("button");
                 button.type = "button";
                 button.textContent = "Force Clear";
@@ -65,6 +65,11 @@
         }
         statusBox.classList.toggle("hidden", !running);
         document.getElementById("sticky-progress-bar").classList.toggle("hidden", !running);
+        // The credential-entry fields are only useful before a run starts - once checks are
+        // actually executing they just take up screen real estate above the live progress/log.
+        document.getElementById("run-scan-select-row").classList.toggle("hidden", running);
+        document.getElementById("run-scan-environment-list").classList.toggle("hidden", running);
+        document.getElementById("domain-field").classList.toggle("hidden", running);
         if (!running) {
             document.getElementById("queue-strip").classList.add("hidden");
             // Collapsed, not hidden - the log stays reachable so the user can expand it

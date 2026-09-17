@@ -353,7 +353,7 @@ function Invoke-VcfApplianceCommand {
     $retryDelaySeconds = 10
     $transientErrorCategories = @('TlsConnectionFailed', 'Unknown')
 
-    Write-LogMessage -Type DEBUG -Message "Invoking Invoke-VMScript on `"$VmName`" with command: $ScriptText"
+    Write-LogMessage -Type DEBUG -Message "Invoking Invoke-VMScript on `"$VmName`"."
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         try {
             $result = Invoke-VcfCheckVMScript -VmName $VmName -Server $Server -ScriptText $ScriptText -Credential $Credential -ToolsWaitSecs $ToolsWaitSecs
