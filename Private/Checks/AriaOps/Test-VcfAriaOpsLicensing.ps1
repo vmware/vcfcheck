@@ -34,9 +34,8 @@ function Test-VcfAriaOpsLicensing {
         expiration) and warns on an expired or soon-to-expire non-perpetual license.
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1) and calls a new Get-VcfCheckAriaOpsLicenseEntitlement (a REST
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1) and calls a new Get-VcfCheckAriaOpsLicenseEntitlement (a REST
         fallback wrapper around '/suite-api/api/product/licensing/entitlement' - no
         VMware.Sdk.Vcf.Ops cmdlet covers this endpoint) against each, returning one result per
         target.
@@ -50,13 +49,10 @@ function Test-VcfAriaOpsLicensing {
         - Error: Returns 'Error' for a target if connecting or querying it fails.
 
         Builds a detailed breakdown table ('Rows') of every license's expiration date (normalized
-        to yyyy-MM-dd), capacity, edition, license type, statuses, and license key. A real key
-        (a single token with no whitespace) has its last four characters redacted as 'X'; an
-        EVALUATION license's 'licenseKey' is a product description rather than a key (e.g.
-        'Evaluation - VMware vRealize Operations Management Suite') and is left untouched since
-        there is no key material in it to redact. The suite-api's licensing entitlement endpoint
-        does not return a usage figure - actual usage is only reported as free text inside
-        'statuses' (e.g. 'Only powered on VMs will count towards the license usage').
+        to yyyy-MM-dd), capacity, edition, license type, and statuses. The license key itself is
+        never included in the table. The suite-api's licensing entitlement endpoint does not
+        return a usage figure - actual usage is only reported as free text inside 'statuses'
+        (e.g. 'Only powered on VMs will count towards the license usage').
 
         .PARAMETER Context
         The VcfCheck.Context object. Must already be connected to SDDC Manager.
@@ -129,23 +125,11 @@ function Test-VcfAriaOpsLicensing {
             $daysRemaining = [Math]::Floor(($expirationDate - $now).TotalDays)
             $statuses = ($license.statuses) -join '; '
 
-            $redactedLicenseKey = $null
-            if ($null -ne $license.licenseKey) {
-                $licenseKey = ([String]$license.licenseKey).Trim()
-                if ($licenseKey -match '\s') {
-                    $redactedLicenseKey = $licenseKey
-                } else {
-                    $visibleLength = [Math]::Max(0, $licenseKey.Length - 4)
-                    $redactedLicenseKey = $licenseKey.Substring(0, $visibleLength) + ('X' * ($licenseKey.Length - $visibleLength))
-                }
-            }
-
             $rows.Add([PSCustomObject]@{
                 ExpirationDate = $expirationDate.ToString('yyyy-MM-dd')
                 Capacity       = if ($null -ne $license.capacity) { ([String]$license.capacity).Trim() } else { $null }
                 Edition        = $license.edition
                 LicenseType    = $license.licenseType
-                LicenseKey     = $redactedLicenseKey
                 Statuses       = $statuses
             })
 

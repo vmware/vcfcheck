@@ -175,7 +175,16 @@ def _validate_integrations(integrations) -> str:
     """Validates the optional `integrations` field - components (e.g. a standalone Aria
     Operations instance) SDDC Manager/VRSLCM have zero knowledge of, declared directly by the
     user. Mirrors Test-VcfCheckEnvironmentIsValid's Integrations rules (Private/Environments.ps1)
-    so both write paths agree on what's acceptable."""
+    so both write paths agree on what's acceptable.
+
+    Each integration/endpoint may also carry guestOS-check fields (`enableGuestOsChecks`,
+    `ariaVCenterSharedAcrossEndpoints`, `ariaVCenterFqdn`/`ariaVCenterUsername` when shared, or
+    per-endpoint `vCenterFqdn`/`vCenterUsername` when not) - stored and passed through as-is
+    (`body.get("integrations")` in `_handle_environment_create`/`_handle_environment_update`) with
+    no additional validation here, matching Test-VcfCheckEnvironmentIsValid, which likewise does
+    not require them: a missing vCenter FQDN/username only disables guestOS checks for that
+    endpoint with a run-time warning (Get-VcfCheckEnvironmentAriaOpsEndpoints and its Aria
+    Automation/Ops-for-Logs siblings), not a save-time error."""
     if integrations is None:
         return ""
     if not isinstance(integrations, list):

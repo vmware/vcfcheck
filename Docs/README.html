@@ -382,25 +382,40 @@ Check</a>
 <li><a href="#creating-an-environment"
 id="toc-creating-an-environment">Creating an Environment</a></li>
 </ul></li>
+<li><a href="#health-checks" id="toc-health-checks">Health
+Checks</a></li>
 <li><a href="#run-scan" id="toc-run-scan">Run Scan</a>
 <ul>
 <li><a href="#select-environments" id="toc-select-environments">Select
 Environment(s)</a></li>
+<li><a href="#run-check" id="toc-run-check">Run Check</a></li>
 <li><a href="#discover-workload-domains-optional"
 id="toc-discover-workload-domains-optional">Discover Workload Domains
 (Optional)</a></li>
-<li><a href="#health-checks" id="toc-health-checks">Health
-Checks</a></li>
-<li><a href="#run-check" id="toc-run-check">Run Check</a></li>
-<li><a href="#export-reports" id="toc-export-reports">Export
-(Reports)</a></li>
-<li><a href="#collect-logs" id="toc-collect-logs">Collect Logs</a></li>
+</ul></li>
+<li><a href="#other" id="toc-other">Other</a>
+<ul>
+<li><a href="#disabling-a-check-debugging"
+id="toc-disabling-a-check-debugging">Disabling a Check
+(Debugging)</a></li>
+<li><a href="#interacting-with-run-check"
+id="toc-interacting-with-run-check">Interacting with Run Check</a></li>
+<li><a href="#filters" id="toc-filters">Filters</a></li>
+<li><a href="#progress-bars" id="toc-progress-bars">Progress
+bars</a></li>
+<li><a href="#check-structures-and-descriptions"
+id="toc-check-structures-and-descriptions">Check structures and
+descriptions</a></li>
+<li><a href="#exporting-your-report"
+id="toc-exporting-your-report">Exporting your Report</a></li>
+<li><a href="#collecting-logs" id="toc-collecting-logs">Collecting
+Logs</a></li>
 <li><a href="#dark--light-mode" id="toc-dark--light-mode">Dark / Light
 mode</a></li>
+<li><a href="#general-notes" id="toc-general-notes">General
+Notes</a></li>
 </ul></li>
-<li><a href="#check-details" id="toc-check-details">Check
-Details</a></li>
-<li><a href="#general-notes" id="toc-general-notes">General Notes</a>
+<li><a href="#check-details" id="toc-check-details">Check Details</a>
 <ul>
 <li><a href="#aria" id="toc-aria">Aria</a></li>
 <li><a href="#esx" id="toc-esx">ESX</a></li>
@@ -413,15 +428,24 @@ Details</a></li>
 </ul>
 </nav>
 <h1 id="vcf-check">VCF Check</h1>
-<p>A lightweight PowerShell module that runs pre-upgrade health checks
-against VMware Cloud Foundation (VCF) 5.2 and later environments, paired
-with a bundled local Python web-based user interface. These checks are
-used to ascertain if any remediation is required before launching a VCF
-9.x upgrade.</p>
-<p>VCF Check does not support VCF releases earlier than 5.2. When it
-connects to SDDC Manager, it checks the reported VCF version and stops
-the run with an explanatory error if the environment is older than
-5.2.</p>
+<p>VCF Check helps prepare customers for VCF 5.2.x to VCF 9.1.x upgrades
+by running a series of component health and version compatibility
+checks. It does so without installing or modifying any server-side
+components.</p>
+<p>The platform is comprised of a Powershell Module, which acts as an
+execution engine, paired with a Python user interface, which is used to
+configure, run, and view the results of the checks.</p>
+<p>The checks currently cover the following component areas:</p>
+<ul>
+<li>Aria Automation</li>
+<li>Aria Operations</li>
+<li>Aria Operations for Logs</li>
+<li>ESX</li>
+<li>SDDC Manager</li>
+<li>vCenter</li>
+<li>VMware Aria Suite Lifecycle</li>
+</ul>
+<p>Aria components (and VMware Aria Suite Lifecycle) are optional.</p>
 <h2 id="installation">Installation</h2>
 <h3 id="prerequisites">Prerequisites</h3>
 <ul>
@@ -429,13 +453,21 @@ the run with an explanatory error if the environment is older than
 href="https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell">PowerShell
 7.4+</a></li>
 <li><a href="https://developer.broadcom.com/powercli">VCF.PowerCLI
-9.0+</a> — if VMware.PowerCLI is already installed, uninstall it first
+9.0+</a>
+<ul>
+<li><strong>NOTE</strong> VMware.PowerCLI is already installed,
+uninstall it first
 (<code>Uninstall-Module VMware.PowerCLI -AllVersions</code>); the two
 modules conflict and cannot coexist.</li>
+</ul></li>
 <li>Python 3.13+ (see <a href="#installing-python">Installing Python</a>
 below)</li>
-<li>macOS/Linux/Windows system with HTTPS network access to SDDC
-Manager, vCenter, and vRSLCM (if installed)</li>
+<li>macOS/Linux/Windows system with HTTPS network access to all the
+component endpoints.
+<ul>
+<li><strong>NOTE</strong> All component endpoint APIs use HTTPS over
+443, except for Aria Operations for Logs which uses 9543.</li>
+</ul></li>
 <li>An SSO account on SDDC Manager with ADMIN-level access.</li>
 <li>Modern web browser (to access the web interface of pre-check
 utility). Chrome-based recommended (Firefox, Safari should work; IE will
@@ -499,10 +531,8 @@ class="sourceCode powershell"><code class="sourceCode powershell"><span id="cb5-
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>Start-VcfCheckServer                       <span class="co"># Launches the web-based configuration utility.</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Stop-VcfCheckServer                        <span class="co"># Stops the web-based configuration utility.</span></span></code></pre></div>
-<p>HTML and JSON reports are automatically saved to
-<code>$env:VcfCheckBaseDirectory/Findings/&lt;environment name&gt;</code>.</p>
 <p>If port 8766 is already in use by a leftover process,
-<code>Start-VcfCheckServer</code> throws instead of binding to it. Run
+<code>Start-VcfCheckServer</code> will produce an error. Run
 <code>Start-VcfCheckServer -Force</code> to stop whatever is holding the
 port first and then start normally. Use <code>-Background</code> to run
 detached (stop it later with <code>Stop-VcfCheckServer</code>) and
@@ -529,22 +559,29 @@ address in the "SDDC Manager FQDN" field. (e.g.,
 <li><p>Enter your SSO username in the "Username" field (example:
 <code>administrator@vsphere.local</code>). Please note: This user must
 have ADMIN-level permissions to SDDC Manager.</p></li>
-<li><p>The checkbox
-<code>Enable SDDC Manager root-credential checks (VMware Tools guest operations)</code>
+<li><p>The checkbox <code>Enable Component GuestOS-based checks"</code>
 should remain checked unless one or more of the following conditions are
 met:</p>
 <ul>
-<li>SDDC Manager and vCenter do not and cannot run VMware Tools for
-security or policy reasons.</li>
-<li>You do not have <code>root</code> shell credentials for the SDDC
-Manager.</li>
+<li>Infrastructure components like SDDC Manager and vCenter do not and
+cannot run VMware Tools for security or policy reasons.</li>
+<li>You do not have guest OS credentials for the SDDC Manager.</li>
 <li>You have specific organization policies against the use of
-<code>Invoke-VMScript</code> to run shell operations on virtual
+<code>Invoke-VMScript</code> to run guest OS operations on virtual
 appliances.</li>
 </ul></li>
 </ol>
-<p>To view checks that require <code>root</code> credentials, expand
-"Health checks" and click on the filter "Needs Root Credentials".</p>
+<p><strong>NOTE</strong> GuestOS-based checks are executed through the
+PowerCLI cmdlet <a
+href="https://developer.broadcom.com/powercli/latest/vmware.vimautomation.core/commands/invoke-vmscript"><code>Invoke-VMScript</code></a>.
+They rely on VMware Tools and user-provided credentials to collect
+internal system details not exposed by the native vSphere API. This does
+not require or utilize SSH access for security.</p>
+<p><strong>NOTE</strong> This toggle controls access to SDDC Manager and
+vCenter based GuestOS checks as well as Aria Automation, Aria
+Operations, and Aria Operations for Logs, should the be configured.</p>
+<p>To view GuestOS-based checks, expand "Health checks" and click on the
+filter "Show GuestOS-based Checks".</p>
 <h4 id="adding-aria-components-optional">Adding Aria Components
 (optional)</h4>
 <p>Under <code>Aria Components (optional)</code>, you may register
@@ -558,7 +595,7 @@ not go through, and do not require, vRealize Suite Lifecycle Manager
 be managed by vRSLCM, or whether vRSLCM is deployed in the environment
 at all - VCF Check has no dependency on vRSLCM to run these checks.</li>
 <li>If you don't add a component here, its checks are simply skipped for
-that environment.</li>
+the environment in question.</li>
 </ul>
 <h4 id="creating-a-subsequent-environment">Creating a subsequent
 environment</h4>
@@ -577,7 +614,7 @@ it.</li>
 question to modify it, or <code>Delete</code> to remove it.</li>
 <li>If you are editing the environment, you may modify its friendly
 name, <code>SDDC Manager FQDN</code>, <code>Username</code>, or toggle
-<code>Root-Credential</code> checks.</li>
+<code>GuestOS-based</code> checks.</li>
 <li>Click <code>Save</code> to complete your changes.</li>
 </ol>
 <h4 id="updating-display-settings-optional">Updating display settings
@@ -627,71 +664,150 @@ read-only reflection of that PowerCLI setting, not a control - change it
 via <code>Set-PowerCLIConfiguration</code>, then reload the page to see
 the update.</li>
 </ul>
-<h2 id="run-scan">Run Scan</h2>
-<h3 id="select-environments">Select Environment(s)</h3>
-<ol type="1">
-<li>Click one or more environments you wish to check.</li>
-<li>Enter your credentials for your SSO user and the root user (if
-<code>root</code> checks are enabled).</li>
-</ol>
-<h3 id="discover-workload-domains-optional">Discover Workload Domains
-(Optional)</h3>
+<h2 id="health-checks">Health Checks</h2>
 <ul>
-<li><p>By default, <code>Run Check</code> scans every workload domain in
-the selected environment(s). Click
-<code>Discover Workload Domains</code> to customize which ones are
-scanned instead.</p></li>
-<li><p>This step performs the following:</p>
+<li>Click on <code>Health Check</code> to view or customize the list of
+checks run against your environments. By default, all are selected.
 <ul>
-<li>Validates SDDC Manager and vCenter TCP/443 reachability.</li>
-<li>Validates vRSLCM (if deployed) TCP/443 reachability.</li>
-<li>Validates SSO user credentials for SDDC Manager.</li>
-<li>Validates root credentials for SDDC Manager through a multi-step
-authentication and VM identification process.</li>
-<li>Loads the list of workload domains for the selected environment(s)
-into the <code>Domain</code> selector.</li>
+<li><strong>NOTE</strong> If you want your customized to persist across
+session, click <code>Save defaults</code>.</li>
 </ul></li>
-<li><p>Once the domains load, deselect any you do not wish to scan. Your
-selection carries forward into <code>Run Check</code>.</p></li>
-<li><p>The four-stage checks will be displayed under
-<code>Credential Check</code> with any errors surfaced to the right of
-the check name. A <code>Live Log</code> will appear beneath with
-additional detail.</p></li>
-</ul>
-<h3 id="health-checks">Health Checks</h3>
-<ul>
-<li><p>Click on <code>Health Check</code> to view or customize the list
-of checks run against your environments. By default, all are
-selected.</p></li>
-<li><p>Each check is accompanied by a short description (longer
+<li>Each check is accompanied by a short description (longer
 descriptions are available in this document). These descriptions also
-accompany the completed checks.</p></li>
-<li><p>Checks may be excluded / included individually or by Component
-category.</p>
+accompany the completed checks.</li>
+<li>Checks may be excluded / included individually or by Component
+category.
 <ul>
 <li>To disable an entire Component category, deselect the component
 under <code>Components</code> or above the list of checks.</li>
 </ul></li>
-<li><p>Checks for which failure is known to block a VCF 9.x upgrade are
-prefaced with a <strong>[B]</strong>.</p></li>
-<li><p>Checks that require <code>root</code> credentials to SDDC Manager
-are prefaced with an <strong>[R]</strong>.</p></li>
+<li>Checks for which failure is known to block a VCF 9.x upgrade are
+prefaced with a <strong>[B]</strong>.</li>
+<li>Checks that require <code>GuestOS</code> credentials to SDDC Manager
+are prefaced with an <strong>[G]</strong>.</li>
+<li>Click "Select Blocking Checks Only" to select only the checks which,
+if they fail, are known to block a VCF 9.x upgrade. Click a second time
+to revert.</li>
+<li>To see what checks require GuestOS credentials click
+<code>Show GuestOS-based checks</code>. Click a second time to
+revert.</li>
+<li>Enter a keyword in the "Search checks by name or area" to search for
+a particular check name.</li>
+</ul>
+<h2 id="run-scan">Run Scan</h2>
+<h3 id="select-environments">Select Environment(s)</h3>
+<ul>
+<li>Click one or more environments you wish to check.</li>
+<li>The window will expand showing what credentials are required to run
+the scan.</li>
+<li>Enter the credentials for your SDDC Manager SSO user and the SDDC
+Manager Guest OS root user (if GuestOS-based checks are enabled).</li>
+<li>If you have Aria Components enabled, enter the credentials for the
+Aria components vCenter, API user, and GuestOS OS root user (if
+GuestOS-based checks are enabled), per service.
+<ul>
+<li><strong>NOTE</strong> Click on the <code>eye</code> icon if to
+reveal your password if you are concerned you mistyped it. Click the
+icon again to re-hide it.</li>
+<li><strong>NODE</strong> These passwords are not saved to disk, logged,
+or persist in memory in an unencrypted state.</li>
+</ul></li>
 </ul>
 <h3 id="run-check">Run Check</h3>
 <ul>
-<li>The check workflow validates connectivity and credentials for the
-selected environment(s) automatically before proceeding with the checks
-themselves - the same validation <code>Discover Workload Domains</code>
-performs (see <code>Discover Workload Domains (Optional)</code> for
-details), so running it first is optional.</li>
-<li>A Progress Bar will appear, showing how many checks out of the total
-have completed, the time elapsed, and details on the running check.</li>
-<li>You may scroll down to see details on the checks that have
-completed; a floating "mini progress bar" will keep you apprised of the
-overall scan progress.</li>
-<li>You may apply post-check filters in real time, filtering out
-statuses or components at will. These will be dynamically applied to
-your view and will not impact the underlying data.</li>
+<li>Click <code>Run Check</code> scans every workload domain in the
+selected environment(s).</li>
+<li>This step performs the following all relevant management endpoints
+(vCenter, SDDC manager, etc)s:
+<ul>
+<li>Validates TCP/443 reachability.</li>
+<li>Validates API credentials.</li>
+<li>Validates GuestOS root credentials multi-step authentication and VM
+identification process.</li>
+<li>(If <code>Discover Workload Domains</code> is clicked) Loads the
+list of workload domains for the selected environment(s) into the
+<code>Domain</code> selector.</li>
+</ul></li>
+<li>While the validation is running, a <code>Credential Check</code>
+pane will open below <code>Health Checks</code> listing what validations
+have passed. A <code>Live Log</code> will appear beneath with additional
+detail.
+<ul>
+<li><strong>NOTE</strong> If a password is incorrect, you will receive a
+message under the <code>Credential Check pane</code> with an error, such
+as "Invalid root password. Verify the SDDC Manager appliance root
+password." followed by a call to action under <code>Run Check</code>
+such as "Run Check was not started - connectivity/credential check
+failed for: TestEnvironment. See the details above, fix the issue, then
+click Run Check again."</li>
+</ul></li>
+</ul>
+<h3 id="discover-workload-domains-optional">Discover Workload Domains
+(Optional)</h3>
+<p>Alternatively, Click <code>Discover Workload Domains</code> to
+customize which ones are scanned instead.</p>
+<p>It performs the same reachability test.</p>
+<ul>
+<li>Once the domains load, deselect any you do not wish to scan. Your
+selection carries forward into <code>Run Check</code>.</li>
+<li>This invocation of <code>Run Check</code> will not re-validate the
+credentials.</li>
+</ul>
+<h2 id="other">Other</h2>
+<h3 id="disabling-a-check-debugging">Disabling a Check (Debugging)</h3>
+<ul>
+<li><p>If a check routinely misbehaves (e.g. it errors out or produces
+unreliable results in your environment), it can be turned off without
+deleting it from <code>Data/CheckCatalog.json</code>. Add
+<code>"disabled": true</code> to that check's entry:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;sddc_bom_check&quot;</span><span class="er">:</span> <span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;function&quot;</span><span class="fu">:</span> <span class="st">&quot;Test-VcfSddcBomCheck&quot;</span><span class="fu">,</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;area&quot;</span><span class="fu">:</span> <span class="st">&quot;SDDC Manager&quot;</span><span class="fu">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;displayName&quot;</span><span class="fu">:</span> <span class="st">&quot;VCF Bill of Materials Upgrade Readiness Check&quot;</span><span class="fu">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;blocking&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;disabled&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="er">...</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div></li>
+<li><p>A disabled check no longer appears in the
+<code>Health Checks</code> list in the UI and cannot be selected or run
+- including via a full ("all checks") run.</p></li>
+<li><p>Remove the <code>"disabled": true</code> line (or set it to
+<code>false</code>) to restore the check.</p></li>
+</ul>
+<h3 id="interacting-with-run-check">Interacting with Run Check</h3>
+<p><strong>NOTE</strong> During the course of a run, the check results
+will dynamically reorder themselves with higher priority issues
+(blocking failures for example) rising to the top.</p>
+<h3 id="filters">Filters</h3>
+<ul>
+<li>Filters are available for component and for severity,</li>
+<li>They may be applied at any time during the scan (running or
+complete) and impact the view only, not the underlying data.</li>
+<li>The filters are even available in the downloaded HTML report.</li>
+</ul>
+<h3 id="progress-bars">Progress bars</h3>
+<ul>
+<li>Once the scan begins, a progress bar will appear under health checks
+showing the following information:
+<ul>
+<li>Number of completed checks divided by total checks.</li>
+<li>Elapsed time.</li>
+<li>Current running check (and how long it has run).</li>
+<li>If the running check has sub-status or numerous poll attempts (for
+example, in the case of the SDDC Manager Health Summary), its data</li>
+</ul></li>
+<li>A "mini-status" status pill will show up at the bottom of the screen
+to summarize the job status.</li>
+<li>Once the scan is complete, a total elapsed time will appear in the
+place fo the first progress bar.</li>
+<li><strong>NOTE</strong> the total execution time for each individual
+check appears within its expanded pane in the lower right (ex: "4
+seconds to execute".)</li>
+</ul>
+<h3 id="check-structures-and-descriptions">Check structures and
+descriptions</h3>
+<ul>
 <li>The check results will dynamically reorder themselves with higher
 priority issues (blocking failures for example) rising to the top.</li>
 <li>One check result will appear per workload domain.</li>
@@ -713,7 +829,7 @@ and why they were skipped.</li>
 <li><code>Info-only</code> badge. This badge indicates that there is no
 check criteria. The data is presented as informational only.</li>
 </ul>
-<h3 id="export-reports">Export (Reports)</h3>
+<h3 id="exporting-your-report">Exporting your Report</h3>
 <ul>
 <li><p>Once your report is complete, it becomes available for
 export.</p></li>
@@ -749,7 +865,7 @@ the most recent run's data, under that fixed name, regardless of whether
 the run completed or was interrupted.</li>
 </ul></li>
 </ul>
-<h3 id="collect-logs">Collect Logs</h3>
+<h3 id="collecting-logs">Collecting Logs</h3>
 <ul>
 <li>If you need technical support, you may click on
 <code>Collect Logs</code> in the upper-right corner of the screen at any
@@ -758,38 +874,103 @@ time.</li>
 <ul>
 <li><code>$env:VcfCheckBaseDirectory/Findings/*</code></li>
 <li><code>$env:VcfCheckBaseDirectory/Logs/*</code></li>
-<li><code>$env:VcfCheckBaseDirectory/Config/*</code></li>
 </ul></li>
 <li>Notes
 <ul>
-<li>No passwords are stored in this data.</li>
+<li>No passwords are stored in this data, as they are not collected in
+the first place.</li>
 <li>You will be prompted to accept a warning that this data does contain
-FQDNs and other details about your environment.</li>
-<li>If you need to sanitize FQDN or other details about your
-environment, manually collect the data from the aforementioned
-directories and transform accordingly.</li>
+FQDNs and other details about your environment (from the Findings and
+Log files).</li>
 </ul></li>
+</ul>
+<h4 id="optional-scrubbing">Optional Scrubbing</h4>
+<ul>
+<li>The <code>Collect Logs</code> prompt includes a <code>Scrub</code>
+checkbox. When checked, the bundle is rewritten before download rather
+than shipped as-is. Scrubbing is honest-effort, not a guarantee that
+every sensitive value is caught - review the bundle yourself before
+sharing it outside your organization. Placeholders are tagged with what
+kind of thing they replaced (not just a bare <code>host-N</code>), so
+the bundle stays readable - e.g. <code>sddcmgr-1.example.com</code>,
+<code>vcenter-1.example.com</code>, <code>nsxmgr-1.example.com</code>,
+<code>nsxedge-1.example.com</code>,
+<code>ariaoperations-node-1.example.com</code>,
+<code>ariaautomation-vm-1</code>. Scrubbing replaces:
+<ul>
+<li>Every FQDN, username, and declared Aria <code>VmNames</code> entry
+stored in your saved environments
+(<code>Config/environments.json</code>) with a stable, type-tagged
+placeholder - the SDDC Manager FQDN becomes
+<code>sddcmgr-N.example.com</code>, an Aria component's own vCenter
+(<code>VCenterFqdn</code>/<code>AriaVCenterFqdn</code>, used for its
+guestOS checks) becomes <code>vcenter-N.example.com</code>, an Aria
+component's own FQDN is tagged with that integration's type and gets a
+<code>-node-N.example.com</code> placeholder (e.g.
+<code>ariaoperations-node-N.example.com</code>,
+<code>ariaautomation-node-N.example.com</code>,
+<code>arialogs-node-N.example.com</code>) while its declared VM names
+get <code>&lt;type&gt;-vm-N</code> (e.g.
+<code>ariaautomation-vm-N</code>) - the same real value always maps to
+the same placeholder throughout the bundle.</li>
+<li>The short label of each known FQDN (e.g. <code>sfo-w01-vc01</code>
+out of <code>sfo-w01-vc01.example.com</code>) with the matching short,
+type-tagged placeholder (e.g. <code>sddcmgr-1</code>) - vCenter/ESX
+checks frequently log the short name rather than the full FQDN.</li>
+<li>Any other hostname that shares one of those environments' domain
+suffix (e.g. a per-domain vCenter, NSX Manager, or NSX Edge FQDN
+discovered at check run-time, which is never saved to
+<code>environments.json</code> and so is not covered by the pass above)
+- its type is guessed from nearby text (a check-id log tag like
+<code>[vcenter_machine_id_check]</code>, or the words "vCenter"/"NSX
+Edge"/"NSX"/"ESX"/"SDDC Manager" appearing shortly before it, tagged as
+<code>vcenter-N.example.com</code>/<code>nsxedge-N.example.com</code>/<code>nsxmgr-N.example.com</code>/<code>esx-N.example.com</code>/<code>sddcmgr-N.example.com</code>
+respectively), falling back to an untagged
+<code>host-N.example.com</code> when nothing nearby gives it away. This
+is a best-effort guess, not a lookup - a similarly-named product
+mentioned nearby for unrelated reasons could mistag it.</li>
+<li>IPv4 addresses, MAC addresses, PEM key/certificate blocks, and
+VCF-style license keys.</li>
+<li>Values in credential-shaped fields and headers
+(<code>Authorization: Basic/Bearer ...</code>,
+<code>password</code>/<code>pwd</code>/<code>token</code>/<code>secret</code>/<code>apikey</code>
+fields,
+<code>-p</code>/<code>--password</code>/<code>-GuestPassword</code>
+arguments).</li>
+</ul></li>
+<li>What scrubbing does <strong>not</strong> cover:
+VM/cluster/datacenter/portgroup names and other object identifiers, IPv6
+addresses, and any hostname that does not share a domain suffix with one
+of your saved environments. A guest OS VM name a check resolves
+dynamically at run time rather than the one you declared (e.g. a VMware
+Tools guest-IP fallback match to a differently-named VM) is not caught
+either, since it never appears in <code>environments.json</code>. If any
+of this is sensitive to you, review the bundle and redact manually
+before sharing it.</li>
+<li><code>Config/environments.json</code> itself (which is what the
+scrub pass reads FQDNs/usernames/VM names from) is not included in the
+bundle, scrubbed or not.</li>
 </ul>
 <h3 id="dark--light-mode">Dark / Light mode</h3>
 <ul>
 <li>The UI supports Dark and Light mode. Light mode is the default.</li>
 </ul>
-<h2 id="check-details">Check Details</h2>
-<ul>
-<li>74 checks total</li>
-</ul>
-<h2 id="general-notes">General Notes</h2>
+<h3 id="general-notes">General Notes</h3>
 <ul>
 <li>Expirations dates for password and certificates are presented in
 YYYY-MM-DD in the HTML. For further granularity, please review the JSON
 export.</li>
 </ul>
+<h2 id="check-details">Check Details</h2>
+<ul>
+<li>96 checks total</li>
+</ul>
 <h3 id="aria">Aria</h3>
 <ul>
-<li><strong>Number of checks:</strong> 12</li>
+<li><strong>Number of checks:</strong> 34</li>
 </ul>
-<h4 id="aria-lifecycle-manager-disk-space-report">Aria Lifecycle Manager
-Disk Space Report</h4>
+<h4 id="aria-suite-lifecycle-manager-disk-space-check">Aria Suite
+Lifecycle Manager Disk Space Check</h4>
 <ul>
 <li><strong>Purpose:</strong> Verifies that the vRealize Suite Lifecycle
 Manager (vRSLCM) root volume has at least 3 GB of free space available
@@ -892,8 +1073,155 @@ days).</li>
 Operations still reports a numeric expiration date for it.</li>
 </ul></li>
 </ul>
-<h4 id="aria-operations-lifecycle-status-check">Aria Operations
-Lifecycle Status Check</h4>
+<h4 id="aria-operations-ssh-server-status-check">Aria Operations SSH
+Server Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Warns if the SSH server (sshd) is active
+on any Aria Operations appliance node, via
+<code>systemctl is-active sshd</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Operations instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>SSH is a per-node service, so every appliance node is checked, not
+just one.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-for-logs-certificate-expiration-check">Aria
+Operations for Logs Certificate Expiration Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Retrieves Aria Operations for Logs'
+appliance certificate (<code>GET /api/v2/certificate</code>), flagging
+it if it is already expired or expiring within the configurable warning
+threshold (default 30 days).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations for Logs isn't deployed in the
+environment.</li>
+<li>A certificate whose expiration date can't be parsed is also flagged
+as a Warning rather than silently passed.</li>
+<li>This product's API exposes no SAN or signature-algorithm field, so
+unlike the Aria Operations Certificate Expiration Check, this check
+evaluates expiration only.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-for-logs-licensing-check">Aria Operations for
+Logs Licensing Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports Aria Operations for Logs' license
+state — status, configuration, license type, and expiration date per
+license — flagging any license that is not <code>Active</code>, reports
+an error, or, if not infinite, is already expired or expiring within the
+configurable warning threshold (default 30 days).</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations for Logs isn't deployed in the
+environment.</li>
+<li>An infinite license is never flagged for expiry, even if it reports
+a non-zero expiration date.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-for-logs-version-check">Aria Operations for Logs
+Version Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Validates Aria Operations for Logs' own
+reported version against Broadcom's public Interop Matrix upgrade-path
+status for the selected VCF destination release, falling back to a
+minimum-version floor comparison when the Interop Matrix has no
+resolvable verdict for the installed/destination pair.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations for Logs isn't deployed in the
+environment.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-for-logs-vsphere-integration-status-check">Aria
+Operations for Logs vSphere Integration Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Retrieves every vCenter Server integration
+configured in Aria Operations for Logs
+(<code>GET /api/v2/vsphere</code>) and inspects its live
+<code>collectionStatus</code>, flagging any that is not
+<code>Collecting</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations for Logs isn't deployed in the
+environment.</li>
+<li>Passes, reporting "Not Configured" rather than a blank/null value,
+when no vCenter Server integration is configured at all - this is a
+valid deployment state, not a failure.</li>
+<li>Unlike a configuration-presence read, <code>collectionStatus</code>
+is the appliance's own live assessment of whether it is actually
+collecting from that vCenter Server.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-for-logs-log-forwarder-status-check">Aria
+Operations for Logs Log Forwarder Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Retrieves every log forwarder configured
+in Aria Operations for Logs (<code>GET /api/v2/log-forwarder</code>) and
+inspects its live <code>forwarderStats.state</code>, flagging any that
+is not <code>ACTIVE</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations for Logs isn't deployed in the
+environment.</li>
+<li>Passes, reporting "Not Configured" rather than a blank/null value,
+when no log forwarder is configured at all - this is a valid deployment
+state, not a failure.</li>
+<li>Unlike a configuration-presence read,
+<code>forwarderStats.state</code> is the appliance's own live assessment
+of whether it is actually forwarding.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-for-logs-vidm-status-check">Aria Operations for
+Logs vIDM Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Retrieves Aria Operations for Logs' vIDM
+auth-source connection state (<code>GET /vidm/status</code>) and warns
+if it is not <code>CONNECTED</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Operations for Logs isn't deployed in the
+environment.</li>
+<li>Passes when vIDM is <code>UNCONFIGURED</code> - this is a valid
+deployment state, not a failure.</li>
+<li>Unlike a configuration-presence read, <code>state</code> is the
+appliance's own live assessment of the vIDM connection.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-for-logs-ssh-server-status-check">Aria
+Operations for Logs SSH Server Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Warns if the SSH server (sshd) is active
+on any Aria Operations for Logs appliance node, via
+<code>systemctl is-active sshd</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Operations for Logs instance is known, or if
+guestOS checks aren't enabled for the target.</li>
+<li>SSH is a per-node service, so every appliance node is checked, not
+just one.</li>
+</ul></li>
+</ul>
+<h4 id="aria-operations-version-check">Aria Operations Version
+Check</h4>
 <ul>
 <li><strong>Purpose:</strong> Validates Aria Operations' own reported
 version against Broadcom's public Interop Matrix upgrade-path status for
@@ -963,8 +1291,8 @@ operations if any mount reaches 100%.</li>
 <li>Only checks Aria components deployed using vRSLCM.</li>
 </ul></li>
 </ul>
-<h4 id="aria-suite-component-root-password-expiry">Aria Suite Component
-Root Password Expiry</h4>
+<h4 id="aria-suite-appliance-root-password-expiration-check">Aria Suite
+Appliance Root Password Expiration Check</h4>
 <ul>
 <li><strong>Purpose:</strong> Checks root account password expiration
 for Aria Suite appliances:
@@ -1008,6 +1336,231 @@ expiring within 30 days.</li>
 <li><strong>Notes:</strong>
 <ul>
 <li>Only checks Aria components deployed using vRSLCM.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-version-check">Aria Automation Version
+Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Validates Aria Automation's own reported
+version against Broadcom's public Interop Matrix upgrade-path status for
+the selected VCF destination release, falling back to a minimum-version
+floor comparison when the Interop Matrix has no resolvable verdict for
+the installed/destination pair.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if Aria Automation isn't deployed in the environment.</li>
+<li>The installed version is read from the embedded vRealize
+Orchestrator's <code>GET /vco/api/about</code>, which Aria Automation
+ships 1:1 with the product release, with the trailing vRO build number
+stripped (e.g. <code>8.18.0.24015865</code> reports as
+<code>8.18.0</code>).</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-appliance-health-check">Aria Automation
+Appliance Health Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every
+<code>vracli health check</code> self-check on every Aria Automation
+appliance node reports a status of <code>passed</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-licensing-check">Aria Automation Licensing
+Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that Aria Automation reports an
+active, valid license via <code>vracli license current</code>, flagging
+a missing or invalid license.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>License state is a cluster-wide setting in Aria Automation, so this
+queries a single appliance node rather than every node.</li>
+<li>The active license key is never shown in full - only its last 4
+characters are reported.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-cloud-account-health-check">Aria Automation
+Cloud Account Health Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every Aria Automation cloud
+account reports a healthy connection to its underlying cloud provider,
+flagging any cloud account whose connectivity has failed or whose stored
+credentials are invalid.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known.</li>
+<li>A cloud account in maintenance mode is noted but does not on its own
+fail the check.</li>
+<li>Reports each cloud account's Name, CloudAccountType, Healthy, and
+InMaintenanceMode.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-vro-integration-health-check">Aria Automation
+vRO Integration Health Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every vRO Orchestrator
+integration (embedded or externally registered) known to Aria Automation
+last reported a successful enumeration.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known.</li>
+<li>Only the <code>vro</code> integration type carries a health-style
+field in the API; other integration types (embedded ABX, Ansible,
+GitHub, AD, etc.) are reported as non-failing, out-of-scope rows.</li>
+<li>Reports each integration's Name, IntegrationType,
+EnumerationTaskState, and Status.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-project-zone-configuration-check">Aria
+Automation Project Zone Configuration Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every project configured in
+Aria Automation has at least one Cloud Zone assigned, since a project
+with no Cloud Zone cannot place any workload.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known.</li>
+<li>Passes if no projects are configured at all.</li>
+<li>Reports each project's Name, ZoneCount, and AdministratorCount.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-ntp-status-check">Aria Automation NTP Status
+Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every Aria Automation
+appliance node reports its system clock as synchronized and its NTP
+service as active, via <code>vracli ntp status --local</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>There is no JSON output mode for this vracli subcommand; the
+plain-text "System clock synchronized"/"NTP service" lines are parsed
+directly.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-dns-configuration-check">Aria Automation DNS
+Configuration Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports the DNS servers configured on
+every Aria Automation appliance node, via
+<code>vracli network dns status --local</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>Primarily informational - warns only if a node reports zero
+configured DNS servers, otherwise reports the configured server list
+without judging which servers are configured.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-fips-status-check">Aria Automation FIPS Status
+Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports Aria Automation's FIPS mode
+setting (enabled or disabled) via
+<code>vracli security fips</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>FIPS mode is a cluster-wide setting, so this queries a single
+appliance node rather than every node.</li>
+<li>There is no Broadcom-mandated FIPS requirement - this check always
+reports Pass once the setting is read, regardless of whether FIPS is
+enabled or disabled.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-orchestrator-extensions-check">Aria Automation
+Orchestrator Extensions Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports every Aria Orchestrator extension
+and its active/inactive state via
+<code>vracli vro extensions</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>The extension registry is a cluster-wide setting, so this queries a
+single appliance node rather than every node.</li>
+<li>Reports each extension's Extension and Status.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-orchestrator-properties-check">Aria Automation
+Orchestrator Properties Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Reports every Aria Orchestrator advanced
+property, its default value, and its current value via
+<code>vracli vro properties advanced</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> Yes</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>The advanced property store is a cluster-wide setting, so this
+queries a single appliance node rather than every node.</li>
+<li>Reports each property's Id, Name, DefaultValue, and CurrentValue -
+the Description field is omitted to save screen space.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-ssh-server-status-check">Aria Automation SSH
+Server Status Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Warns if the SSH server (sshd) is active
+on any Aria Automation appliance node, via
+<code>systemctl is-active sshd</code>.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>SSH is a per-node service, so every appliance node is checked, not
+just one.</li>
+</ul></li>
+</ul>
+<h4 id="aria-automation-appliance-disk-space-check">Aria Automation
+Appliance Disk Space Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Verifies that every mount reported by
+<code>vracli disk-mgr</code> on every Aria Automation appliance node is
+within its usage Warn/Fail threshold.</li>
+<li><strong>Blocks upgrade?</strong> No</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Skipped if no Aria Automation instance is known, or if guestOS
+checks aren't enabled for the target.</li>
+<li>Thresholds mirror the Aria Suite Appliance Disk Space Report's tiers
+by best-fit mount name: <code>/</code> and <code>/home</code> at Warn
+90%/Fail 100%, <code>/data</code> at Warn 80%/Fail 100%,
+<code>/var/log</code> at Warn 90%/Fail 100%; any other mount defaults to
+the <code>/</code> tier.</li>
 </ul></li>
 </ul>
 <h3 id="esx">ESX</h3>
@@ -1064,7 +1617,7 @@ upgrading to VCF 9.x.</li>
 <li>Rolls up host-level results per cluster when non-unique.</li>
 </ul></li>
 </ul>
-<h4 id="esx-lockdown-mode">ESX Lockdown mode</h4>
+<h4 id="esx-lockdown-mode">ESX Lockdown Mode</h4>
 <ul>
 <li><strong>Purpose:</strong> Lockdown mode restricts ESX host
 management exclusively to vCenter, disabling direct root and local API
@@ -1086,8 +1639,8 @@ when Lockdown mode is disabled.</li>
 <ul>
 <li><strong>Number of checks:</strong> 15</li>
 </ul>
-<h4 id="hotfix-sddc-manager-async-patch-upgrade-history">Hotfix SDDC
-Manager Async-Patch Upgrade History</h4>
+<h4 id="sddc-manager-async-patch-upgrade-history">SDDC Manager
+Async-Patch Upgrade History</h4>
 <ul>
 <li><strong>Purpose:</strong> This check verifies SDDC Manager's
 appliance logs for any record of an out-of-band async-patch having been
@@ -1233,7 +1786,8 @@ status.</li>
 credentials.</li>
 </ul></li>
 </ul>
-<h4 id="vcenter-core-and-tib-report">vCenter Core and TiB Report</h4>
+<h4 id="vcenter-core-and-vsan-tib-report">vCenter Core and vSAN TiB
+Report</h4>
 <ul>
 <li><strong>Purpose:</strong> This informational check reports total CPU
 core counts and vSAN storage capacity (in TiB) per vCenter and domain,
@@ -1276,8 +1830,8 @@ license key and warns on keys expiring within the configured threshold
 than the Broadcom licensing portal.</li>
 </ul></li>
 </ul>
-<h4 id="vsphere-lifecycle-management-vlcm-enablement">vSphere Lifecycle
-Management (vLCM) Enablement</h4>
+<h4 id="vsphere-lifecycle-manager-vlcm-enablement">vSphere Lifecycle
+Manager (vLCM) Enablement</h4>
 <ul>
 <li><strong>Purpose:</strong> Checks each cluster to see if it's managed
 by vLCM baselines (VUM) or vLCM Images. vLCM Image management is
@@ -1406,7 +1960,8 @@ Appliance Disk Space, Inode, and Heap Dump Check</h4>
 <ul>
 <li><strong>Purpose:</strong> Verifies every filesystem on the vCenter
 appliance is below 80% disk space and inode utilization and that no
-.hprof (Java heap dump) files are present.</li>
+.hprof (Java heap dump) files are present. Also covers vCenters SDDC
+Manager does not manage but that an Aria component references.</li>
 <li><strong>Blocks upgrade?</strong> No</li>
 <li><strong>Informational only check?</strong> No</li>
 <li><strong>Notes:</strong>
@@ -1445,8 +2000,7 @@ either of which could lock out access mid-upgrade.</li>
 <li><strong>Blocks upgrade?</strong> Yes</li>
 <li><strong>Informational only check?</strong> No</li>
 </ul>
-<h4 id="vcenter-appliance-sizing-check">vCenter Appliance Sizing
-Check</h4>
+<h4 id="vcenter-appliance-size-check">vCenter Appliance Size Check</h4>
 <ul>
 <li><strong>Purpose:</strong> Verifies that each vCenter appliance in
 the environment is appropriately sized for its live host and VM

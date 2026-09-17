@@ -34,9 +34,8 @@ function Test-VcfAriaOpsCertificateExpiration {
         close to expiring.
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCertificates (a thin wrapper
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCertificates (a thin wrapper
         around Invoke-VcfOpsGetAllCertificates) against each, returning one result per target.
         Parses each certificate's Expires date and compares it against WarningThresholdDays.
 

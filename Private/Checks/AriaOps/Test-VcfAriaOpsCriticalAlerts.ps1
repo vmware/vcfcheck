@@ -33,9 +33,8 @@ function Test-VcfAriaOpsCriticalAlerts {
         Verifies that Aria Operations has no active Critical or Immediate alerts.
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCriticalAlerts (a thin wrapper
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCriticalAlerts (a thin wrapper
         around Invoke-VcfOpsQueryAlert) against each with a query for active alerts of
         'CRITICAL' or 'IMMEDIATE' criticality, returning one result per target.
 

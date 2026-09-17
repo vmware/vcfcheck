@@ -9,6 +9,7 @@
     VcfCheckUI.setInlineSvg(document.getElementById("vcf-destination-release-info-icon"), VcfCheckUI._INFO_ICON);
     VcfCheckUI.setInlineSvg(document.getElementById("powercli-tls-status-info-icon"), VcfCheckUI._INFO_ICON);
     VcfCheckUI.setInlineSvg(document.getElementById("env-form-integrations-info-icon"), VcfCheckUI._INFO_ICON);
+    VcfCheckUI.setInlineSvg(document.getElementById("env-form-root-checks-info-icon"), VcfCheckUI._INFO_ICON);
 
     VcfCheckUI.loadSettings().then(function () {
         VcfCheckUI.loadVersion();

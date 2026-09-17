@@ -296,11 +296,15 @@ function New-VcfCheckContext {
         SDDC Manager credential entry (CredentialType 'SSH', not 'API') - see
         Get-VcfCheckVrslcmRootCredential.
 
-        AriaOpsCredential/AriaOpsConnection/UnreachableAriaOps mirror the VrslcmConnection /
-        UnreachableVCenters caches for Aria Operations - see Get-VcfCheckAriaOpsCredential and
-        Connect-VcfCheckAriaOps in Private/AriaOpsHelpers.ps1. Aria Operations has full SDK
+        AriaOpsEndpointConnections/UnreachableAriaOpsEndpoints/AriaOpsEndpoints/
+        AriaOpsEndpointCredentials cache the environment's declared Aria Operations Integrations
+        endpoints and their connections - see Get-VcfCheckEnvironmentAriaOpsEndpoints and
+        Connect-VcfCheckAriaOpsEndpoint in Private/AriaOpsHelpers.ps1. SDDC Manager never holds an
+        Aria Operations credential (it is deployed and lifecycle-managed by Aria Suite Lifecycle,
+        but Aria Operations manages its own credentials via its own API), so there is no
+        SDDC-Manager-based cache for it. Aria Operations has full SDK
         coverage (VMware.Sdk.Vcf.Ops), so unlike VRSLCM there is no separate REST-API-session
-        cache - Invoke-VcfOps* cmdlets take AriaOpsConnection directly via -Server.
+        cache - Invoke-VcfOps* cmdlets take the connection directly via -Server.
 
         VCenterApiSessions caches vSphere Automation API session tokens (POST /api/session)
         keyed by vCenter FQDN, for checks that call vCenter's own REST API directly rather than
@@ -344,11 +348,14 @@ function New-VcfCheckContext {
         (via PowerCLI's own configuration) gets a clear connection failure instead of a silently
         accepted untrusted certificate.
 
-        AriaAutomationCredential caches the resolved Fqdn/Credential/AllowInsecureTls object for
-        Aria Automation - see Get-VcfCheckAriaAutomationCredential in
-        Private/AriaAutomationHelpers.ps1. A single cache entry is sufficient because, unlike
-        VRSLCM/Aria Operations, Aria Automation is looked up once per run and reused by every
-        check that calls Invoke-VcfCheckAriaAutomationApi.
+        AriaAutomationEndpointConnections/UnreachableAriaAutomationEndpoints/AriaAutomationEndpoints/
+        AriaAutomationEndpointCredentials cache the environment's declared Aria Automation
+        Integrations endpoints and their connections - see
+        Get-VcfCheckEnvironmentAriaAutomationEndpoints and Connect-VcfCheckAriaAutomationEndpoint
+        in Private/AriaAutomationHelpers.ps1. SDDC Manager never holds an Aria Automation
+        credential (it is deployed and lifecycle-managed by Aria Suite Lifecycle, but Aria
+        Automation manages its own credentials via its own API), so there is no
+        SDDC-Manager-based cache for it.
 
         UnreachableVCenters caches, per vCenter FQDN, the reason Connect-VcfCheckVCenter last
         failed to reach or authenticate to it. Confirmed live: when a vCenter drops mid-run, every
@@ -358,6 +365,14 @@ function New-VcfCheckContext {
         outage. Connect-VcfCheckVCenter checks this cache first and fails fast with the same
         message every time instead of re-running the TCP/auth attempt (and its timeout) for every
         check that targets the same dead vCenter.
+
+        UnreachableVCenterAcknowledged tracks, per vCenter FQDN, whether some earlier check in
+        this run has already surfaced UnreachableVCenters' reason as its own Error result.
+        New-VcfCheckPerDomainResults reads this so only the first check to hit a given
+        unreachable vCenter reports the real Error - every later check against the same vCenter
+        (a cache hit against UnreachableVCenters, not a fresh failure) is reported Skipped
+        instead, so one real outage produces one Error plus N Skipped rows rather than N
+        identical Error rows.
     #>
 
     [CmdletBinding()]
@@ -385,19 +400,27 @@ function New-VcfCheckContext {
         AllowInsecureTls           = $false
         VrslcmConnection           = $null
         VrslcmRootCredential       = $null
-        AriaOpsCredential          = $null
-        AriaOpsConnection          = $null
-        UnreachableAriaOps         = $null
+        AriaOpsForLogsEndpointConnections = @{}
+        UnreachableAriaOpsForLogsEndpoints = @{}
+        AriaOpsForLogsEndpoints    = @()
+        AriaOpsForLogsEndpointCredentials = @{}
         AriaOpsEndpointConnections = @{}
         UnreachableAriaOpsEndpoints = @{}
         AriaOpsEndpoints           = @()
         AriaOpsEndpointCredentials = @{}
-        AriaAutomationCredential   = $null
+        AriaAutomationEndpointConnections = @{}
+        UnreachableAriaAutomationEndpoints = @{}
+        AriaAutomationEndpoints    = @()
+        AriaAutomationEndpointCredentials = @{}
         VCenterApiSessions         = @{}
         ComponentCredentialCache   = @{}
         ConnectedVCenters          = [System.Collections.Generic.List[String]]::new()
         ConnectedNsxManagers       = [System.Collections.Generic.List[String]]::new()
         UnreachableVCenters        = @{}
+        UnreachableVCenterAcknowledged = @{}
+        AriaOnlyVCenterFqdns       = @{}
+        AriaVCenterEndpointCredentials = @{}
+        AriaVCenterRootCredentials = @{}
         LogPath                    = $null
         OutputPath                 = $null
     }

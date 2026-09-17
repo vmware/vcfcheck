@@ -32,6 +32,7 @@ until the B2 round of the modularization plan extracts it into run_queue.py; mov
 now would create a circular import.
 """
 
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -90,3 +91,36 @@ def _tail_credential_log(base_directory: Path, since: int) -> dict:
     """Tails today's engine log (_engine_log_path) from a byte offset - no marker-scoping like
     _tail_launcher_log, since a credential check has no run id to anchor on."""
     return _tail_log_file(_engine_log_path(base_directory), since)
+
+
+def _credential_progress_path(base_directory: Path) -> Path:
+    """The per-phase progress file Invoke-VcfCheckValidateCredentials.ps1 (Write-CredentialCheckProgress)
+    overwrites as each phase completes, mirroring progress.json/Write-VcfCheckSubProgress for the main
+    run. Polled by /api/validate-credentials/progress so the browser's phase checklist can flip icons
+    mid-run instead of waiting for the whole subprocess to exit."""
+    return base_directory / "validate-credentials-progress.json"
+
+
+def _reset_credential_progress(base_directory: Path) -> None:
+    """Clears the progress file before a new credential check subprocess is spawned, so a poll
+    that lands before the subprocess reaches its own first Write-CredentialCheckProgress call
+    reads an empty phase list instead of the previous run's stale "pass" entries."""
+    progress_path = _credential_progress_path(base_directory)
+    try:
+        progress_path.write_text(json.dumps({"phases": []}), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _read_credential_progress(base_directory: Path) -> dict:
+    """Best-effort read of the credential-check progress file - absent or unparsable (e.g. read
+    mid-write) just means no partial phases are known yet, not an error worth surfacing."""
+    progress_path = _credential_progress_path(base_directory)
+    if not progress_path.is_file():
+        return {"phases": []}
+    try:
+        data = json.loads(progress_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"phases": []}
+    phases = data.get("phases") if isinstance(data, dict) else None
+    return {"phases": phases if isinstance(phases, list) else []}

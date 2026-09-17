@@ -41,7 +41,11 @@
             spinSpan.textContent = "↻";
             btn.appendChild(spinSpan);
             btn.appendChild(document.createTextNode(" Collecting…"));
-            var url = "/api/export/logbundle" + (VcfCheckUI.reportEnvironmentId ? "?environmentId=" + encodeURIComponent(VcfCheckUI.reportEnvironmentId) : "");
+            var scrub = document.getElementById("logbundle-scrub-checkbox").checked;
+            var params = [];
+            if (VcfCheckUI.reportEnvironmentId) params.push("environmentId=" + encodeURIComponent(VcfCheckUI.reportEnvironmentId));
+            if (scrub) params.push("scrub=1");
+            var url = "/api/export/logbundle" + (params.length ? "?" + params.join("&") : "");
             return fetch(url).then(function (resp) {
                 if (!resp.ok) {
                     return resp.json().catch(function () { return {}; }).then(function (data) {

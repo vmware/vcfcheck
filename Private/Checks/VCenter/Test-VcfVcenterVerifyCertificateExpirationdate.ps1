@@ -34,6 +34,8 @@ function Test-VcfVcenterVerifyCertificateExpirationdate {
         .DESCRIPTION
         Queries machine SSL certificates and managed ESX host certificates across all vCenter appliances
         connected to SDDC Manager using Get-VcfCheckMachineCertificate and Get-VcfCheckVMHostInventory.
+        Skips any host that is disconnected or not responding (its certificate cannot be retrieved) and
+        logs the skipped hostname, rather than failing the whole check.
 
         Evaluates certificate expiration dates against current time and the specified warning threshold:
         - Fail: One or more certificates are expired.
@@ -67,11 +69,19 @@ function Test-VcfVcenterVerifyCertificateExpirationdate {
     $now = Get-Date
     return Invoke-VcfCheckPerVCenterCheck -Context $Context -CheckId 'vcenter_verify_certificate_expirationdate' -Area vCenter -DisplayName $DisplayName -Body {
         param($Context, $VCenterFqdn)
-        $certificates = @(Get-VcfCheckMachineCertificate -Server $VCenterFqdn)
-
         $vmHosts = @(Get-VcfCheckVMHostInventory -Server $VCenterFqdn)
+        $respondingHosts = @($vmHosts | Where-Object { Test-VcfCheckVMHostIsResponding -VMHost $_ })
+        foreach ($skippedHost in @($vmHosts | Where-Object { -not (Test-VcfCheckVMHostIsResponding -VMHost $_) })) {
+            Write-LogMessage -Type WARNING -Message "Skipping disconnected/not-responding ESX host `"$($skippedHost.Name)`" (ConnectionState: $($skippedHost.ConnectionState)) - unable to retrieve its machine certificate."
+        }
+
+        $certificates = @(Get-VcfCheckMachineCertificate -Server $VCenterFqdn -VCenterOnly)
+        if ($respondingHosts.Count -gt 0) {
+            $certificates += @(Get-VcfCheckMachineCertificate -Server $VCenterFqdn -VMHost $respondingHosts)
+        }
+
         $clusterByHostName = @{}
-        foreach ($vmHost in $vmHosts) {
+        foreach ($vmHost in $respondingHosts) {
             $cluster = Get-VcfCheckClusterForVMHost -VMHost $vmHost -Server $VCenterFqdn
             $clusterByHostName[$vmHost.Name] = if ($cluster) { $cluster.Name } else { '' }
         }

@@ -1,4 +1,4 @@
-# Copyright (c) 2026 Broadcom. All Rights Reserved.
+﻿# Copyright (c) 2026 Broadcom. All Rights Reserved.
 # Broadcom Confidential. The term "Broadcom" refers to Broadcom Inc.
 # and/or its subsidiaries.
 #
@@ -44,20 +44,33 @@ function Get-VcfCheckMachineCertificate {
 
         .PARAMETER VCenterOnly
         Return only the vCenter machine SSL certificate.
+
+        .PARAMETER VMHost
+        Scope ESX certificate retrieval to these specific hosts, instead of every host known to
+        Server. Callers should pass only hosts that pass Test-VcfCheckVMHostIsResponding - a
+        disconnected or not-responding host in the unscoped, Server-wide query causes
+        Get-VIMachineCertificate itself to throw "Object reference not set to an instance of an
+        object". Mutually exclusive with VCenterOnly.
     #>
     [CmdletBinding()]
     Param (
         [Parameter(Mandatory = $true)] [String]$Server,
         [Parameter(Mandatory = $false)] [Switch]$EsxOnly,
-        [Parameter(Mandatory = $false)] [Switch]$VCenterOnly
+        [Parameter(Mandatory = $false)] [Switch]$VCenterOnly,
+        [Parameter(Mandatory = $false)] [PSObject[]]$VMHost
     )
-    # Confirmed live: Get-VIMachineCertificate's -EsxOnly/-VCenterOnly form mutually exclusive
-    # parameter sets. Explicitly binding both switches - even with one set to $false via
+    # Confirmed live: Get-VIMachineCertificate's -EsxOnly/-VCenterOnly/-VMHost form mutually
+    # exclusive parameter sets. Explicitly binding a switch - even with one set to $false via
     # -EsxOnly:$false - makes the parameter set ambiguous ("Parameter set cannot be resolved").
-    # Only the switch that's actually requested may be passed at all.
+    # Only the parameter that's actually requested may be passed at all.
     $parameters = @{ Server = $Server; ErrorAction = 'Stop' }
-    if ($EsxOnly.IsPresent) { $parameters['EsxOnly'] = $true }
-    if ($VCenterOnly.IsPresent) { $parameters['VCenterOnly'] = $true }
+    if ($VMHost) {
+        $parameters['VMHost'] = $VMHost
+    } elseif ($EsxOnly.IsPresent) {
+        $parameters['EsxOnly'] = $true
+    } elseif ($VCenterOnly.IsPresent) {
+        $parameters['VCenterOnly'] = $true
+    }
     return Get-VIMachineCertificate @parameters
 }
 function Get-VcfCheckVMInventory {
@@ -149,6 +162,10 @@ function Get-VcfCheckVMHostInventory {
         .SYNOPSIS
         Thin, mockable wrapper around Get-VMHost (see file header for why this wrapper exists).
 
+        .DESCRIPTION
+        Excludes the HCX Mobility Agent's synthetic ESX host, which PowerCLI otherwise returns
+        alongside real hosts - see https://knowledge.broadcom.com/external/article/394030.
+
         .PARAMETER Server
         The connected vCenter FQDN. Required so hosts from other, still-connected vCenters aren't
         also returned - PowerCLI's DefaultVIServerMode is Multiple (see VcfCheck.psm1), and
@@ -159,7 +176,62 @@ function Get-VcfCheckVMHostInventory {
     Param (
         [Parameter(Mandatory = $true)] [String]$Server
     )
-    return Get-VMHost -Server $Server -ErrorAction Stop
+    return Get-VMHost -Server $Server -ErrorAction Stop | Where-Object {
+        if (Test-VcfCheckHcxMobilityAgentHost -VMHost $_) {
+            Write-LogMessage -Type DEBUG -Message "Ignoring HCX Mobility Agent host `"$($_.Name)`" (not a real ESX host)."
+            return $false
+        }
+        return $true
+    }
+}
+function Test-VcfCheckVMHostIsResponding {
+    <#
+        .SYNOPSIS
+        Reports whether a host's ConnectionState allows per-host API calls (advanced settings,
+        HostAccessManager, machine certificates) to succeed against it.
+
+        .DESCRIPTION
+        A Disconnected or NotResponding host still appears in Get-VcfCheckVMHostInventory results,
+        but its ExtensionData/ConfigManager is not populated, so per-host cmdlets like
+        Get-AdvancedSetting or Get-View -Id fail against it ("Invalid host state" / "Cannot
+        validate argument on parameter 'Id'"). Connected and Maintenance are the only two states
+        in which those calls are expected to succeed.
+
+        .PARAMETER VMHost
+        A VMHost inventory object retrieved via Get-VcfCheckVMHostInventory.
+
+        .OUTPUTS
+        [Bool] $true if the host is Connected or in Maintenance mode.
+    #>
+    [CmdletBinding()]
+    [OutputType([Bool])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost
+    )
+    return $VMHost.ConnectionState -in @('Connected', 'Maintenance')
+}
+function Test-VcfCheckHcxMobilityAgentHost {
+    <#
+        .SYNOPSIS
+        Detects the HCX Mobility Agent's synthetic ESX host so it can be excluded from inventory.
+
+        .DESCRIPTION
+        The HCX Mobility Agent registers a non-physical "host" in vCenter to represent its
+        interconnect appliance. It reports a Model of "VMware Mobility Platform" and a CPU model
+        of "VMware Virtual Processor", and must not be treated as a real ESX host by any check -
+        see https://knowledge.broadcom.com/external/article/394030.
+
+        .PARAMETER VMHost
+        The host object (as returned by Get-VMHost) to test.
+    #>
+    [CmdletBinding()]
+    [OutputType([Bool])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost
+    )
+    $model = $VMHost.ExtensionData.Hardware.SystemInfo.Model
+    $cpuModel = $VMHost.ExtensionData.Summary.Hardware.CpuModel
+    return ($model -eq 'VMware Mobility Platform') -or ($cpuModel -eq 'VMware Virtual Processor')
 }
 function Get-VcfCheckClusterInventory {
     <#

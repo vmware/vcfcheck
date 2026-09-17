@@ -139,6 +139,8 @@ if ([String]::IsNullOrEmpty($sddcPasswordPlainText)) {
 $sddcPassword = $null
 $rootPassword = $null
 $ariaOpsEndpointCredentials = @()
+$ariaAutomationEndpointCredentials = @()
+$ariaVCenterCredentials = @()
 try {
     $sddcPassword = ConvertTo-SecureString -String $sddcPasswordPlainText -AsPlainText -Force
 
@@ -158,6 +160,53 @@ try {
         } catch {
             Write-LogMessage -Type WARNING -Message "Could not parse VCFCHECK_ARIAOPS_CREDENTIALS_JSON: $($_.Exception.Message)"
             $ariaOpsEndpointCredentials = @()
+        }
+    }
+
+    # Standalone Aria Automation endpoint passwords (Environment.Integrations), collected
+    # session-only by the browser - see Tools/Start-VcfCheckServer.py's _resolve_aria_automation_credentials.
+    $ariaAutomationCredentialsJson = $env:VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON
+    if (-not [String]::IsNullOrEmpty($ariaAutomationCredentialsJson)) {
+        try {
+            $ariaAutomationEndpointCredentials = @(ConvertFrom-Json -InputObject $ariaAutomationCredentialsJson -ErrorAction Stop | ForEach-Object {
+                [PSCustomObject]@{ Fqdn = $_.Fqdn; Password = (ConvertTo-SecureString -String $_.Password -AsPlainText -Force) }
+            })
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not parse VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON: $($_.Exception.Message)"
+            $ariaAutomationEndpointCredentials = @()
+        }
+    }
+
+    # Standalone Aria Operations for Logs endpoint passwords (Environment.Integrations), collected
+    # session-only by the browser - see Tools/Start-VcfCheckServer.py's _resolve_aria_ops_for_logs_credentials.
+    $ariaOpsForLogsCredentialsJson = $env:VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON
+    if (-not [String]::IsNullOrEmpty($ariaOpsForLogsCredentialsJson)) {
+        try {
+            $ariaOpsForLogsEndpointCredentials = @(ConvertFrom-Json -InputObject $ariaOpsForLogsCredentialsJson -ErrorAction Stop | ForEach-Object {
+                [PSCustomObject]@{ Fqdn = $_.Fqdn; Password = (ConvertTo-SecureString -String $_.Password -AsPlainText -Force) }
+            })
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not parse VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON: $($_.Exception.Message)"
+            $ariaOpsForLogsEndpointCredentials = @()
+        }
+    }
+
+    # Aria-component-vCenter SSO/root guestOS passwords (Environment.Integrations), collected
+    # session-only by the browser - see Tools/Start-VcfCheckServer.py's _resolve_aria_vcenter_credentials.
+    $ariaVCenterCredentialsJson = $env:VCFCHECK_ARIAVCENTER_CREDENTIALS_JSON
+    if (-not [String]::IsNullOrEmpty($ariaVCenterCredentialsJson)) {
+        try {
+            $ariaVCenterCredentials = @(ConvertFrom-Json -InputObject $ariaVCenterCredentialsJson -ErrorAction Stop | ForEach-Object {
+                [PSCustomObject]@{
+                    Fqdn           = $_.Fqdn
+                    Username       = $_.Username
+                    Password       = (ConvertTo-SecureString -String $_.Password -AsPlainText -Force)
+                    CredentialType = $_.CredentialType
+                }
+            })
+        } catch {
+            Write-LogMessage -Type WARNING -Message "Could not parse VCFCHECK_ARIAVCENTER_CREDENTIALS_JSON: $($_.Exception.Message)"
+            $ariaVCenterCredentials = @()
         }
     }
 
@@ -195,6 +244,15 @@ try {
     if ($ariaOpsEndpointCredentials.Count -gt 0) {
         $invokeParams['AriaOpsEndpointCredentials'] = $ariaOpsEndpointCredentials
     }
+    if ($ariaAutomationEndpointCredentials.Count -gt 0) {
+        $invokeParams['AriaAutomationEndpointCredentials'] = $ariaAutomationEndpointCredentials
+    }
+    if ($ariaOpsForLogsEndpointCredentials.Count -gt 0) {
+        $invokeParams['AriaOpsForLogsEndpointCredentials'] = $ariaOpsForLogsEndpointCredentials
+    }
+    if ($ariaVCenterCredentials.Count -gt 0) {
+        $invokeParams['AriaVCenterCredentials'] = $ariaVCenterCredentials
+    }
 
     $results = Invoke-VcfCheck @invokeParams
 
@@ -207,7 +265,10 @@ try {
 } finally {
     $sddcPasswordPlainText = $null
     $env:VCFCHECK_ARIAOPS_CREDENTIALS_JSON = $null
-    Remove-Variable -Name sddcPasswordPlainText, rootPasswordPlainText, sddcPassword, rootPassword, ariaOpsCredentialsJson, ariaOpsEndpointCredentials -ErrorAction SilentlyContinue
+    $env:VCFCHECK_ARIAAUTOMATION_CREDENTIALS_JSON = $null
+    $env:VCFCHECK_ARIAOPSFORLOGS_CREDENTIALS_JSON = $null
+    $env:VCFCHECK_ARIAVCENTER_CREDENTIALS_JSON = $null
+    Remove-Variable -Name sddcPasswordPlainText, rootPasswordPlainText, sddcPassword, rootPassword, ariaOpsCredentialsJson, ariaOpsEndpointCredentials, ariaAutomationCredentialsJson, ariaAutomationEndpointCredentials, ariaOpsForLogsCredentialsJson, ariaOpsForLogsEndpointCredentials, ariaVCenterCredentialsJson, ariaVCenterCredentials -ErrorAction SilentlyContinue
     [System.GC]::Collect()
     [System.GC]::WaitForPendingFinalizers()
 }

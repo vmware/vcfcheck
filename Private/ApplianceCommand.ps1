@@ -293,6 +293,13 @@ function Invoke-VcfApplianceCommand {
         .PARAMETER ToolsWaitSecs
         Seconds to wait for VMware Tools guest operations to become available. Default 30.
 
+        .PARAMETER OnToolsRunning
+        Optional scriptblock invoked with no arguments once the proactive VMware Tools check
+        passes, before the guest-ops command itself is attempted. Lets a caller (e.g. the
+        credential-check UI) report "VMware Tools Status: pass" as soon as it is known, rather
+        than waiting for the guest-ops call - which can retry up to 3 times - to also finish.
+        Invocation failures are logged and otherwise ignored; they never fail the command.
+
         .OUTPUTS
         [PSCustomObject] with PSTypeName 'VcfCheck.ApplianceCommandResult': Success (bool),
         ExitCode (int or $null), ScriptOutput (string or $null), ErrorCategory (string or $null),
@@ -310,7 +317,8 @@ function Invoke-VcfApplianceCommand {
         [Parameter(Mandatory = $false)] [AllowEmptyString()] [String]$Fqdn = '',
         [Parameter(Mandatory = $true)] [PSCredential]$Credential,
         [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$ScriptText,
-        [Parameter(Mandatory = $false)] [ValidateRange(1, 300)] [Int]$ToolsWaitSecs = 30
+        [Parameter(Mandatory = $false)] [ValidateRange(1, 300)] [Int]$ToolsWaitSecs = 30,
+        [Parameter(Mandatory = $false)] [ScriptBlock]$OnToolsRunning
     )
 
     try {
@@ -332,6 +340,13 @@ function Invoke-VcfApplianceCommand {
         Write-LogMessage -Type WARNING -Message "VMware Tools is not running on `"$VmName`" (status: $($vm.ExtensionData.Guest.ToolsRunningStatus))."
         return New-VcfCheckApplianceCommandResult -Success $false -ErrorCategory 'ToolsNotRunning' `
             -ErrorMessage "VMware Tools is not running on `"$VmName`" (status: $($vm.ExtensionData.Guest.ToolsRunningStatus))."
+    }
+    if ($OnToolsRunning) {
+        try {
+            & $OnToolsRunning
+        } catch {
+            Write-LogMessage -Type DEBUG -Message "OnToolsRunning callback for `"$VmName`" threw: $($_.Exception.Message)"
+        }
     }
 
     $maxAttempts = 3

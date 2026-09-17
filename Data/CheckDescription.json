@@ -47,7 +47,6 @@
     "vCenter Appliance Storage Usage Detail": "Shows per-partition storage usage on the vCenter appliance for capacity planning.",
     "vCenter Service Status": "Flags any vCenter appliance service reporting an unknown state, which should be investigated before upgrading.",
     "vCenter SSO Administrator Password Expiry": "Warns when the SSO administrator password is expired or expiring soon, which could block login during the upgrade.",
-    "vSphere Supervisor Cluster Kubernetes Versions": "Reports the Kubernetes version running on each vSphere Supervisor cluster for upgrade-compatibility planning.",
     "vSphere Supervisor Namespaces": "Reports every vSphere Namespace configured on a Supervisor-enabled vCenter, including its backing cluster and config status."
   },
   "ESX": {
@@ -88,7 +87,28 @@
     "Aria Operations Open Alerts": "Flags active Critical or Immediate alerts in Aria Operations that should be resolved before upgrading.",
     "Aria Operations Certificate Expiration Check": "Warns when a certificate registered with Aria Operations is expired or expiring soon.",
     "Aria Operations Licensing Check": "Reports Aria Operations' license edition, capacity, usage, and expiration, warning when a non-permanent license is expired or expiring soon.",
-    "Aria Operations Lifecycle Status Check": "Checks Aria Operations' installed version, queried directly from Aria Operations, against Broadcom's Interop Matrix upgrade-path compatibility for the selected VCF destination release.",
-    "Aria Operations Sizing Overview": "Lists Aria Operations' own self-monitored CPU, memory, disk, network, and object-count metrics for reviewer visibility."
+    "Aria Operations for Logs Certificate Expiration Check": "Warns when Aria Operations for Logs' appliance certificate is expired or expiring soon.",
+    "Aria Operations for Logs Licensing Check": "Reports Aria Operations for Logs' license state (status, capacity, expiry), warning on an inactive, error-flagged, or soon-to-expire non-infinite license.",
+    "Aria Operations for Logs Version Check": "Checks Aria Operations for Logs' installed version, queried directly from Aria Operations for Logs, against Broadcom's Interop Matrix upgrade-path compatibility for the selected VCF destination release.",
+    "Aria Operations for Logs vSphere Integration Status Check": "Reports the live collection status of every vCenter Server integration configured in Aria Operations for Logs, warning on any that is not actively collecting.",
+    "Aria Operations for Logs Log Forwarder Status Check": "Reports the live forwarder status of every log forwarder configured in Aria Operations for Logs, warning on any that is not actively forwarding.",
+    "Aria Operations for Logs vIDM Status Check": "Reports the live vIDM auth-source connection status of Aria Operations for Logs, warning if it is DISCONNECTED.",
+    "Aria Operations Version Check": "Checks Aria Operations' installed version, queried directly from Aria Operations, against Broadcom's Interop Matrix upgrade-path compatibility for the selected VCF destination release.",
+    "Aria Operations Sizing Overview": "Lists Aria Operations' own self-monitored CPU, memory, disk, network, and object-count metrics for reviewer visibility.",
+    "Aria Automation Appliance Health Check": "Confirms every `vracli health check` self-check on every Aria Automation appliance node reports a passed status before upgrading.",
+    "Aria Automation Licensing Check": "Confirms Aria Automation reports an active, valid license via `vracli license current`, flagging a missing or invalid license before upgrading.",
+    "Aria Automation Cloud Account Health Check": "Confirms every cloud account configured in Aria Automation reports a healthy connection to its underlying cloud provider before upgrading.",
+    "Aria Automation vRO Integration Health Check": "Confirms every vRO Orchestrator integration in Aria Automation, embedded or externally registered, last reported a successful enumeration before upgrading.",
+    "Aria Automation Project Zone Configuration Check": "Confirms every project configured in Aria Automation has at least one Cloud Zone assigned so it can place workloads.",
+    "Aria Automation Version Check": "Checks Aria Automation's installed version, queried directly from Aria Automation, against Broadcom's Interop Matrix upgrade-path compatibility for the selected VCF destination release.",
+    "Aria Automation NTP Status Check": "Confirms every Aria Automation appliance node reports its system clock as synchronized and its NTP service as active.",
+    "Aria Automation DNS Configuration Check": "Reports the DNS servers configured on every Aria Automation appliance node, warning if a node has none configured.",
+    "Aria Automation Appliance Disk Space Check": "Confirms every mount on every Aria Automation appliance node is within its disk usage Warn/Fail threshold before upgrading.",
+    "Aria Automation FIPS Status Check": "Reports Aria Automation's FIPS mode setting (enabled or disabled) via `vracli security fips`.",
+    "Aria Automation Orchestrator Extensions Check": "Reports every Aria Orchestrator extension and its active/inactive state via `vracli vro extensions`.",
+    "Aria Automation Orchestrator Properties Check": "Reports every Aria Orchestrator advanced property, its default value, and its current value via `vracli vro properties advanced`.",
+    "Aria Automation SSH Server Status Check": "Warns if an Aria Automation appliance node's SSH server (sshd) is active, via `systemctl is-active sshd`.",
+    "Aria Operations SSH Server Status Check": "Warns if an Aria Operations appliance node's SSH server (sshd) is active, via `systemctl is-active sshd`.",
+    "Aria Operations for Logs SSH Server Status Check": "Warns if an Aria Operations for Logs appliance node's SSH server (sshd) is active, via `systemctl is-active sshd`."
   }
 }

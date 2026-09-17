@@ -18,12 +18,7 @@
         button.title = revealing ? "Hide password" : "Show password";
     }
 
-    VcfCheckUI.buildPasswordField = function (inputId, labelText) {
-        var field = VcfCheckUI.el("div", "field");
-        field.style.minWidth = Math.max(200, labelText.length * 7.5) + "px";
-        var label = VcfCheckUI.el("label", null, labelText);
-        label.setAttribute("for", inputId);
-        field.appendChild(label);
+    function buildPasswordInputWrap(inputId) {
         var wrap = VcfCheckUI.el("div", "pw-wrap");
         var input = document.createElement("input");
         input.type = "password";
@@ -38,9 +33,32 @@
         eyeButton.addEventListener("click", function () { togglePasswordVisibility(eyeButton); });
         wrap.appendChild(input);
         wrap.appendChild(eyeButton);
-        field.appendChild(wrap);
+        return wrap;
+    }
+
+    VcfCheckUI.buildPasswordField = function (inputId, labelText) {
+        var field = VcfCheckUI.el("div", "field");
+        field.style.minWidth = Math.max(200, labelText.length * 7.5) + "px";
+        var label = VcfCheckUI.el("label", null, labelText);
+        label.setAttribute("for", inputId);
+        field.appendChild(label);
+        field.appendChild(buildPasswordInputWrap(inputId));
         return field;
     }
 
+    // One integration/endpoint per line: component name, its username, and its password field
+    // side by side, so a multi-component environment reads as a clear list rather than a wrapped
+    // grid of same-looking fields.
+    VcfCheckUI.buildComponentPasswordField = function (inputId, componentLabel, username) {
+        var row = VcfCheckUI.el("div", "component-password-row");
+        row.appendChild(VcfCheckUI.el("span", "component-name", componentLabel));
+        var userLabel = VcfCheckUI.el("label", "component-user", "User: " + username);
+        userLabel.setAttribute("for", inputId);
+        row.appendChild(userLabel);
+        var wrap = buildPasswordInputWrap(inputId);
+        wrap.classList.add("component-pw-wrap");
+        row.appendChild(wrap);
+        return row;
+    }
 
 })();

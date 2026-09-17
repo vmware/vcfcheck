@@ -33,9 +33,8 @@ function Test-VcfAriaOpsCollectorType {
         Reports the Type of every Aria Operations collector (ARC vs. Cloud Proxy vs. other).
 
         .DESCRIPTION
-        Calls Get-VcfCheckAriaOpsTargets to connect to every known Aria Operations instance (the
-        SDDC-Manager-known one, plus any standalone endpoint declared on the environment - see
-        Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCollectors against each,
+        Calls Get-VcfCheckAriaOpsTargets to connect to every Aria Operations instance declared on the
+        environment (see Private/AriaOpsHelpers.ps1) and calls Get-VcfCheckAriaOpsCollectors against each,
         returning one result per target. This is an inventory check with no pass/fail threshold -
         it exists purely to surface each collector's deployment type (INTERNAL/REMOTE/CLOUD_PROXY/
         AAP/OTHER) for reviewer visibility, since the collector-status check (State) doesn't

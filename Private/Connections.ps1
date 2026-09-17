@@ -190,6 +190,13 @@ function Connect-VcfCheckSddcManager {
         .PARAMETER ConnectivityTimeoutSeconds
         Maximum time to wait for the TCP reachability pre-flight check. Defaults to 30 seconds.
 
+        .PARAMETER OnReachable
+        Optional scriptblock invoked with no arguments immediately after the TCP reachability
+        pre-flight succeeds, before authentication is attempted. Lets a caller (e.g. the
+        credential-check UI) report "Network Reachability: pass" as soon as it is known, rather
+        than waiting for this entire function - reachability and authentication together - to
+        return. Invocation failures are logged and otherwise ignored; they never fail the connect.
+
         .OUTPUTS
         None. Mutates $Context.SddcManagerConnection and $Context.SddcManagerFqdn.
 
@@ -204,12 +211,20 @@ function Connect-VcfCheckSddcManager {
         [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$User,
         [Parameter(Mandatory = $true)] [SecureString]$Password,
         [Parameter(Mandatory = $false)] [Switch]$IgnoreInvalidCertificate,
-        [Parameter(Mandatory = $false)] [Int]$ConnectivityTimeoutSeconds = 30
+        [Parameter(Mandatory = $false)] [Int]$ConnectivityTimeoutSeconds = 30,
+        [Parameter(Mandatory = $false)] [ScriptBlock]$OnReachable
     )
 
     Write-LogMessage -Type INFO -Message "Checking network reachability to `"$Fqdn`":443 (up to $ConnectivityTimeoutSeconds second(s))..."
     if (-not (Test-VcfCheckTcpConnectivity -ComputerName $Fqdn -Port 443 -TimeoutSeconds $ConnectivityTimeoutSeconds)) {
         throw [System.InvalidOperationException]::new("Could not reach `"$Fqdn`" on port 443 within $ConnectivityTimeoutSeconds second(s). Check VPN/network connectivity to the environment, firewall rules, and that the FQDN resolves to the correct address, then retry.")
+    }
+    if ($OnReachable) {
+        try {
+            & $OnReachable
+        } catch {
+            Write-LogMessage -Type DEBUG -Message "OnReachable callback for `"$Fqdn`" threw: $($_.Exception.Message)"
+        }
     }
 
     Write-LogMessage -Type INFO -Message "Connecting to SDDC Manager `"$Fqdn`" as `"$User`"..." -NoNewline
@@ -357,6 +372,11 @@ function Get-VcfCheckComponentCredential {
         vCenter. Use Get-VcfCheckVCenterSsoCredential instead, which resolves the credential
         by domain.
 
+        For a VCENTER/USER lookup against an FQDN in $Context.AriaOnlyVCenterFqdns (a vCenter
+        hosting an Aria component that SDDC Manager does not manage), delegates to
+        Get-VcfCheckAriaVCenterRootCredential instead of the SDDC Manager credentials API, since
+        that vCenter has no SDDC Manager registration to query.
+
         .PARAMETER Context
         The VcfCheck.Context object. Must already be connected to SDDC Manager.
 
@@ -393,6 +413,13 @@ function Get-VcfCheckComponentCredential {
     $cacheKey = "$ResourceType|$AccountType|$Fqdn|$Username"
     if ($Context.ComponentCredentialCache.ContainsKey($cacheKey)) {
         return $Context.ComponentCredentialCache[$cacheKey]
+    }
+
+    if ($ResourceType -eq 'VCENTER' -and $AccountType -eq 'USER' -and $Context.AriaOnlyVCenterFqdns.ContainsKey($Fqdn)) {
+        $ariaUsername = if ([String]::IsNullOrWhiteSpace($Username)) { 'root' } else { $Username }
+        $credential = Get-VcfCheckAriaVCenterRootCredential -Context $Context -Fqdn $Fqdn -Username $ariaUsername
+        $Context.ComponentCredentialCache[$cacheKey] = $credential
+        return $credential
     }
 
     Write-LogMessage -Type DEBUG -Message "Retrieving $ResourceType/$AccountType credential for `"$Fqdn`" from SDDC Manager."
@@ -458,13 +485,127 @@ function Get-VcfCheckSddcManagerRootCredential {
         return $Context.SddcManagerRootCredential
     }
 
-    $securePassword = Read-Host -Prompt "Enter the $Username password for the SDDC Manager appliance ($($Context.SddcManagerFqdn)) - not available via the VCF credentials API" -AsSecureString
+    try {
+        $securePassword = Read-Host -Prompt "Enter the $Username password for the SDDC Manager appliance ($($Context.SddcManagerFqdn)) - not available via the VCF credentials API" -AsSecureString
+    } catch {
+        throw [System.InvalidOperationException]::new("SDDC Manager appliance root credential for `"$($Context.SddcManagerFqdn)`" was not supplied and this session cannot prompt interactively.")
+    }
     if ($securePassword.Length -eq 0) {
         throw [System.InvalidOperationException]::new('SDDC Manager appliance root password must not be empty.')
     }
 
     $credential = [PSCredential]::new($Username, $securePassword)
     $Context.SddcManagerRootCredential = $credential
+    return $credential
+}
+function Get-VcfCheckAriaVCenterCredential {
+
+    <#
+        .SYNOPSIS
+        Resolves the vCenter SSO login for an Aria component's own vCenter (not SDDC-Manager-
+        managed) via an interactive prompt, keyed by the deduped FQDN.
+
+        .DESCRIPTION
+        Counterpart to Get-VcfCheckVCenterSsoCredential for vCenters that
+        Get-VcfCheckAllVCenterFqdns added from $Context.AriaOnlyVCenterFqdns rather than from an
+        SDDC Manager domain - there is no SSO-domain credential to look up via the VCF API for
+        these, so the username/password are supplied at run time instead. Cached in
+        $Context.AriaVCenterEndpointCredentials keyed by a lowercased FQDN so a vCenter shared
+        across SDDC Manager and multiple Aria components is still only prompted for once.
+
+        .PARAMETER Context
+        The VcfCheck.Context object.
+
+        .PARAMETER Fqdn
+        The Aria component's vCenter FQDN.
+
+        .PARAMETER Username
+        vCenter SSO username configured for this Aria component's vCenter.
+
+        .OUTPUTS
+        [PSCredential]
+
+        .EXAMPLE
+        $cred = Get-VcfCheckAriaVCenterCredential -Context $Context -Fqdn 'aria-vc01.example.com' -Username 'administrator@vsphere.local'
+    #>
+
+    [CmdletBinding()]
+    [OutputType([PSCredential])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$Context,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Fqdn,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Username
+    )
+
+    $cacheKey = $Fqdn.ToLowerInvariant()
+    if ($Context.AriaVCenterEndpointCredentials.ContainsKey($cacheKey)) {
+        return $Context.AriaVCenterEndpointCredentials[$cacheKey]
+    }
+
+    $securePassword = Read-Host -Prompt "Enter the password for `"$Username`" on Aria component vCenter `"$Fqdn`"" -AsSecureString
+    if ($securePassword.Length -eq 0) {
+        throw [System.InvalidOperationException]::new("Password for `"$Username`" on Aria component vCenter `"$Fqdn`" must not be empty.")
+    }
+
+    $credential = [PSCredential]::new($Username, $securePassword)
+    $Context.AriaVCenterEndpointCredentials[$cacheKey] = $credential
+    return $credential
+}
+function Get-VcfCheckAriaVCenterRootCredential {
+
+    <#
+        .SYNOPSIS
+        Resolves the guestOS root credential for an Aria component's own vCenter appliance,
+        keyed by the deduped FQDN.
+
+        .DESCRIPTION
+        Distinct from Get-VcfCheckAriaVCenterCredential (vCenter SSO login) - this is the guest
+        OS root account used by guestOS-based checks (Invoke-VcfCheckGuestCommand-style calls
+        via Private/ApplianceCommand.ps1), mirroring Get-VcfCheckSddcManagerRootCredential's
+        pattern but keyed per Aria-vCenter FQDN instead of a single SDDC Manager appliance.
+        Cached in $Context.AriaVCenterRootCredentials keyed by a lowercased FQDN so a vCenter
+        shared across multiple Aria components is only prompted for once.
+
+        .PARAMETER Context
+        The VcfCheck.Context object.
+
+        .PARAMETER Fqdn
+        The Aria component's vCenter FQDN.
+
+        .PARAMETER Username
+        GuestOS username to pair with the prompted password. Defaults to 'root'.
+
+        .OUTPUTS
+        [PSCredential]
+
+        .EXAMPLE
+        $rootCred = Get-VcfCheckAriaVCenterRootCredential -Context $Context -Fqdn 'aria-vc01.example.com'
+    #>
+
+    [CmdletBinding()]
+    [OutputType([PSCredential])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$Context,
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$Fqdn,
+        [Parameter(Mandatory = $false)] [ValidateNotNullOrEmpty()] [String]$Username = 'root'
+    )
+
+    $cacheKey = $Fqdn.ToLowerInvariant()
+    if ($Context.AriaVCenterRootCredentials.ContainsKey($cacheKey)) {
+        return $Context.AriaVCenterRootCredentials[$cacheKey]
+    }
+
+    try {
+        $securePassword = Read-Host -Prompt "Enter the $Username password for Aria component vCenter appliance `"$Fqdn`" (guestOS checks)" -AsSecureString
+    } catch {
+        throw [System.InvalidOperationException]::new("GuestOS root credential for Aria component vCenter appliance `"$Fqdn`" was not supplied and this session cannot prompt interactively.")
+    }
+    if ($securePassword.Length -eq 0) {
+        throw [System.InvalidOperationException]::new("GuestOS root password for Aria component vCenter `"$Fqdn`" must not be empty.")
+    }
+
+    $credential = [PSCredential]::new($Username, $securePassword)
+    $Context.AriaVCenterRootCredentials[$cacheKey] = $credential
     return $credential
 }
 function Get-VcfCheckDomains {
@@ -636,6 +777,25 @@ function Get-VcfCheckAllVCenterFqdns {
         }
     }
 
+    $sddcManagedFqdnsLower = [System.Collections.Generic.HashSet[String]]::new([StringComparer]::OrdinalIgnoreCase)
+    foreach ($fqdn in $fqdns) {
+        $null = $sddcManagedFqdnsLower.Add($fqdn)
+    }
+
+    $ariaEndpoints = @($Context.AriaOpsEndpoints) + @($Context.AriaAutomationEndpoints) + @($Context.AriaOpsForLogsEndpoints)
+    foreach ($ariaEndpoint in $ariaEndpoints) {
+        $ariaFqdn = $ariaEndpoint.VCenterFqdn
+        if ([String]::IsNullOrWhiteSpace($ariaFqdn)) {
+            continue
+        }
+        if ($sddcManagedFqdnsLower.Contains($ariaFqdn)) {
+            continue
+        }
+        $null = $sddcManagedFqdnsLower.Add($ariaFqdn)
+        $fqdns.Add($ariaFqdn)
+        $Context.AriaOnlyVCenterFqdns[$ariaFqdn] = $true
+    }
+
     $fqdns = @($fqdns | Select-Object -Unique)
     if ($fqdns.Count -eq 0) {
         throw [System.InvalidOperationException]::new('SDDC Manager returned no vCenters.')
@@ -757,6 +917,14 @@ function New-VcfCheckPerDomainResults {
         Domain here would otherwise get silently mislabeled as belonging to the Management domain
         instead of whichever vCenter this outcome actually came from.
 
+        An Error outcome whose Detail matches $Context.UnreachableVCenters' cached reason for that
+        vCenter (a Connect-VcfCheckVCenter cache-hit fast-fail, not a fresh connection attempt) is
+        downgraded to Skipped here - except the first such outcome seen for that vCenter in the
+        run, which is left as Error so the underlying problem still surfaces exactly once. Tracked
+        via $Context.UnreachableVCenterAcknowledged. Without this, one dead vCenter produces one
+        identical-looking Error row per check that targets it instead of a single Error plus a
+        run of Skipped rows pointing back at it.
+
         .PARAMETER Context
         The VcfCheck.Context object, used to resolve each vCenter's domain name.
 
@@ -827,6 +995,22 @@ function New-VcfCheckPerDomainResults {
         if ([String]::IsNullOrWhiteSpace($domain)) {
             $domain = $outcome.VCenterFqdn
         }
+
+        if ($outcome.Status -eq 'Error' -and $Context.UnreachableVCenters.ContainsKey($outcome.VCenterFqdn) -and `
+                $outcome.Detail -eq $Context.UnreachableVCenters[$outcome.VCenterFqdn]) {
+            if ($Context.UnreachableVCenterAcknowledged.ContainsKey($outcome.VCenterFqdn)) {
+                $outcome.Status = 'Skipped'
+                $outcome.Detail = "Skipped - vCenter `"$($outcome.VCenterFqdn)`" is unavailable for this run: $($outcome.Detail)"
+                $outcome.Blocking = $false
+                $outcome | Add-Member -NotePropertyName SkipReasonTag -NotePropertyValue 'vCenter unavailable' -Force
+                if ($null -ne $outcome.PSObject.Properties['Exception']) {
+                    $outcome.Exception = $null
+                }
+            } else {
+                $Context.UnreachableVCenterAcknowledged[$outcome.VCenterFqdn] = $true
+            }
+        }
+
         $resultParams = @{
             CheckId         = $CheckId
             Status          = $outcome.Status
@@ -1254,7 +1438,16 @@ function Connect-VcfCheckVCenter {
         throw [System.InvalidOperationException]::new($reason)
     }
 
-    $credential = Get-VcfCheckVCenterSsoCredential -Context $Context -Fqdn $Fqdn
+    if ($Context.AriaOnlyVCenterFqdns.ContainsKey($Fqdn)) {
+        $ariaEndpoints = @($Context.AriaOpsEndpoints) + @($Context.AriaAutomationEndpoints) + @($Context.AriaOpsForLogsEndpoints)
+        $ariaEndpoint = $ariaEndpoints | Where-Object { $_.VCenterFqdn -eq $Fqdn } | Select-Object -First 1
+        if (-not $ariaEndpoint) {
+            throw [System.InvalidOperationException]::new("No Aria component references vCenter `"$Fqdn`" - it was previously deduped into AllVCenterFqdns but the referencing Aria endpoint config is now missing.")
+        }
+        $credential = Get-VcfCheckAriaVCenterCredential -Context $Context -Fqdn $Fqdn -Username $ariaEndpoint.VCenterUsername
+    } else {
+        $credential = Get-VcfCheckVCenterSsoCredential -Context $Context -Fqdn $Fqdn
+    }
     Write-LogMessage -Type INFO -Message "Connecting to vCenter `"$Fqdn`"..." -NoNewline
     try {
         $null = Connect-VIServer -Server $Fqdn -Credential $credential -ErrorAction Stop
@@ -1406,6 +1599,12 @@ function Test-VcfCheckSddcManagerRootCredential {
         .PARAMETER RootCredential
         The SDDC Manager appliance's root (or other guest OS account) credential to verify.
 
+        .PARAMETER OnToolsRunning
+        Optional scriptblock forwarded to Invoke-VcfApplianceCommand, invoked with no arguments
+        once VMware Tools is confirmed running on the appliance, before the guest command that
+        proves out the root credential is attempted. Lets a caller report "VMware Tools Status:
+        pass" separately from - and before - "SDDC Manager Root Authentication" is known.
+
         .OUTPUTS
         [PSObject] with Success (bool), Detail (string, populated on success), ErrorCategory
         (string, populated on failure - see Get-VcfApplianceErrorCategory), and ErrorMessage
@@ -1419,7 +1618,8 @@ function Test-VcfCheckSddcManagerRootCredential {
     [OutputType([PSObject])]
     Param (
         [Parameter(Mandatory = $true)] [PSObject]$Context,
-        [Parameter(Mandatory = $true)] [PSCredential]$RootCredential
+        [Parameter(Mandatory = $true)] [PSCredential]$RootCredential,
+        [Parameter(Mandatory = $false)] [ScriptBlock]$OnToolsRunning
     )
 
     try {
@@ -1440,7 +1640,7 @@ function Test-VcfCheckSddcManagerRootCredential {
 
     $vmName = ($Context.SddcManagerFqdn -split '\.')[0]
     Write-LogMessage -Type DEBUG -Message "Invoking guest command on SDDC Manager appliance `"$vmName`" via vCenter `"$vcenterFqdn`" using Invoke-VMScript..."
-    $commandResult = Invoke-VcfApplianceCommand -VmName $vmName -Server $vcenterFqdn -Credential $RootCredential -ScriptText 'hostname'
+    $commandResult = Invoke-VcfApplianceCommand -VmName $vmName -Server $vcenterFqdn -Credential $RootCredential -ScriptText 'hostname' -OnToolsRunning $OnToolsRunning
     Write-LogMessage -Type DEBUG -Message "Guest command invocation completed. Success=$($commandResult.Success), ErrorCategory=$($commandResult.ErrorCategory)"
 
     if (-not $commandResult.Success) {

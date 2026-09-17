@@ -37,13 +37,31 @@
 # hand-edited config.
 #
 # Integrations is an optional array of components attached to the environment that SDDC Manager
-# has zero knowledge of (e.g. a standalone Aria Operations instance deployed outside SDDC
-# Manager/VRSLCM). Each entry: Type ('AriaOperations' today), SharedCredentials (bool),
-# Username (used by every endpoint when SharedCredentials is true), and Endpoints (array of
-# Name/Fqdn, plus its own Username when SharedCredentials is false). See
-# Get-VcfCheckEnvironmentAriaOpsEndpoints (Private/AriaOpsHelpers.ps1) for how a check resolves
-# this into connectable targets. Passwords are never stored here either way - always resolved at
-# run time (session-only prompt/launcher param), keyed by whichever username applies.
+# has zero knowledge of (e.g. a standalone Aria Operations, Aria Automation, or Aria Operations for
+# Logs instance deployed outside SDDC Manager/VRSLCM). Each entry: Type ('AriaOperations',
+# 'AriaAutomation', or 'AriaOpsForLogs' today), SharedCredentials (bool), Username (used by every
+# endpoint when SharedCredentials is true), and Endpoints (array of Name/Fqdn, plus its own
+# Username when SharedCredentials is false). An Endpoint also carries VmNames (array of strings) -
+# the guestOS VM name(s) backing this appliance, entered explicitly by the user as a comma-
+# delimited list in the UI. A single Aria component is not always one VM, and its VM name(s)
+# cannot be assumed to match the FQDN shortname, so this is never derived. See
+# Get-VcfCheckEnvironmentAriaOpsEndpoints
+# (Private/AriaOpsHelpers.ps1) / Get-VcfCheckEnvironmentAriaAutomationEndpoints
+# (Private/AriaAutomationHelpers.ps1) / Get-VcfCheckEnvironmentAriaOpsForLogsEndpoints
+# (Private/AriaOpsForLogsHelpers.ps1) for how a check resolves this into connectable targets.
+# Passwords are never stored here either way - always resolved at run time (session-only
+# prompt/launcher param), keyed by whichever username applies.
+#
+# GuestOS checks against an Aria component's own vCenter (which is frequently not one of the
+# vCenters SDDC Manager manages) add: EnableGuestOsChecks (bool, default false),
+# AriaVCenterSharedAcrossEndpoints (bool - when true, one AriaVCenterFqdn/AriaVCenterUsername pair
+# on the Integration applies to every Endpoint; when false, each Endpoint carries its own
+# VCenterFqdn/VCenterUsername). This vCenter is resolved and connected exactly like any
+# SDDC-Manager-managed vCenter - see Get-VcfCheckAllVCenterFqdns (Private/Connections.ps1), which
+# merges Aria-supplied vCenter FQDNs into the same case-insensitive-deduped list so a vCenter
+# shared between SDDC Manager and one or more Aria components is only checked once. The Aria
+# vCenter user's password and the Aria appliance's own guestOS root password are two distinct
+# session-only credentials - see Get-VcfCheckVCenterCredentialForFqdn.
 #
 # CRUD for the browser UI itself lives in Start-VcfCheckServer.py (plain JSON list edits, no
 # subprocess needed) - the functions here exist so Invoke-VcfCheck/CLI users get the same
@@ -153,7 +171,9 @@ function Get-VcfCheckEnvironments {
         try {
             $settings = Get-VcfCheckSettings -Path $SettingsPath
         } catch {
-            Write-LogMessage -Type DEBUG -Message "Could not read settings.json while checking for an environments migration: $($_.Exception.Message)"
+            if ($_.Exception.Message -notmatch 'missing required key') {
+                Write-LogMessage -Type WARNING -Message "Could not read settings.json while checking for an environments migration: $($_.Exception.Message)"
+            }
         }
 
         if (-not $settings -or [String]::IsNullOrWhiteSpace($settings.SddcManagerFqdn) -or [String]::IsNullOrWhiteSpace($settings.SddcManagerUser)) {

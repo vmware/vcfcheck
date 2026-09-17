@@ -260,9 +260,9 @@
     // whose trimmed value case-insensitively matches a known status word gets the matching
     // color class, reusing the --pass/--warning/--fail/--error/--skipped variables.
     VcfCheckUI.ROW_STATUS_CLASSES = {
-        PASS: "cell-pass", GREEN: "cell-pass",
-        WARNING: "cell-warning", YELLOW: "cell-warning",
-        FAIL: "cell-fail", RED: "cell-fail",
+        PASS: "cell-pass", PASSED: "cell-pass", GREEN: "cell-pass",
+        WARNING: "cell-warning", WARNED: "cell-warning", YELLOW: "cell-warning",
+        FAIL: "cell-fail", FAILED: "cell-fail", RED: "cell-fail",
         ERROR: "cell-error",
         SKIPPED: "cell-skipped"
     };

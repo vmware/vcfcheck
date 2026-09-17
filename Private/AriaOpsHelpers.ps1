@@ -32,16 +32,14 @@
 # Invoke-VcfOps* cmdlets directly (e.g. Invoke-VcfOpsGetAlerts), passing the connection object
 # this file resolves as -Server.
 #
-# Aria Operations has no per-domain FQDN lookup - like VRSLCM, Invoke-VcfGetCredentials
-# -ResourceType VROPS is the only source for both its FQDN and credential. Credential filtering
-# on CredentialType -eq 'API' is done client-side because Invoke-VcfGetCredentials lacks a
-# -CredentialType parameter (only -AccountType is available).
-#
-# Aria Operations can also be deployed entirely outside SDDC Manager/VRSLCM (SDDC Manager has
-# zero knowledge of it) - see Get-VcfCheckEnvironmentAriaOpsEndpoints, which resolves the
-# user-declared Integrations list on an environment (Private/Environments.ps1) instead of
-# Invoke-VcfGetCredentials. Connect-VcfCheckAriaOpsEndpoint connects to one of those directly by
-# FQDN + credential, with no SDDC Manager lookup at all.
+# Aria Operations is deployed and lifecycle-managed by Aria Suite Lifecycle (VRSLCM), but VRSLCM
+# does not hold the Aria Operations credential either - Aria Operations manages its own
+# credentials via its own API. SDDC Manager's own credential vault never holds an Aria Operations
+# credential, so this file has no SDDC-Manager-based resolution path at all.
+# Get-VcfCheckEnvironmentAriaOpsEndpoints resolves the user-declared Integrations list on an
+# environment (Private/Environments.ps1) as the only source
+# of Aria Operations FQDN/credential. Connect-VcfCheckAriaOpsEndpoint connects to one of those
+# directly by FQDN + credential.
 #
 # Invoke-VcfOpsGetResourcesOfAdapterInstance (VMware.Sdk.Vcf.Ops 13.5.0.25380678, the newest
 # release at time of writing) sends a malformed 'adapterId' value for this specific endpoint - a
@@ -59,129 +57,40 @@
 # Invoke-VcfCheckAriaOpsApi instead. Test-VcfAriaOpsCriticalAlerts guards with [Guid]::TryParse
 # before calling it, since Alert.ResourceId can independently arrive non-GUID.
 
-function Get-VcfCheckAriaOpsCredential {
+function Get-VcfCheckAriaOpsConnectionFailureCategory {
     <#
         .SYNOPSIS
-        Resolves and caches Aria Operations' FQDN and API credential from SDDC Manager.
+        Classifies a Connect-VcfCheckAriaOpsEndpoint failure message so the caller can show an
+        accurate, specific remediation instead of one generic "check your network" message for
+        every failure.
 
         .DESCRIPTION
-        Calls Invoke-VcfGetCredentials -ResourceType VROPS once per run and caches the result on
-        $Context. Returns $null (not an exception) when no matching credential entry comes back -
-        this is the expected, normal shape of "Aria Operations is not deployed in this
-        environment", which every Aria Operations check must treat as Skipped rather than Error.
+        A rejected credential (bad password) surfaces from Connect-VcfOpsServer as an ordinary
+        caught exception, indistinguishable at a glance from a real network problem. Left
+        unclassified, it was being reported as an "Error" result telling the user to verify
+        network connectivity - misleading when the endpoint is reachable and the only problem is
+        the entered credential. This inspects the exception message for a recognized credential/
+        authorization rejection signature and returns 'AuthenticationFailed', else 'Unknown'.
 
-        .PARAMETER Context
-        The VcfCheck.Context object. Must already be connected to SDDC Manager.
-
-        .OUTPUTS
-        [PSCustomObject] with Fqdn/Credential properties, or $null if Aria Operations is not
-        deployed.
-    #>
-    [CmdletBinding()]
-    [OutputType([PSCustomObject])]
-    Param (
-        [Parameter(Mandatory = $true)] [PSObject]$Context
-    )
-
-    if ($Context.AriaOpsCredential) {
-        return $Context.AriaOpsCredential
-    }
-
-    Write-LogMessage -Type DEBUG -Message 'Resolving Aria Operations FQDN and credential from SDDC Manager.'
-    try {
-        $response = Invoke-VcfGetCredentials -ResourceType VROPS -ErrorAction Stop
-    } catch {
-        throw [System.InvalidOperationException]::new("Failed to query SDDC Manager for Aria Operations credentials: $($_.Exception.Message)")
-    }
-
-    $match = @($response.Elements) | Where-Object { $_.CredentialType -eq 'API' } | Select-Object -First 1
-    if (-not $match) {
-        Write-LogMessage -Type DEBUG -Message 'No Aria Operations credential entry returned by SDDC Manager - Aria Operations is not part of this environment.'
-        return $null
-    }
-
-    $secure = ConvertTo-SecureStringForCredential -PlainText $match.Password
-    $credential = [PSCredential]::new($match.Username, $secure)
-    $resolved = [PSCustomObject]@{
-        PSTypeName       = 'VcfCheck.AriaOpsCredential'
-        Fqdn             = $match.Resource.ResourceName
-        Credential       = $credential
-        AllowInsecureTls = [Bool]$Context.AllowInsecureTls
-    }
-    Remove-Variable -Name match, response -ErrorAction SilentlyContinue
-
-    $Context.AriaOpsCredential = $resolved
-    return $resolved
-}
-function Connect-VcfCheckAriaOps {
-    <#
-        .SYNOPSIS
-        Connects to Aria Operations via the VMware.Sdk.Vcf.Ops SDK, using the credential SDDC
-        Manager has on file.
-
-        .DESCRIPTION
-        Resolves the FQDN/credential via Get-VcfCheckAriaOpsCredential, runs a TCP reachability
-        pre-flight check (Test-VcfCheckTcpConnectivity) against <Fqdn>:443, then calls
-        Connect-VcfOpsServer. The resulting connection is cached on $Context.AriaOpsConnection so
-        every later check reuses it instead of reconnecting. On any failure - not deployed,
-        unreachable, or auth failure - the reason is cached on $Context.UnreachableAriaOps so
-        every later Aria Operations check fails fast with the same message.
-
-        .PARAMETER Context
-        The VcfCheck.Context object. Must already be connected to SDDC Manager.
-
-        .PARAMETER ConnectivityTimeoutSeconds
-        Maximum time to wait for the TCP reachability pre-flight check. Defaults to 15 seconds.
+        .PARAMETER ErrorMessage
+        The exception message from a failed Connect-VcfCheckAriaOpsEndpoint call.
 
         .OUTPUTS
-        The Aria Operations connection object returned by Connect-VcfOpsServer, or $null if Aria
-        Operations is not deployed in this environment.
+        [String] one of 'AuthenticationFailed', 'Unknown'.
 
         .EXAMPLE
-        Connect-VcfCheckAriaOps -Context $Context
+        Get-VcfCheckAriaOpsConnectionFailureCategory -ErrorMessage $_.Exception.Message
     #>
     [CmdletBinding()]
-    [OutputType([PSObject])]
+    [OutputType([String])]
     Param (
-        [Parameter(Mandatory = $true)] [PSObject]$Context,
-        [Parameter(Mandatory = $false)] [Int]$ConnectivityTimeoutSeconds = 15
+        [Parameter(Mandatory = $true)] [ValidateNotNullOrEmpty()] [String]$ErrorMessage
     )
 
-    if ($Context.UnreachableAriaOps) {
-        throw [System.InvalidOperationException]::new($Context.UnreachableAriaOps)
+    if ($ErrorMessage -match '(?i)UNAUTHORIZED|not authorized|invalid credentials|incorrect user ?name or password|authentication failed|401\b') {
+        return 'AuthenticationFailed'
     }
-
-    if ($Context.AriaOpsConnection) {
-        return $Context.AriaOpsConnection
-    }
-
-    $resolved = Get-VcfCheckAriaOpsCredential -Context $Context
-    if (-not $resolved) {
-        return $null
-    }
-
-    if (-not (Test-VcfCheckTcpConnectivity -ComputerName $resolved.Fqdn -Port 443 -TimeoutSeconds $ConnectivityTimeoutSeconds)) {
-        $reason = "Could not reach Aria Operations `"$($resolved.Fqdn)`" on port 443 within $ConnectivityTimeoutSeconds second(s). Check VPN/network connectivity to the environment, firewall rules, and that the FQDN resolves to the correct address, then retry."
-        $Context.UnreachableAriaOps = $reason
-        throw [System.InvalidOperationException]::new($reason)
-    }
-
-    Write-LogMessage -Type INFO -Message "Connecting to Aria Operations `"$($resolved.Fqdn)`"..." -NoNewline
-    try {
-        $connection = Connect-VcfOpsServer -Server $resolved.Fqdn -Credential $resolved.Credential -NotDefault -IgnoreInvalidCertificate:$resolved.AllowInsecureTls -ErrorAction Stop
-        Write-Host " Connected" -ForegroundColor White
-    } catch {
-        Write-Host " Failed" -ForegroundColor Red
-        $reason = Get-VcfCheckTlsTrustErrorMessage -ComponentName 'Aria Operations' -Fqdn $resolved.Fqdn -ErrorMessage $_.Exception.Message
-        if (-not $reason) {
-            $reason = "Failed to connect to Aria Operations `"$($resolved.Fqdn)`". Verify network connectivity, that the credential SDDC Manager has on file is still valid, and that Aria Operations is reachable."
-        }
-        $Context.UnreachableAriaOps = $reason
-        throw [System.InvalidOperationException]::new($reason)
-    }
-
-    $Context.AriaOpsConnection = $connection
-    return $connection
+    return 'Unknown'
 }
 function Get-VcfCheckEnvironmentAriaOpsEndpoints {
     <#
@@ -197,12 +106,23 @@ function Get-VcfCheckEnvironmentAriaOpsEndpoints {
         when shared, else the endpoint's own). Never resolves a password - see
         Connect-VcfCheckAriaOpsEndpoint.
 
+        When the integration has EnableGuestOsChecks set, also resolves VCenterFqdn/
+        VCenterUsername for the vCenter that hosts this endpoint - the integration-level
+        AriaVCenterFqdn/AriaVCenterUsername when AriaVCenterSharedAcrossEndpoints is set, else the
+        endpoint's own VCenterFqdn/VCenterUsername. Both are left $null when guestOS checks are
+        not enabled, so Get-VcfCheckAllVCenterFqdns' dedup loop skips the endpoint. When guestOS
+        checks are enabled, not shared, and the endpoint has no VCenterFqdn of its own, both are
+        left $null and a warning is logged.
+
         .PARAMETER Environment
         An environment object as returned by Get-VcfCheckEnvironments.
 
         .OUTPUTS
-        [Object[]] of PSCustomObject with Name, Fqdn, Username. Empty array if the environment has
-        no AriaOperations integration.
+        [Object[]] of PSCustomObject with Name, Fqdn, Username, VCenterFqdn, VCenterUsername,
+        VmNames. VmNames is the user-declared, comma-delimited list of guestOS VM names for this
+        endpoint - a single Aria appliance is not always one VM, and its VM name(s) cannot be
+        assumed to match the FQDN shortname, so it is entered explicitly rather than derived.
+        Empty array if the environment has no AriaOperations integration.
 
         .EXAMPLE
         Get-VcfCheckEnvironmentAriaOpsEndpoints -Environment $environment
@@ -222,11 +142,28 @@ function Get-VcfCheckEnvironmentAriaOpsEndpoints {
                 continue
             }
             $username = if ($integration.SharedCredentials) { $integration.Username } else { $endpoint.Username }
+            $vCenterFqdn = $null
+            $vCenterUsername = $null
+            if ($integration.EnableGuestOsChecks) {
+                if ($integration.AriaVCenterSharedAcrossEndpoints) {
+                    $vCenterFqdn = $integration.AriaVCenterFqdn
+                    $vCenterUsername = $integration.AriaVCenterUsername
+                } else {
+                    $vCenterFqdn = $endpoint.VCenterFqdn
+                    $vCenterUsername = $endpoint.VCenterUsername
+                    if ([String]::IsNullOrWhiteSpace($vCenterFqdn)) {
+                        Write-LogMessage -Type WARNING -Message "GuestOS checks are enabled for Aria Operations endpoint '$($endpoint.Name)' but no VCenterFqdn is configured; skipping guestOS checks for this endpoint."
+                    }
+                }
+            }
             $results.Add([PSCustomObject]@{
-                PSTypeName = 'VcfCheck.AriaOpsEndpoint'
-                Name       = $endpoint.Name
-                Fqdn       = $endpoint.Fqdn
-                Username   = $username
+                PSTypeName      = 'VcfCheck.AriaOpsEndpoint'
+                Name            = $endpoint.Name
+                Fqdn            = $endpoint.Fqdn
+                Username        = $username
+                VCenterFqdn     = $vCenterFqdn
+                VCenterUsername = $vCenterUsername
+                VmNames         = @(if ($endpoint.VmNames) { $endpoint.VmNames } else { @() })
             })
         }
     }
@@ -240,9 +177,10 @@ function Connect-VcfCheckAriaOpsEndpoint {
         credential - no SDDC Manager lookup.
 
         .DESCRIPTION
-        Companion to Connect-VcfCheckAriaOps for Aria Operations instances SDDC Manager has zero
-        knowledge of (see Get-VcfCheckEnvironmentAriaOpsEndpoints). Runs the same TCP reachability
-        pre-flight and caches the resulting connection on $Context.AriaOpsEndpointConnections
+        Connects to an Aria Operations instance declared on the environment (see
+        Get-VcfCheckEnvironmentAriaOpsEndpoints) - the only source of Aria Operations FQDN/
+        credential, since SDDC Manager never holds one. Runs a TCP reachability pre-flight and
+        caches the resulting connection on $Context.AriaOpsEndpointConnections
         (keyed by Fqdn, since there can be more than one) so repeat checks against the same
         endpoint reuse it. Unreachable/failed endpoints are cached on
         $Context.UnreachableAriaOpsEndpoints (also keyed by Fqdn) for the same fail-fast reason
@@ -305,7 +243,11 @@ function Connect-VcfCheckAriaOpsEndpoint {
         Write-Host " Failed" -ForegroundColor Red
         $reason = Get-VcfCheckTlsTrustErrorMessage -ComponentName 'Aria Operations' -Fqdn $Fqdn -ErrorMessage $_.Exception.Message
         if (-not $reason) {
-            $reason = "Failed to connect to Aria Operations `"$Fqdn`". Verify network connectivity and the credential entered for this endpoint."
+            $category = Get-VcfCheckAriaOpsConnectionFailureCategory -ErrorMessage $_.Exception.Message
+            $reason = switch ($category) {
+                'AuthenticationFailed' { "Authentication failed for Aria Operations `"$Fqdn`". Verify the username and password entered for this endpoint are correct." }
+                default { "Failed to connect to Aria Operations `"$Fqdn`". Verify network connectivity and the credential entered for this endpoint." }
+            }
         }
         $Context.UnreachableAriaOpsEndpoints[$Fqdn] = $reason
         throw [System.InvalidOperationException]::new($reason)
@@ -371,22 +313,18 @@ function Resolve-VcfCheckAriaOpsEndpointCredentials {
 function Get-VcfCheckAriaOpsTargets {
     <#
         .SYNOPSIS
-        Resolves every Aria Operations instance a check should evaluate - the SDDC-Manager-known
-        instance (if deployed) plus every standalone endpoint declared on the current
-        environment - and connects to each.
+        Resolves every Aria Operations instance a check should evaluate - every standalone
+        endpoint declared on the current environment - and connects to each.
 
         .DESCRIPTION
-        Every Test-VcfAriaOps* check calls this once instead of Connect-VcfCheckAriaOps directly,
-        so a single check fans out across every known Aria Operations instance rather than only
-        the SDDC-Manager-known one. A connection failure for one target (unreachable, bad
-        credential, not deployed) never blocks evaluation of the others - it is surfaced on that
-        target's ConnectError instead of throwing, so the caller can emit one Error result per
-        failed target and keep evaluating the rest.
-
-        A standalone endpoint whose FQDN matches the SDDC-Manager-known instance's FQDN is
-        skipped, since that is the same physical appliance registered twice - once via SDDC
-        Manager and once as a manually declared endpoint - and would otherwise double every
-        check result.
+        Every Test-VcfAriaOps* check calls this once instead of Connect-VcfCheckAriaOpsEndpoint
+        directly, so a single check fans out across every declared Aria Operations instance.
+        SDDC Manager never holds an Aria Operations credential (it is lifecycle-managed by Aria
+        Suite Lifecycle, not SDDC Manager), so the environment's declared Integrations endpoints
+        are the only source of targets. A connection failure for one target (unreachable, bad
+        credential) never blocks evaluation of the others - it is surfaced on that target's
+        ConnectError instead of throwing, so the caller can emit one Error result per failed
+        target and keep evaluating the rest.
 
         .PARAMETER Context
         The VcfCheck.Context object. $Context.AriaOpsEndpoints and
@@ -399,11 +337,9 @@ function Get-VcfCheckAriaOpsTargets {
 
         .OUTPUTS
         [Object[]] of PSCustomObject with Name, Fqdn, Connection, CredentialInfo, ConnectError.
-        CredentialInfo (Fqdn/Credential) is the same shape Get-VcfCheckAriaOpsCredential returns -
-        pass it to the REST-fallback helpers (Get-VcfCheckAriaOpsResource,
-        Get-VcfCheckAriaOpsAdapterResources) instead of $Context.AriaOpsCredential so those calls
-        target the right instance for a standalone endpoint too. Empty array if Aria Operations
-        is not deployed via SDDC Manager and the environment has no standalone endpoints
+        CredentialInfo (Fqdn/Credential) - pass it to the REST-fallback helpers
+        (Get-VcfCheckAriaOpsResource, Get-VcfCheckAriaOpsAdapterResources) so those calls target
+        the right instance. Empty array if the environment has no Aria Operations Integration
         declared - callers must treat that as Skipped.
 
         .EXAMPLE
@@ -418,20 +354,7 @@ function Get-VcfCheckAriaOpsTargets {
 
     $targets = [System.Collections.Generic.List[PSObject]]::new()
 
-    try {
-        $connection = Connect-VcfCheckAriaOps -Context $Context -ConnectivityTimeoutSeconds $ConnectivityTimeoutSeconds
-        if ($connection) {
-            $targets.Add([PSCustomObject]@{ Name = 'SDDC Manager'; Fqdn = $Context.AriaOpsCredential.Fqdn; Connection = $connection; CredentialInfo = $Context.AriaOpsCredential; ConnectError = $null })
-        }
-    } catch {
-        $targets.Add([PSCustomObject]@{ Name = 'SDDC Manager'; Fqdn = $Context.AriaOpsCredential.Fqdn; Connection = $null; CredentialInfo = $null; ConnectError = $_.Exception.Message })
-    }
-
-    $knownFqdns = @($targets | Where-Object { $_.Fqdn } | ForEach-Object { $_.Fqdn })
     foreach ($endpoint in @($Context.AriaOpsEndpoints) | Where-Object { $_ }) {
-        if ($endpoint.Fqdn -and ($knownFqdns -icontains $endpoint.Fqdn)) {
-            continue
-        }
         $credential = $Context.AriaOpsEndpointCredentials[$endpoint.Fqdn]
         if (-not $credential) {
             $targets.Add([PSCustomObject]@{ Name = $endpoint.Name; Fqdn = $endpoint.Fqdn; Connection = $null; CredentialInfo = $null; ConnectError = "No password was supplied for Aria Operations endpoint `"$($endpoint.Fqdn)`"." })
@@ -455,7 +378,7 @@ function Get-VcfCheckAriaOpsCollectors {
         header for why this wrapper exists).
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .OUTPUTS
@@ -481,7 +404,7 @@ function Get-VcfCheckAriaOpsCriticalAlerts {
         generated SDK model, not a typo.
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .OUTPUTS
@@ -511,7 +434,7 @@ function Get-VcfCheckAriaOpsResource {
         REST-fallback pattern Get-VcfCheckAriaOpsAdapterResources uses.
 
         .PARAMETER CredentialInfo
-        The AriaOpsCredential object returned by Get-VcfCheckAriaOpsCredential (Fqdn + Credential).
+        The AriaOpsCredential object from a target's CredentialInfo (Fqdn + Credential).
 
         .PARAMETER ResourceId
         The resource id to resolve.
@@ -572,7 +495,7 @@ function Resolve-VcfCheckAriaOpsCollectorFqdn {
         throws.
 
         .PARAMETER CredentialInfo
-        The AriaOpsCredential object returned by Get-VcfCheckAriaOpsCredential (Fqdn + Credential).
+        The AriaOpsCredential object from a target's CredentialInfo (Fqdn + Credential).
 
         .PARAMETER Collector
         A Collector object as returned by Get-VcfCheckAriaOpsCollectors.
@@ -620,7 +543,7 @@ function Get-VcfCheckAriaOpsCertificates {
         a naming quirk of the generated SDK model, not a typo.
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .OUTPUTS
@@ -643,8 +566,8 @@ function Get-VcfCheckAriaOpsApiToken {
         VRSLCM) - it requires a short-lived token acquired via POST '/suite-api/api/auth/token/acquire'
         with the username/password/authSource, then presented on every later call as
         'Authorization: vRealizeOpsToken <token>'. The token is cached as an 'ApiToken' member added
-        directly onto the CredentialInfo object (the same object callers already cache on
-        $Context.AriaOpsCredential), so every call within a run re-uses it instead of
+        directly onto the CredentialInfo object (a target's cached credential info from
+        Get-VcfCheckAriaOpsTargets), so every call within a run re-uses it instead of
         re-authenticating.
 
         Aria Operations accounts are not always local - the credential's username determines the
@@ -654,7 +577,7 @@ function Get-VcfCheckAriaOpsApiToken {
         with neither separator is treated as a local account (authSource 'LOCAL').
 
         .PARAMETER CredentialInfo
-        The AriaOpsCredential object returned by Get-VcfCheckAriaOpsCredential (Fqdn + Credential).
+        The AriaOpsCredential object from a target's CredentialInfo (Fqdn + Credential).
 
         .OUTPUTS
         [String] the session token.
@@ -718,14 +641,13 @@ function Invoke-VcfCheckAriaOpsApi {
         VMware.Sdk.Vcf.Ops SDK cannot be used - see AriaOpsHelpers.ps1's file header.
         -SkipCertificateCheck is only passed when CredentialInfo.AllowInsecureTls is $true (the
         run's resolved AllowInsecureTls value, derived from PowerCLI's InvalidCertificateAction
-        setting (see Invoke-VcfCheck in Orchestrator.ps1 and Get-VcfCheckAriaOpsCredential) rather
-        than being unconditional; an untrusted
+        setting, see Invoke-VcfCheck in Orchestrator.ps1) rather than being unconditional; an untrusted
         certificate encountered while that is $false surfaces as a clear, actionable error via
         Get-VcfCheckTlsTrustErrorMessage instead of being silently accepted. Retries up to 3 times
         with a 10-second delay on transient network failures (timeouts, connection resets).
 
         .PARAMETER CredentialInfo
-        The AriaOpsCredential object returned by Get-VcfCheckAriaOpsCredential (Fqdn + Credential).
+        The AriaOpsCredential object from a target's CredentialInfo (Fqdn + Credential).
 
         .PARAMETER Method
         HTTP method. Defaults to GET.
@@ -783,7 +705,7 @@ function Get-VcfCheckAriaOpsAdapterInstances {
         'AdapterInstancesInfoDto' property, per the generated SDK model.
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .OUTPUTS
@@ -811,7 +733,7 @@ function Get-VcfCheckAriaOpsAdapterResources {
         COLLECTOR_DOWN) per adapter instance monitoring it.
 
         .PARAMETER CredentialInfo
-        The AriaOpsCredential object returned by Get-VcfCheckAriaOpsCredential (Fqdn + Credential).
+        The AriaOpsCredential object from a target's CredentialInfo (Fqdn + Credential).
 
         .PARAMETER AdapterId
         The identifier of the adapter instance to enumerate resources for.
@@ -842,7 +764,7 @@ function Get-VcfCheckAriaOpsLicenseEntitlement {
         licenseType/statuses per the 8.18 swagger spec's 'solution-licenses' schema.
 
         .PARAMETER CredentialInfo
-        The AriaOpsCredential object returned by Get-VcfCheckAriaOpsCredential (Fqdn + Credential).
+        The AriaOpsCredential object from a target's CredentialInfo (Fqdn + Credential).
 
         .OUTPUTS
         The solution-licenses response object returned by the suite-api.
@@ -869,7 +791,7 @@ function Get-VcfCheckAriaOpsVersion {
         Operations 8.18.0'), so this extracts the trailing dotted-number group from it.
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .OUTPUTS
@@ -910,7 +832,7 @@ function Get-VcfCheckAriaOpsSelfMonitoringResources {
         collection is exposed as its 'ResourceList' property, per the generated SDK model.
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .PARAMETER AdapterKindKey
@@ -944,7 +866,7 @@ function Get-VcfCheckAriaOpsSelfMonitoringAdapterKind {
         discovers the key from the instance's own adapter inventory instead of guessing.
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .OUTPUTS
@@ -986,7 +908,7 @@ function Get-VcfCheckAriaOpsResourceStats {
         object per reported metric (StatKey.Key/Data/Timestamps), per the generated SDK model.
 
         .PARAMETER Connection
-        The Aria Operations connection object returned by Connect-VcfCheckAriaOps or
+        The Aria Operations connection object returned by
         Connect-VcfCheckAriaOpsEndpoint.
 
         .PARAMETER ResourceId

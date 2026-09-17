@@ -301,10 +301,12 @@ function Test-VcfCheckDependencies {
         $hardRequirementsMet = $false
     }
 
-    $viServerMode = (Get-PowerCLIConfiguration -Scope Session -ErrorAction SilentlyContinue).DefaultVIServerMode
-    if ($viServerMode -ne 'Multiple') {
-        $findings.Add("PowerCLI DefaultVIServerMode is `"$viServerMode`", not `"Multiple`" (required to connect to more than one vCenter Server in the same session). Run: Set-PowerCLIConfiguration -DefaultVIServerMode Multiple -Scope Session")
-        $hardRequirementsMet = $false
+    if ($vcfPowerCli) {
+        $viServerMode = (Get-PowerCLIConfiguration -Scope Session -ErrorAction SilentlyContinue).DefaultVIServerMode
+        if ($viServerMode -ne 'Multiple') {
+            $findings.Add("PowerCLI DefaultVIServerMode is `"$viServerMode`", not `"Multiple`" (required to connect to more than one vCenter Server in the same session). Run: Set-PowerCLIConfiguration -DefaultVIServerMode Multiple -Scope Session")
+            $hardRequirementsMet = $false
+        }
     }
 
     $pythonCommand = Get-Command -Name python3 -ErrorAction SilentlyContinue
@@ -319,7 +321,7 @@ function Test-VcfCheckDependencies {
             if ($versionOutput -match '(\d+)\.(\d+)\.(\d+)') {
                 $foundVersion = [Version]"$($Matches[1]).$($Matches[2]).$($Matches[3])"
                 if ($foundVersion -lt $minimumPythonVersion) {
-                    $findings.Add("(Optional) Python $minimumPythonVersion or later is recommended for the web UI (found $foundVersion).")
+                    $findings.Add("Python $minimumPythonVersion or later is required for the web UI (found $foundVersion).")
                 }
             }
         } catch {
