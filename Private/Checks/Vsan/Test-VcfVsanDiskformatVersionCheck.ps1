@@ -97,7 +97,7 @@ function Test-VcfVsanDiskformatVersionCheck {
                 UpdateSupported = $config.DiskFormatCompatibility.IsUpdateSupported
                 BelowMinimumVersion = if ($belowMinimumVersion) { 'Warn' } else { 'Pass' }
             }
-        })
+        } | Sort-Object -Property ClusterName)
 
         $problemRows = @($rows | ForEach-Object {
             $issuesInUpdate = $issuesInUpdateByCluster[$_.ClusterName]

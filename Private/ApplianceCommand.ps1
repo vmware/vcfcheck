@@ -353,6 +353,7 @@ function Invoke-VcfApplianceCommand {
     $retryDelaySeconds = 10
     $transientErrorCategories = @('TlsConnectionFailed', 'Unknown')
 
+    Write-VcfCheckProcessIdentityInfo
     Write-LogMessage -Type DEBUG -Message "Invoking Invoke-VMScript on `"$VmName`"."
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         try {
@@ -379,6 +380,13 @@ function Invoke-VcfApplianceCommand {
                 continue
             }
 
+            $exceptionTypes = [System.Collections.Generic.List[String]]::new()
+            $currentException = $_.Exception
+            while ($currentException) {
+                $exceptionTypes.Add($currentException.GetType().FullName)
+                $currentException = $currentException.InnerException
+            }
+            Write-LogMessage -Type DEBUG -Message "Invoke-VMScript on `"$VmName`" exhausted $attempt of $maxAttempts attempts. Category=$category. ExceptionTypes=$($exceptionTypes -join ' | '). Error=$errorMessage"
             Write-LogMessage -Type ERROR -Message "Invoke-VMScript failed on `"$VmName`". Category=$category. Error=$errorMessage"
             return New-VcfCheckApplianceCommandResult -Success $false -ErrorCategory $category -ErrorMessage $errorMessage
         }

@@ -280,6 +280,18 @@
     "validationCriteria": "Every vSAN object attached to this vCenter returns a healthy vSanHealth state.",
     "remediation": "Investigate the affected object(s) (Cluster > Monitor > vSAN > Virtual Objects) - resolve before proceeding with the upgrade, since inaccessible objects can indicate data unavailability."
   },
+  "vsan_hcl_compliance": {
+    "function": "Test-VcfVsanHclCompliance",
+    "area": "vSAN",
+    "displayName": "vSAN Hardware Compatibility List (HCL) Check",
+    "blocking": true,
+    "requiresConnections": [
+      "SddcManager",
+      "ManagementVCenter"
+    ],
+    "validationCriteria": "Every ESX host's storage components (drives and network cards) utilized vSAN (and, where firmware data is available) appears on Broadcom's latest published vSAN Hardware Compatibility List (HCL).  The HCL is packaged VCF Check and is not derived from the one installed on vCenter. Hardware not currently used by vSAN is still reported for visibility but does not affect this check's status.",
+    "remediation": "Confirm the flagged host's storage controller, NIC, or drive against the vSAN Hardware Compatibility Guide (https://compatibilityguide.broadcom.com/) before proceeding with the upgrade. 'Not Listed' may be a genuinely unsupported component, or a newer model this check's offline snapshot does not yet recognize. 'Unsupported Driver/Firmware' means updating to a combination listed on the HCL for the host's ESX release. 'Incompatible With Target' means the component is certified on the HCL only for an ESX release older than the upgrade target - check with the vendor for a newer certified release before upgrading, or do not proceed until it is confirmed."
+  },
   "nsxt_backup_history": {
     "function": "Test-VcfNsxtBackupHistory",
     "area": "NSX",

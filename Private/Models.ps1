@@ -373,6 +373,36 @@ function New-VcfCheckContext {
         (a cache hit against UnreachableVCenters, not a fresh failure) is reported Skipped
         instead, so one real outage produces one Error plus N Skipped rows rather than N
         identical Error rows.
+
+        EsxHostHardwareDetailCache caches the per-host network/storage adapter collection (VID/
+        DID/SSID/SVID, driver, firmware) done by Get-VcfCheckCachedHostHardwareDetail, keyed by
+        vCenter FQDN + host name. Get-VcfCheckVMHostNetworkDevices/Get-VcfCheckVMHostStorageAdapters
+        are expensive per-host esxcli round-trips (Private/IoDeviceCompatibility.ps1) - both
+        Test-VcfEsxHardwareDetails and Test-VcfVsanHclCompliance need the same raw device data, so
+        they share this cache instead of each independently re-scanning every host.
+
+        VsanDiskGroupInventoryCache caches the vSAN disk group inventory (Get-VcfCheckVsanDiskGroupInventory)
+        per vCenter FQDN, since every host in a cluster shares the same disk group list -
+        Get-VcfCheckVsanHclHostMemberDiskCanonicalNames reads it once per vCenter rather than once
+        per host.
+
+        VsanInUseDeviceNameCache caches, per vCenter FQDN + host name, the storage controller and
+        network adapter device names currently used by vSAN on that host (Get-VcfCheckVsanControllerListForHost/
+        Get-VcfCheckVsanNetworkListForHost esxcli round-trips), so Get-VcfCheckVsanHclHostInUseDeviceNames
+        only pays for those calls once per host per run.
+
+        VsanEsaMemberDiskNameCache caches, per vCenter FQDN + host name, the canonical names of
+        drives esxcli reports as "Used by this host" (Get-VcfCheckVsanStorageListForHost) - a vSAN
+        ESA storage pool has no disk groups, so Get-VcfCheckVsanHclHostMemberDiskCanonicalNames
+        falls back to this esxcli-derived membership when VsanDiskGroupInventoryCache has nothing
+        for the host, and this cache keeps that fallback to one esxcli round-trip per host per run.
+
+        These four caches are ConcurrentDictionary, not Hashtable, because Test-VcfVsanHclCompliance
+        collects hosts concurrently (ForEach-Object -Parallel) - a plain Hashtable is not safe for
+        concurrent writes from multiple runspaces. Every call site only uses ContainsKey/indexer
+        get/indexer set, all of which ConcurrentDictionary supports with identical syntax; a
+        cache-miss race that causes the same key to be computed twice is harmless since the
+        computed value is deterministic per key.
     #>
 
     [CmdletBinding()]
@@ -423,6 +453,10 @@ function New-VcfCheckContext {
         AriaVCenterRootCredentials = @{}
         LogPath                    = $null
         OutputPath                 = $null
+        EsxHostHardwareDetailCache = [System.Collections.Concurrent.ConcurrentDictionary[String, Object]]::new()
+        VsanDiskGroupInventoryCache = [System.Collections.Concurrent.ConcurrentDictionary[String, Object]]::new()
+        VsanInUseDeviceNameCache   = [System.Collections.Concurrent.ConcurrentDictionary[String, Object]]::new()
+        VsanEsaMemberDiskNameCache = [System.Collections.Concurrent.ConcurrentDictionary[String, Object]]::new()
     }
 }
 

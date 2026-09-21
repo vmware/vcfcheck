@@ -266,7 +266,13 @@ def cmd_stop() -> None:
     print(f"Stopping server (PID {pid})...")
     try:
         if sys.platform == "win32":
-            os.kill(pid, signal.SIGTERM)
+            # os.kill(pid, signal.SIGTERM) on Windows calls TerminateProcess() directly -
+            # the target process never gets a chance to run its SIGTERM handler, so its
+            # finally block (which kills an in-progress check's pwsh launcher) never runs
+            # and that launcher is orphaned. CTRL_BREAK_EVENT reaches a real Python signal
+            # handler (registered for SIGBREAK), but only because the server was started
+            # with CREATE_NEW_PROCESS_GROUP (see _start_background above).
+            os.kill(pid, signal.CTRL_BREAK_EVENT)
         else:
             os.kill(pid, signal.SIGTERM)
     except OSError as exc:

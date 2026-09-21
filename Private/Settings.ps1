@@ -34,14 +34,28 @@ function Resolve-VcfCheckAllowInsecureTls {
         Resolves whether this run should accept untrusted/self-signed TLS certificates.
 
         .DESCRIPTION
-        VcfCheck has no setting of its own for this - the decision is derived entirely from
-        PowerCLI's own InvalidCertificateAction setting (Get-PowerCLIConfiguration -Scope
-        Session), so every connector (Connect-VIServer, Connect-VcfOpsServer, and the hand-written
-        REST helpers for Aria Automation/VRSLCM/NSX Manager) makes the same choice an operator
-        already made once via `Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction
-        Ignore` (lab, self-signed certificates) or the default `Fail`/`Warn` (production). Logs
-        the resolved value unconditionally (INFO), not only when insecure TLS is allowed, since
-        that is the most common source of "a check accepted/rejected an untrusted cert
+        VcfCheck has no setting of its own for this - the decision is derived from PowerCLI's own
+        InvalidCertificateAction setting, so every connector (Connect-VIServer,
+        Connect-VcfOpsServer, and the hand-written REST helpers for Aria Automation/VRSLCM/NSX
+        Manager) makes the same choice an operator already made once via
+        `Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore` (lab,
+        self-signed certificates) or the default `Fail`/`Warn` (production).
+
+        Reads scopes in PowerCLI's own documented precedence order - Session (highest), then
+        User, then AllUsers (lowest) - and uses the first scope with an explicit
+        InvalidCertificateAction, logging which scope supplied it. This matters because Session
+        is per-process/in-memory only and never persisted to disk, so it is frequently unset in
+        a launcher subprocess even when an operator's interactive shell reports it set.
+
+        When $env:VCFCHECK_ALLOW_INSECURE_TLS is set ('true'/'false'), that value is used
+        directly instead of re-reading PowerCLI configuration. Start-VcfCheckServer (Tools.ps1)
+        sets it once, in the operator's own interactive session, and the Python server pins it
+        for every check run for the rest of its process lifetime - each run otherwise launches a
+        fresh "pwsh -NoProfile -NonInteractive" subprocess that does not reliably see the same
+        InvalidCertificateAction value that session reports.
+
+        Logs the resolved value unconditionally (INFO), not only when insecure TLS is allowed,
+        since that is the most common source of "a check accepted/rejected an untrusted cert
         unexpectedly". Never throws - a failed read defaults to $false (secure).
 
         .OUTPUTS
@@ -55,11 +69,31 @@ function Resolve-VcfCheckAllowInsecureTls {
     [OutputType([Bool])]
     Param ()
 
+    if ($env:VCFCHECK_ALLOW_INSECURE_TLS -eq 'true' -or $env:VCFCHECK_ALLOW_INSECURE_TLS -eq 'false') {
+        $allowInsecureTls = $env:VCFCHECK_ALLOW_INSECURE_TLS -eq 'true'
+        Write-LogMessage -Type INFO -Message "AllowInsecureTls pinned to `"$allowInsecureTls`" from `$env:VCFCHECK_ALLOW_INSECURE_TLS (resolved once when the server started) - untrusted/self-signed certificates on all endpoints will $(if ($allowInsecureTls) { 'be accepted' } else { 'NOT be accepted' }) this run."
+        return $allowInsecureTls
+    }
+
     $allowInsecureTls = $false
     try {
-        $invalidCertificateAction = (Get-PowerCLIConfiguration -Scope Session -ErrorAction Stop).InvalidCertificateAction
+        $resolvedScope = $null
+        $invalidCertificateAction = $null
+        foreach ($scope in @('Session', 'User', 'AllUsers')) {
+            $scopeAction = (Get-PowerCLIConfiguration -Scope $scope -ErrorAction Stop).InvalidCertificateAction
+            if (-not [String]::IsNullOrWhiteSpace($scopeAction) -and $scopeAction -ne 'Unset') {
+                $resolvedScope = $scope
+                $invalidCertificateAction = $scopeAction
+                break
+            }
+        }
+
         $allowInsecureTls = $invalidCertificateAction -eq 'Ignore'
-        Write-LogMessage -Type INFO -Message "PowerCLI InvalidCertificateAction is `"$invalidCertificateAction`" - untrusted/self-signed certificates on all endpoints will $(if ($allowInsecureTls) { 'be accepted' } else { 'NOT be accepted' }) this run. Change with `"Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore`" or `"...-InvalidCertificateAction Fail`"."
+        if ($null -eq $resolvedScope) {
+            Write-LogMessage -Type INFO -Message 'PowerCLI InvalidCertificateAction has no override at Session, User, or AllUsers scope - untrusted/self-signed certificates on all endpoints will NOT be accepted this run. Change with "Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore".'
+        } else {
+            Write-LogMessage -Type INFO -Message "PowerCLI InvalidCertificateAction is `"$invalidCertificateAction`" from `"$resolvedScope`" scope - untrusted/self-signed certificates on all endpoints will $(if ($allowInsecureTls) { 'be accepted' } else { 'NOT be accepted' }) this run. Change with `"Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore`" or `"...-InvalidCertificateAction Fail`"."
+        }
     } catch {
         Write-LogMessage -Type DEBUG -Message "Could not read PowerCLI's InvalidCertificateAction (defaulting to secure - untrusted certificates will NOT be accepted this run): $($_.Exception.Message)"
     }

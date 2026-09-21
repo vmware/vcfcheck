@@ -1207,7 +1207,9 @@ function Format-VcfCheckHtmlRowsTable {
         Any cell whose trimmed value case-insensitively matches a known status word
         (Pass/Fail/Warning/Error/Skipped/GREEN/YELLOW/RED) gets the matching status CSS class,
         scoped by the "rows-table" class to the same --pass/--warning/--fail/--error/--skipped
-        variables the browser report's rows tables use.
+        variables the browser report's rows tables use. A "Compatibility" column's Compatible/
+        Deprecated/Unsupported values get the same treatment, but only in that column, since
+        "Unsupported" etc. aren't safe to color-code globally the way Pass/Fail are.
 
         A cell value that is a collection with more than one item (e.g. a check reporting several
         vLCM components for one cluster) renders as a bulleted list instead of being flattened to a
@@ -1259,6 +1261,15 @@ function Format-VcfCheckHtmlRowsTable {
             $Rows | Where-Object { $_ -isnot [String] -and $_.PSObject.Properties[$column] -and -not [String]::IsNullOrWhiteSpace([String]$_.PSObject.Properties[$column].Value) }
         }
     }
+
+    # Matches Tools/ui/common.js's VcfCheckUI.moveHclStatusColumnLast(): the vSAN HCL Compliance
+    # check's per-host Components rows carry CurrentlyUsedByvSAN and list Status ahead of it in
+    # property order, but the report reads better with Status as the rightmost column on that
+    # specific table. Move it there only when CurrentlyUsedByvSAN is present, so unrelated tables
+    # that happen to have a Status column keep their normal property order.
+    if ('CurrentlyUsedByvSAN' -in $columns -and 'Status' -in $columns) {
+        $columns = @($columns | Where-Object { $_ -ne 'Status' }) + @('Status')
+    }
     $statusClasses = @{
         'PASS' = 'pass'; 'PASSED' = 'pass'; 'GREEN' = 'pass'
         'WARNING' = 'warning'; 'WARNED' = 'warning'; 'YELLOW' = 'warning'
@@ -1267,6 +1278,11 @@ function Format-VcfCheckHtmlRowsTable {
         'SKIPPED' = 'skipped'
     }
     $noTransformColumns = @('UsedPercent')
+
+    # Matches Tools/ui/common.js's VcfCheckUI.CPU_COMPATIBILITY_ROW_CLASSES: Compatible/Deprecated/
+    # Unsupported only apply when the column is literally "Compatibility", unlike $statusClasses
+    # above, which is safe to match against any column's value.
+    $compatibilityStatusClasses = @{ 'COMPATIBLE' = 'pass'; 'DEPRECATED' = 'warning'; 'UNSUPPORTED' = 'fail' }
 
     # Mirrors Tools/ui/common.js's VcfCheckUI.sortRowsBySeverityCount(): when a Rows table has
     # both a Severity and a Count column (e.g. an alarm/event summary), group by severity in
@@ -1318,9 +1334,11 @@ function Format-VcfCheckHtmlRowsTable {
                 $cellText = if ($isMultiValueCell) { [String]$cellItems[0] } else { [String]$cellValue }
                 $cellText = ConvertTo-VcfCheckNormalizedExpiryDateText -ColumnName $column -Value $cellText
                 if ([String]::IsNullOrWhiteSpace($cellText)) { $cellText = 'N/A' }
-                $cellClass = $statusClasses[$cellText.Trim().ToUpperInvariant()]
-                $classAttribute = ''
-                if ($cellClass) { $classAttribute = " class=`"cell-$cellClass`"" }
+                $cellClass = if ($column -eq 'Compatibility') { $compatibilityStatusClasses[$cellText.Trim().ToUpperInvariant()] } else { $statusClasses[$cellText.Trim().ToUpperInvariant()] }
+                $classNames = [System.Collections.Generic.List[String]]::new()
+                if ($cellClass) { $classNames.Add("cell-$cellClass") }
+                if ($column -eq 'Devices') { $classNames.Add('cell-devices') }
+                $classAttribute = if ($classNames.Count -gt 0) { " class=`"$($classNames -join ' ')`"" } else { '' }
                 $null = $sb.Append('<td').Append($classAttribute).Append('>').Append((ConvertTo-VcfCheckHtmlEncoded -Value $cellText)).Append('</td>')
             }
         }
@@ -1425,6 +1443,133 @@ function Format-VcfCheckHtmlHostSummaryBar {
 
     return $sb.ToString()
 }
+function Format-VcfCheckHtmlVsanHclDeviceMetaSummary {
+
+    <#
+        .SYNOPSIS
+        Renders a fleet-wide table of unique DeviceType/Vendor/Model/Status combinations for the
+        vSAN HCL Compliance check, matching Tools/ui/common.js's VcfCheckUI.renderVsanHclDeviceMetaSummary()
+        markup exactly.
+
+        .DESCRIPTION
+        Get-VcfCheckVsanHclHostDetail's Components are already grouped by DeviceType/Vendor/Model/
+        Status/Devices within a single host, but a fleet of dozens of otherwise-identical hosts
+        still repeats the same combination once per host. Re-grouping across every host into one
+        row per distinct combination (restricted to CurrentlyUsedByvSAN, since hardware not backing
+        vSAN can't affect the check) surfaces the actual remediation surface at a glance, instead of
+        requiring every per-host card to be expanded to find it.
+
+        .PARAMETER HostDetails
+        Array of per-host PSCustomObjects, as passed to Format-VcfCheckHtmlHostDetailCard. Returns
+        an empty string if none of them carry a Components array with a CurrentlyUsedByvSAN
+        property (i.e. this is not the vSAN HCL Compliance check).
+
+        .OUTPUTS
+        [String] a "host-detail-field" <details> block containing the summary table, or an empty
+        string when HostDetails has no vSAN HCL Components data.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param (
+        [Parameter(Mandatory = $true)] [Object[]]$HostDetails
+    )
+
+    $hasComponents = $HostDetails | Where-Object {
+        $_.Components -and @($_.Components).Count -gt 0 -and $null -ne @($_.Components)[0].PSObject.Properties['CurrentlyUsedByvSAN']
+    }
+    if (-not $hasComponents) {
+        return ''
+    }
+
+    $groups = [Ordered]@{}
+    foreach ($hostDetail in $HostDetails) {
+        foreach ($component in @($hostDetail.Components)) {
+            if (-not $component.CurrentlyUsedByvSAN) { continue }
+            $key = @($component.DeviceType, $component.Vendor, $component.Model, $component.Status) -join '|'
+            if (-not $groups.Contains($key)) {
+                $groups[$key] = [PSCustomObject]@{ 'Device Type' = $component.DeviceType; Vendor = $component.Vendor; Model = $component.Model; Status = $component.Status; Count = 0 }
+            }
+            $groups[$key].Count += if ($component.Devices) { @($component.Devices -split ',').Count } else { 1 }
+        }
+    }
+
+    $rows = @($groups.Values | Sort-Object -Property Status, 'Device Type', Vendor, Model)
+    $table = Format-VcfCheckHtmlRowsTable -Rows $rows
+    if (-not $table) {
+        return ''
+    }
+
+    $sb = [System.Text.StringBuilder]::new()
+    $null = $sb.Append('<details class="host-detail-field vsan-hcl-meta-summary" open><summary>')
+    $null = $sb.Append('Unique Devices In Use By vSAN (').Append($rows.Count).Append(')</summary>')
+    $null = $sb.Append($table).Append('</details>')
+
+    return $sb.ToString()
+}
+function Format-VcfCheckHtmlCpuCompatibilitySummary {
+
+    <#
+        .SYNOPSIS
+        Renders a fleet-wide table of unique CpuSeries/Compatibility combinations for the ESX
+        Hardware Summary and CPU Compatibility Check, matching Tools/ui/common.js's
+        VcfCheckUI.renderCpuCompatibilitySummary() markup exactly.
+
+        .DESCRIPTION
+        Each host already carries its own CpuSeries and Compatibility badge (via
+        Get-VcfCheckHtmlHostCpuStatus), but a fleet of dozens of otherwise-identical hosts still
+        repeats the same CPU series once per host. Re-grouping across every host into one row per
+        distinct CpuSeries/Compatibility combination, with a count of the hosts matching it,
+        surfaces the actual remediation surface at a glance instead of requiring every per-host
+        card to be expanded to find it.
+
+        .PARAMETER HostDetails
+        Array of per-host PSCustomObjects, as passed to Format-VcfCheckHtmlHostDetailCard. Returns
+        an empty string if none of them carry a CpuCompatibility property (i.e. this is not the
+        CPU check).
+
+        .OUTPUTS
+        [String] a "host-detail-field" <details> block containing the summary table, or an empty
+        string when HostDetails has no CPU compatibility data.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param (
+        [Parameter(Mandatory = $true)] [Object[]]$HostDetails
+    )
+
+    $hasCpuData = $HostDetails | Where-Object { $null -ne $_.PSObject.Properties['CpuCompatibility'] }
+    if (-not $hasCpuData) {
+        return ''
+    }
+
+    $compatibilitySortRank = @{ Unsupported = 0; Deprecated = 1; Compatible = 2 }
+    $groups = [Ordered]@{}
+    foreach ($hostDetail in $HostDetails) {
+        $compatibility = Get-VcfCheckHtmlHostCpuStatus -HostDetail $hostDetail
+        if (-not $compatibility) { continue }
+        $cpuSeries = if ($hostDetail.CpuSeries) { $hostDetail.CpuSeries } else { 'Unknown' }
+        $key = "$cpuSeries|$compatibility"
+        if (-not $groups.Contains($key)) {
+            $groups[$key] = [PSCustomObject]@{ 'CPU Series' = $cpuSeries; Compatibility = $compatibility; 'Host Count' = 0 }
+        }
+        $groups[$key].'Host Count'++
+    }
+
+    $rows = @($groups.Values | Sort-Object -Property @{ Expression = { $compatibilitySortRank[$_.Compatibility] } }, 'CPU Series')
+    $table = Format-VcfCheckHtmlRowsTable -Rows $rows
+    if (-not $table) {
+        return ''
+    }
+
+    $sb = [System.Text.StringBuilder]::new()
+    $null = $sb.Append('<details class="host-detail-field cpu-compatibility-summary" open><summary>')
+    $null = $sb.Append('Unique CPU Series (').Append($rows.Count).Append(')</summary>')
+    $null = $sb.Append($table).Append('</details>')
+
+    return $sb.ToString()
+}
 function Format-VcfCheckHtmlHostDetailCard {
 
     <#
@@ -1462,6 +1607,8 @@ function Format-VcfCheckHtmlHostDetailCard {
 
     $sb = [System.Text.StringBuilder]::new()
     $null = $sb.Append((Format-VcfCheckHtmlHostSummaryBar -HostDetails $HostDetails))
+    $null = $sb.Append((Format-VcfCheckHtmlVsanHclDeviceMetaSummary -HostDetails $HostDetails))
+    $null = $sb.Append((Format-VcfCheckHtmlCpuCompatibilitySummary -HostDetails $HostDetails))
 
     foreach ($hostDetail in $HostDetails) {
         $summaryFields = [Ordered]@{}
@@ -1482,7 +1629,13 @@ function Format-VcfCheckHtmlHostDetailCard {
             }
 
             if ($propValue -is [Array]) {
-                $arrayFields[$propName] = @($propValue)
+                $componentsArray = @($propValue)
+                if ($propName -eq 'Components' -and $componentsArray.Count -gt 0 -and $null -ne $componentsArray[0].PSObject.Properties['CurrentlyUsedByvSAN']) {
+                    $arrayFields['ComponentsInUseByVsan'] = @($componentsArray | Where-Object { $_.CurrentlyUsedByvSAN })
+                    $arrayFields['ComponentsNotUsedByVsan'] = @($componentsArray | Where-Object { -not $_.CurrentlyUsedByvSAN })
+                } else {
+                    $arrayFields[$propName] = $componentsArray
+                }
             } else {
                 $summaryFields[$propName] = $propValue
             }
@@ -1517,8 +1670,14 @@ function Format-VcfCheckHtmlHostDetailCard {
         foreach ($fieldName in $arrayFields.Keys) {
             $subTable = Format-VcfCheckHtmlRowsTable -Rows $arrayFields[$fieldName]
             if ($subTable) {
-                $label = ($fieldName -creplace '([a-z])([A-Z])', '$1 $2') -creplace '\bCpu\b', 'CPU'
-                $null = $sb.Append('<h4>').Append((ConvertTo-VcfCheckHtmlEncoded -Value $label)).Append('</h4>').Append($subTable)
+                $label = switch ($fieldName) {
+                    'ComponentsInUseByVsan' { 'All Components In Use By vSAN' }
+                    'ComponentsNotUsedByVsan' { 'All Components Not Used By vSAN' }
+                    default { ($fieldName -creplace '([a-z])([A-Z])', '$1 $2') -creplace '\bCpu\b', 'CPU' }
+                }
+                $openAttr = if ($fieldName -eq 'ComponentsNotUsedByVsan') { '' } else { ' open' }
+                $null = $sb.Append('<details class="host-detail-field"').Append($openAttr).Append('><summary>')
+                $null = $sb.Append((ConvertTo-VcfCheckHtmlEncoded -Value $label)).Append('</summary>').Append($subTable).Append('</details>')
             }
         }
 

@@ -214,6 +214,8 @@ _SUBPROCESS_ENV_ALLOWLIST = (
     "PSModulePath",
     "HOME",
     "USERPROFILE",
+    "USERNAME",
+    "USERDOMAIN",
     "APPDATA",
     "LOCALAPPDATA",
     "ProgramData",
@@ -225,6 +227,14 @@ _SUBPROCESS_ENV_ALLOWLIST = (
     "LANG",
     "LC_ALL",
 )
+
+# Captured once from this process's own environment at startup (see main()) and reused for
+# every launcher subprocess spawned for the rest of this server's lifetime. Each launcher runs
+# as a fresh "pwsh -NoProfile -NonInteractive" process, which does not reliably see the same
+# PowerCLI InvalidCertificateAction value an operator's interactive shell reports - resolving it
+# once, in the same PowerShell session used to start this server (Start-VcfCheckServer in
+# Private/Tools.ps1), and pinning it here avoids re-resolving (and losing) it on every run.
+_ALLOW_INSECURE_TLS = ""
 
 logger = logging.getLogger("VcfCheck-Server")
 
@@ -938,6 +948,7 @@ def _build_launcher_env(
     env = {name: os.environ[name] for name in _SUBPROCESS_ENV_ALLOWLIST if name in os.environ}
     env["VcfCheckBaseDirectory"] = str(base_directory)
     env["VCFCHECK_MODULE_PSD1"] = str(_MODULE_PSD1)
+    env["VCFCHECK_ALLOW_INSECURE_TLS"] = _ALLOW_INSECURE_TLS
     env["VCFCHECK_SDDC_PASSWORD"] = sddc_password
     if root_password:
         env["VCFCHECK_ROOT_PASSWORD"] = root_password
@@ -1270,6 +1281,7 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                 "sizingEstimatorEnabled": _sizing_estimator_enabled(),
                 "defaultCheckIds": default_check_ids,
                 "defaultAreaIds": payload.get("DefaultAreaIds"),
+                "defaultCheckCatalogIds": payload.get("DefaultCheckCatalogIds"),
             },
         )
 
@@ -1817,6 +1829,15 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                 return
             updates["DefaultAreaIds"] = default_area_ids
 
+        if "defaultCheckCatalogIds" in body:
+            default_check_catalog_ids = body.get("defaultCheckCatalogIds")
+            if default_check_catalog_ids is not None and (
+                not isinstance(default_check_catalog_ids, list) or not all(isinstance(check_id, str) for check_id in default_check_catalog_ids)
+            ):
+                self._send_json(HTTPStatus.BAD_REQUEST, {"error": "defaultCheckCatalogIds must be a list of strings or null"})
+                return
+            updates["DefaultCheckCatalogIds"] = default_check_catalog_ids
+
         if "DefaultCheckIds" in updates:
             logger.info(
                 "Saved default health check selection: %d checks across %d components.",
@@ -1851,6 +1872,7 @@ class VcfCheckRequestHandler(BaseHTTPRequestHandler):
                 "preUpgradeCheckSetMaxPollAttempts": existing.get("PreUpgradeCheckSetMaxPollAttempts"),
                 "defaultCheckIds": existing.get("DefaultCheckIds"),
                 "defaultAreaIds": existing.get("DefaultAreaIds"),
+                "defaultCheckCatalogIds": existing.get("DefaultCheckCatalogIds"),
             },
         )
 
@@ -2205,6 +2227,9 @@ def main() -> None:
     # to be started from.
     args.base_directory = args.base_directory.expanduser().resolve()
 
+    global _ALLOW_INSECURE_TLS
+    _ALLOW_INSECURE_TLS = os.environ.get("VCFCHECK_ALLOW_INSECURE_TLS", "")
+
     logs_dir = args.base_directory / "Logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
     # Naming mirrors pwsh-vcf-sa/VCF.Patch.Scanner's own Server log
@@ -2223,6 +2248,11 @@ def main() -> None:
     server = ThreadingHTTPServer(("127.0.0.1", args.port), VcfCheckRequestHandler)
     logger.info("VcfCheck report viewer listening on http://127.0.0.1:%s", args.port)
     logger.info("Module PSD1: %s (exists: %s)", _MODULE_PSD1, _MODULE_PSD1.is_file())
+    logger.info(
+        "AllowInsecureTls resolved to %r at startup - pinned for every check run until this "
+        "server process is stopped.",
+        _ALLOW_INSECURE_TLS,
+    )
     logger.info(
         "Server script: %s (last modified: %s) - restart this process after pulling code "
         "changes; a running process keeps serving whatever routes/logic it loaded at startup.",
@@ -2252,6 +2282,15 @@ def main() -> None:
         threading.Thread(target=server.shutdown, daemon=True).start()
 
     signal.signal(signal.SIGTERM, _handle_sigterm)
+    if sys.platform == "win32":
+        # os.kill(pid, signal.SIGTERM) on Windows calls TerminateProcess() directly - it never
+        # reaches a Python signal handler, so SIGTERM alone left this finally block (and the
+        # _run_queue.terminate() that kills an in-progress check's pwsh launcher) unreachable
+        # from Stop-VcfCheckServer/Manage-VcfCheckServer.py on Windows. CTRL_BREAK_EVENT is
+        # deliverable to a real Python handler, but only to processes started with
+        # CREATE_NEW_PROCESS_GROUP (see Manage-VcfCheckServer.py's _start_background) and only
+        # via SIGBREAK, not SIGTERM.
+        signal.signal(signal.SIGBREAK, _handle_sigterm)
 
     try:
         server.serve_forever()

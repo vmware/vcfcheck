@@ -67,6 +67,7 @@
 
             VcfCheckUI.savedDefaultCheckIds = Array.isArray(data.defaultCheckIds) ? data.defaultCheckIds : null;
             VcfCheckUI.savedDefaultAreaIds = Array.isArray(data.defaultAreaIds) ? data.defaultAreaIds : null;
+            VcfCheckUI.savedDefaultCheckCatalogIds = Array.isArray(data.defaultCheckCatalogIds) ? data.defaultCheckCatalogIds : null;
 
             VcfCheckUI.loadPowerCliTlsStatus();
         });

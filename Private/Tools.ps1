@@ -413,6 +413,12 @@ function Start-VcfCheckServer {
         $env:VCFCHECK_MODULE_PSD1 = Join-Path -Path $loadedModule.ModuleBase -ChildPath 'VcfCheck.psd1'
     }
 
+    # Resolved once, here, in the operator's own interactive session - each check run launches
+    # a fresh "pwsh -NoProfile -NonInteractive" subprocess that does not reliably see the same
+    # PowerCLI InvalidCertificateAction value this session reports. The Python server pins this
+    # value for its own lifetime (see Start-VcfCheckServer.py) and forwards it to every launcher.
+    $env:VCFCHECK_ALLOW_INSECURE_TLS = if (Resolve-VcfCheckAllowInsecureTls) { 'true' } else { 'false' }
+
     $python = Find-VcfCheckPythonInterpreter
     $toolsPath = Join-Path -Path $baseDirectory -ChildPath 'Tools'
     $serverScript = Join-Path -Path $toolsPath -ChildPath 'Start-VcfCheckServer.py'

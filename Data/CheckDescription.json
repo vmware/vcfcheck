@@ -60,7 +60,8 @@
     "vSAN Disk Group Mount Status": "Confirms every vSAN disk group is mounted and every disk reports a healthy checksum/CMMDS/host-usage state, since any of these can indicate a problem that should be fixed first.",
     "vSAN Disk Format Compatibility": "Confirms every vSAN cluster's on-disk format supports being updated as part of the upgrade.",
     "vSAN Witness Host Version": "Confirms a stretched cluster's witness host is on the same version as its data hosts.",
-    "vSAN Inaccessible Objects": "Flags any vSAN object reporting an unhealthy state, since inaccessible objects can mean data is unavailable."
+    "vSAN Inaccessible Objects": "Flags any vSAN object reporting an unhealthy state, since inaccessible objects can mean data is unavailable.",
+    "vSAN Hardware Compatibility List (HCL) Check": "Checks every vSAN host's storage controllers, drives, and NICs against a packaged, current version of the HCL for ESX 9.1 compatibility."
   },
   "NSX": {
     "NSX Manager Backup History": "Confirms NSX Manager has a recent successful backup before upgrading.",

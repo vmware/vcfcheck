@@ -57,6 +57,101 @@ function Get-VcfCheckVMHostCpuInfo {
         MhzPerCpu    = $cpuHz
     }
 }
+function ConvertTo-VcfCheckPciHexId {
+
+    <#
+        .SYNOPSIS
+        Normalizes a PCI VendorId/DeviceId/SubVendorId/SubDeviceId to a lowercase 4-hex-digit
+        string, matching the id format used by the packaged vSAN HCL asset.
+
+        .DESCRIPTION
+        vSphere reports these ids as signed 16-bit values, so any id with the high bit set (>=
+        0x8000, common for storage controller and NIC subsystem ids) arrives as a negative
+        [Int]. Masking with 0xFFFF before formatting discards the sign-extended high bits so the
+        result is always the correct 4-hex-digit code instead of an 8-digit two's-complement
+        string that can never match a shipped HCL entry.
+
+        .OUTPUTS
+        [String] lowercase 4-hex-digit id, or '' if Value is $null or not convertible.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param (
+        [Parameter(Mandatory = $false)] [Object]$Value
+    )
+
+    if ($null -eq $Value) { return '' }
+    try {
+        return ('{0:x4}' -f ([Int]$Value -band 0xFFFF))
+    } catch {
+        return ''
+    }
+}
+function Get-VcfCheckHbaPciIdentity {
+
+    <#
+        .SYNOPSIS
+        Resolves an HBA's vendor/model strings and normalized PCI VendorId/DeviceId/SubVendorId/
+        SubDeviceId from the host's PCI device list.
+
+        .OUTPUTS
+        [PSCustomObject] with Vendor, Model, VendorId, DeviceId, SubVendorId, SubDeviceId - all ''
+        if the HBA has no matching PCI device.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$Hba,
+        [Parameter(Mandatory = $false)] [PSObject[]]$PciDevices = @()
+    )
+
+    $identity = [PSCustomObject]@{ Vendor = ''; Model = ''; VendorId = ''; DeviceId = ''; SubVendorId = ''; SubDeviceId = '' }
+    if (-not $Hba.ExtensionData.Pci -or -not $PciDevices) { return $identity }
+
+    $pciDevice = $PciDevices | Where-Object { $_.Id -eq $Hba.ExtensionData.Pci } | Select-Object -First 1
+    if (-not $pciDevice) { return $identity }
+
+    $identity.Vendor = $pciDevice.VendorName
+    $identity.Model = $pciDevice.DeviceName
+    $identity.VendorId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.VendorId
+    $identity.DeviceId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.DeviceId
+    $identity.SubVendorId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.SubVendorId
+    $identity.SubDeviceId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.SubDeviceId
+    return $identity
+}
+function Get-VcfCheckHbaDriverVersion {
+
+    <#
+        .SYNOPSIS
+        Resolves the installed driver version for an HBA via the loaded VMkernel module's esxcli
+        details.
+
+        .OUTPUTS
+        [String] driver version, or '' if unavailable.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param (
+        [Parameter(Mandatory = $false)] [PSObject]$EsxCli,
+        [Parameter(Mandatory = $true)] [String]$DriverName
+    )
+
+    if (-not $EsxCli -or -not $DriverName) { return '' }
+
+    try {
+        $moduleDetails = Invoke-VcfCheckWithTimeout -TimeoutSeconds 30 -ArgumentList $EsxCli, $DriverName -ScriptBlock {
+            param($InnerEsxCli, $InnerDriverName)
+            $InnerEsxCli.system.module.get.Invoke(@{module = $InnerDriverName })
+        }
+        if ($moduleDetails -and $moduleDetails.Version) { return $moduleDetails.Version }
+        return ''
+    } catch {
+        return ''
+    }
+}
 function Get-VcfCheckVMHostNetworkDevices {
 
     <#
@@ -64,7 +159,8 @@ function Get-VcfCheckVMHostNetworkDevices {
         Returns physical network adapters (vmnics) for an ESX host, including driver and firmware details.
 
         .OUTPUTS
-        [PSCustomObject[]] with Name, Vendor, Model, Driver, DriverVersion, FirmwareVersion, DeviceType.
+        [PSCustomObject[]] with Name, Vendor, Model, VendorId, DeviceId, SubVendorId, SubDeviceId,
+        Driver, DriverVersion, FirmwareVersion, DeviceType.
     #>
 
     [CmdletBinding()]
@@ -88,6 +184,10 @@ function Get-VcfCheckVMHostNetworkDevices {
         if ($nic) {
             $vendor = ''
             $model = ''
+            $vendorId = ''
+            $deviceId = ''
+            $subVendorId = ''
+            $subDeviceId = ''
             $driver = ''
             $driverVersion = ''
             $firmwareVersion = ''
@@ -98,6 +198,10 @@ function Get-VcfCheckVMHostNetworkDevices {
                 if ($pciDevice) {
                     $vendor = $pciDevice.VendorName
                     $model = $pciDevice.DeviceName
+                    $vendorId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.VendorId
+                    $deviceId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.DeviceId
+                    $subVendorId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.SubVendorId
+                    $subDeviceId = ConvertTo-VcfCheckPciHexId -Value $pciDevice.SubDeviceId
                 }
             }
 
@@ -120,13 +224,17 @@ function Get-VcfCheckVMHostNetworkDevices {
             }
 
             $devices += [PSCustomObject]@{
-                Name             = $nic.Name
-                Vendor           = $vendor
-                Model            = $model
-                Driver           = $driver
-                DriverVersion    = $driverVersion
-                FirmwareVersion  = $firmwareVersion
-                DeviceType       = 'Network'
+                Name            = $nic.Name
+                Vendor          = $vendor
+                Model           = $model
+                VendorId        = $vendorId
+                DeviceId        = $deviceId
+                SubVendorId     = $subVendorId
+                SubDeviceId     = $subDeviceId
+                Driver          = $driver
+                DriverVersion   = $driverVersion
+                FirmwareVersion = $firmwareVersion
+                DeviceType      = 'Network'
             }
         }
     }
@@ -140,7 +248,8 @@ function Get-VcfCheckVMHostStorageAdapters {
         Returns storage Host Bus Adapters (SAS, Fibre Channel, SATA, NVMe) for an ESX host with human-readable type descriptions.
 
         .OUTPUTS
-        [PSCustomObject[]] with Name, Vendor, Model, Type, Driver, Status, DeviceType.
+        [PSCustomObject[]] with Name, Vendor, Model, VendorId, DeviceId, SubVendorId, SubDeviceId,
+        Type, Driver, DriverVersion, Status, DeviceType.
     #>
 
     [CmdletBinding()]
@@ -152,21 +261,24 @@ function Get-VcfCheckVMHostStorageAdapters {
     $devices = @()
     $hbas = @($VMHost | Get-VMHostHba -ErrorAction SilentlyContinue)
     $pciDevices = @($VMHost | Get-VMHostPciDevice -ErrorAction SilentlyContinue)
+    $esxcli = $null
+
+    try {
+        $esxcli = Get-EsxCli -VMHost $VMHost -V2 -ErrorAction SilentlyContinue
+    } catch {
+        $esxcli = $null
+    }
 
     foreach ($hba in $hbas) {
         if ($hba) {
-            $vendor = ''
-            $model = ''
-            $pciDevice = $null
-
-            if ($hba.ExtensionData.Pci -and $pciDevices) {
-                $pciId = $hba.ExtensionData.Pci
-                $pciDevice = $pciDevices | Where-Object { $_.Id -eq $pciId } | Select-Object -First 1
-                if ($pciDevice) {
-                    $vendor = $pciDevice.VendorName
-                    $model = $pciDevice.DeviceName
-                }
-            }
+            $pciIdentity = Get-VcfCheckHbaPciIdentity -Hba $hba -PciDevices $pciDevices
+            $vendor = $pciIdentity.Vendor
+            $model = $pciIdentity.Model
+            $vendorId = $pciIdentity.VendorId
+            $deviceId = $pciIdentity.DeviceId
+            $subVendorId = $pciIdentity.SubVendorId
+            $subDeviceId = $pciIdentity.SubDeviceId
+            $driverVersion = Get-VcfCheckHbaDriverVersion -EsxCli $esxcli -DriverName $hba.Driver
 
             if (-not $vendor) {
                 $vendor = $hba.Vendor
@@ -213,13 +325,18 @@ function Get-VcfCheckVMHostStorageAdapters {
             }
 
             $devices += [PSCustomObject]@{
-                Name       = $hba.Name
-                Vendor     = $vendor
-                Model      = $model
-                Type       = $humanType
-                Driver     = $hba.Driver
-                Status     = $hba.Status
-                DeviceType = $humanType
+                Name          = $hba.Name
+                Vendor        = $vendor
+                Model         = $model
+                VendorId      = $vendorId
+                DeviceId      = $deviceId
+                SubVendorId   = $subVendorId
+                SubDeviceId   = $subDeviceId
+                Type          = $humanType
+                Driver        = $hba.Driver
+                DriverVersion = $driverVersion
+                Status        = $hba.Status
+                DeviceType    = $humanType
             }
         }
     }
@@ -233,13 +350,16 @@ function Get-VcfCheckVMHostScsiDevices {
         Returns SCSI logical units (storage devices) for an ESX host with protocol and media type information.
 
         .OUTPUTS
-        [PSCustomObject[]] with Name, Vendor, Model, Type, Capacity, Status, DeviceType.
+        [PSCustomObject[]] with Name, Vendor, Model, Type, Capacity, Status, DeviceType, Revision,
+        HbaName (the owning vmhbaN parsed from RuntimeName - for an NVMe drive this is the drive's
+        own PCIe endpoint and can be joined back to Get-VcfCheckVMHostStorageAdapters for its PCI
+        identity; for a SAS/SATA drive it is a shared HBA and carries no drive-specific identity).
     #>
 
     [CmdletBinding()]
     [OutputType([PSCustomObject[]])]
     Param (
-        [Parameter(Mandatory = $true)] 
+        [Parameter(Mandatory = $true)]
         [PSObject]$VMHost
     )
 
@@ -280,10 +400,81 @@ function Get-VcfCheckVMHostScsiDevices {
             Capacity   = [Math]::Round($lun.CapacityGB, 2)
             Status     = $lun.RuntimeStatus
             DeviceType = 'SCSI'
+            Revision   = "$($lun.ExtensionData.Revision)".Trim()
+            HbaName    = "$($lun.RuntimeName)".Split(':')[0]
         }
     }
 
     return $devices
+}
+function Get-VcfCheckVMHostVCenterFqdn {
+
+    <#
+        .SYNOPSIS
+        Extracts the connected vCenter FQDN from a VMHost object's Uid.
+
+        .OUTPUTS
+        [String] the vCenter FQDN, or an empty string if it cannot be determined.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost
+    )
+
+    if ($VMHost.Uid -match '@([^@/]+):\d+/') {
+        return $Matches[1]
+    }
+    return ''
+}
+function Get-VcfCheckCachedHostHardwareDetail {
+
+    <#
+        .SYNOPSIS
+        Returns network and storage adapter hardware detail for an ESX host, cached per run.
+
+        .DESCRIPTION
+        Wraps Get-VcfCheckVMHostNetworkDevices, Get-VcfCheckVMHostStorageAdapters, and
+        Get-VcfCheckVMHostScsiDevices behind a per-run cache on
+        $Context.EsxHostHardwareDetailCache, keyed by vCenter FQDN + host name, so multiple checks
+        that need the same host's device data (e.g. Test-VcfEsxHardwareDetails and
+        Test-VcfVsanHclCompliance) don't each pay for the expensive per-host esxcli/SCSI
+        collection independently.
+
+        .PARAMETER Context
+        The VcfCheck.Context object.
+
+        .PARAMETER VMHost
+        A VMHost inventory object retrieved via Get-VcfCheckVMHostInventory.
+
+        .OUTPUTS
+        [PSCustomObject] with NetworkAdapters, StorageAdapters, and Drives - the raw arrays
+        returned by Get-VcfCheckVMHostNetworkDevices / Get-VcfCheckVMHostStorageAdapters /
+        Get-VcfCheckVMHostScsiDevices.
+    #>
+
+    [CmdletBinding()]
+    [OutputType([PSObject])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$Context,
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost
+    )
+
+    $vcenterFqdn = Get-VcfCheckVMHostVCenterFqdn -VMHost $VMHost
+    $cacheKey = "$vcenterFqdn|$($VMHost.Name)"
+
+    if ($Context.EsxHostHardwareDetailCache.ContainsKey($cacheKey)) {
+        return $Context.EsxHostHardwareDetailCache[$cacheKey]
+    }
+
+    $detail = [PSCustomObject]@{
+        NetworkAdapters = @(Get-VcfCheckVMHostNetworkDevices -VMHost $VMHost -ErrorAction SilentlyContinue)
+        StorageAdapters = @(Get-VcfCheckVMHostStorageAdapters -VMHost $VMHost -ErrorAction SilentlyContinue)
+        Drives          = @(Get-VcfCheckVMHostScsiDevices -VMHost $VMHost -ErrorAction SilentlyContinue)
+    }
+    $Context.EsxHostHardwareDetailCache[$cacheKey] = $detail
+    return $detail
 }
 
 #endregion

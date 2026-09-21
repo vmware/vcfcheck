@@ -290,6 +290,71 @@ function Write-VcfCheckRuntimeInfo {
         # Non-fatal: still log even if something fails above
         Write-LogMessage -Type INFO -Message "Runtime: PowerShell=$($PSVersionTable.PSVersion) | VCF.PowerCLI=unknown | VcfCheck=unknown | Python=unknown | OS=$($PSVersionTable.OS)"
     }
+
+    Write-VcfCheckProcessIdentityInfo
+}
+function Write-VcfCheckProcessIdentityInfo {
+
+    <#
+        .SYNOPSIS
+        Logs the current process identity, elevation, and PowerCLI configuration scopes.
+
+        .DESCRIPTION
+        Writes a single DEBUG log line with the current OS account, whether it is elevated,
+        and the Session/User/AllUsers-scope InvalidCertificateAction/DefaultVIServerMode
+        values as seen by this process. Read-only - never changes any configuration.
+        Called once per run from Write-VcfCheckRuntimeInfo, and again immediately before each
+        guest-ops call in Invoke-VcfApplianceCommand, so the values are captured even when that
+        specific call fails or hangs before the run-start snapshot would otherwise be useful.
+
+        PowerCLI's documented precedence is Session (highest) > User > AllUsers (lowest) - a
+        set Session value should already win regardless of User/AllUsers. But Session is
+        per-process and in-memory only, never persisted to disk, so a launcher subprocess (a
+        fresh "pwsh -NoProfile -NonInteractive" per check run) never inherits the operator's own
+        interactive-shell Session setting - it starts with Session unset and should then fall
+        through to User, then AllUsers. Confirmed against a customer environment where that
+        fallthrough did not happen for Invoke-VMScript guest-ops specifically: Session was unset
+        in the subprocess, User had no override, and AllUsers reported "Ignore", yet guest-ops
+        calls still failed TLS validation until the User scope was set explicitly
+        (Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore). So this logs a
+        WARNING whenever Session has no override of its own, User has no override either, and
+        AllUsers is "Ignore" - the one combination where the documented fallthrough to AllUsers
+        is known not to reliably apply to guest-ops calls.
+
+        .EXAMPLE
+        Write-VcfCheckProcessIdentityInfo
+    #>
+
+    [CmdletBinding()]
+    Param ()
+
+    try {
+        $identityName = 'unknown'
+        $isElevated = 'unknown'
+        if ($PSVersionTable.Platform -eq 'Win32NT') {
+            # $env:USERDOMAIN/$env:USERNAME avoid the SID-to-account-name LSA lookup that
+            # WindowsIdentity.GetCurrent().Name performs, which can hang when AD/DNS is unreachable.
+            $identityName = "$env:USERDOMAIN\$env:USERNAME"
+            $isElevated = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+        } else {
+            $identityName = & whoami 2>$null
+            $isElevated = ($env:SUDO_USER -or ($null -ne (& id -u 2>$null) -and (& id -u 2>$null) -eq '0'))
+        }
+
+        $sessionConfig = Get-PowerCLIConfiguration -Scope Session -ErrorAction SilentlyContinue
+        $userConfig = Get-PowerCLIConfiguration -Scope User -ErrorAction SilentlyContinue
+        $allUsersConfig = Get-PowerCLIConfiguration -Scope AllUsers -ErrorAction SilentlyContinue
+
+        Write-LogMessage -Type DEBUG -Message "Process identity=$identityName | Elevated=$isElevated | PowerCLI Session(InvalidCertificateAction=$($sessionConfig.InvalidCertificateAction), DefaultVIServerMode=$($sessionConfig.DefaultVIServerMode)) | User(InvalidCertificateAction=$($userConfig.InvalidCertificateAction), DefaultVIServerMode=$($userConfig.DefaultVIServerMode)) | AllUsers(InvalidCertificateAction=$($allUsersConfig.InvalidCertificateAction), DefaultVIServerMode=$($allUsersConfig.DefaultVIServerMode))"
+
+        $sessionHasNoOverride = [String]::IsNullOrWhiteSpace($sessionConfig.InvalidCertificateAction) -or $sessionConfig.InvalidCertificateAction -eq 'Unset'
+        $userHasNoOverride = [String]::IsNullOrWhiteSpace($userConfig.InvalidCertificateAction) -or $userConfig.InvalidCertificateAction -eq 'Unset'
+        if ($sessionHasNoOverride -and $userHasNoOverride -and $allUsersConfig.InvalidCertificateAction -eq 'Ignore') {
+            Write-LogMessage -Type WARNING -Message 'PowerCLI InvalidCertificateAction is "Ignore" at AllUsers scope only - Session and User have no override in this process. Guest-ops calls (Invoke-VMScript) have been observed to not reliably fall through to AllUsers the way PowerCLI''s documented Session > User > AllUsers precedence implies, and can still fail TLS certificate validation. If a guest-ops call fails with a certificate error, run: Set-PowerCLIConfiguration -Scope User -InvalidCertificateAction Ignore'
+        }
+    } catch {
+        Write-LogMessage -Type DEBUG -Message "Process identity/PowerCLI configuration detection failed: $($_.Exception.Message)"
+    }
 }
 
 #endregion Logging

@@ -52,6 +52,7 @@
 #   Private/Reporting.ps1           - JSON report writing
 #   Private/SizingEstimator.ps1     - VCF management domain sizing and upgrade delta estimator
 #   Private/Orchestrator.ps1        - Invoke-VcfCheck (top-level entry point)
+#   Private/VsanHclHelpers.ps1      - Shipped vSAN Hardware Compatibility List lookup (offline)
 #   Private/Checks/**/*.ps1         - One Test-Vcf<CheckId> function per check
 
 $privatePath = Join-Path -Path $PSScriptRoot -ChildPath 'Private'
@@ -79,6 +80,7 @@ $privateFiles = @(
     'SizingEstimator.ps1'
     'Tools.ps1'
     'VrslcmHelpers.ps1'
+    'VsanHclHelpers.ps1'
 )
 
 foreach ($file in $privateFiles) {
@@ -101,7 +103,7 @@ if (Test-Path -LiteralPath $checksPath) {
 
 # Module constants - set once at load time, never mutate.
 $Script:VcfCheckModuleLoaded = $true
-$Script:VcfCheckVersion      = '2.0.0.1008'
+$Script:VcfCheckVersion      = '2.0.0.1009'
 
 # Environment variable that stores the active base directory (set by Initialize-VcfCheck).
 $Script:VCF_CHECK_ENV_VAR     = 'VcfCheckBaseDirectory'
