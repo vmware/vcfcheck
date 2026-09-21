@@ -1,5 +1,17 @@
 # VCF Check
 
+# VCF Check
+
+## 2.0.0.1009
+
+### Release Date : 2026-09-20
+
+* Bug fix: Source PowerCLI TLS Settings from scope session rather than user, by default
+* Bug fix: New environments accidently required Aria components by default due to an Aria vCenter check
+* New Check: vSAN Hardware Compatibility List (HCL) Check
+* Enhancement: Health Check search now includes descriptions
+* Ehhancement: "ESX Hardware Summary and CPU Compatibility Check" now summarizes results
+
 ## 2.0.0.1008
 
 ### Release Date : 2026-09-17
