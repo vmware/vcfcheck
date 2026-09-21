@@ -28,6 +28,11 @@
     // no defaults have ever been saved, so the full catalog stays selected as before. The hint is only
     // shown when the saved selection actually excludes checks, since selecting every check is equivalent
     // to having no saved override.
+    //
+    // VcfCheckUI.savedDefaultCheckCatalogIds is the set of check ids that existed at the time defaults
+    // were last saved. A check id that isn't in savedCheckIds AND isn't in that catalog snapshot is one
+    // added to the product after the user's last save, so it's selected by default rather than being
+    // silently dropped by an intersection against a stale saved list.
     function applySavedCheckDefaults() {
         var hint = document.getElementById("checks-card-custom-defaults-hint");
         if (!Array.isArray(VcfCheckUI.savedDefaultCheckIds)) {
@@ -37,11 +42,16 @@
 
         var savedCheckIds = {};
         VcfCheckUI.savedDefaultCheckIds.forEach(function (checkId) { savedCheckIds[checkId] = true; });
+        var knownAtSave = Array.isArray(VcfCheckUI.savedDefaultCheckCatalogIds) ? {} : null;
+        if (knownAtSave) {
+            VcfCheckUI.savedDefaultCheckCatalogIds.forEach(function (checkId) { knownAtSave[checkId] = true; });
+        }
         var checkCount = 0;
         var selectedCount = 0;
         Object.keys(VcfCheckUI.checksByArea).forEach(function (area) {
             (VcfCheckUI.checksByArea[area] || []).forEach(function (check) {
-                var isSelected = !!savedCheckIds[check.id];
+                var isNewSinceSave = !!knownAtSave && !knownAtSave[check.id];
+                var isSelected = !!savedCheckIds[check.id] || isNewSinceSave;
                 VcfCheckUI.checkSelectionState[check.id] = isSelected;
                 checkCount++;
                 if (isSelected) selectedCount++;
@@ -243,7 +253,7 @@
                 input.dataset.area = area;
                 input.dataset.blocking = check.blocking ? "1" : "0";
                 input.dataset.requiresRoot = requiresRoot ? "1" : "0";
-                input.dataset.searchText = (check.displayName || check.id).toLowerCase() + " " + area.toLowerCase();
+                input.dataset.searchText = (check.displayName || check.id).toLowerCase() + " " + area.toLowerCase() + " " + (check.description || "").toLowerCase();
                 input.addEventListener("change", function () {
                     VcfCheckUI.checkSelectionState[input.value] = input.checked;
                     updateChecksCardSummary();
@@ -396,10 +406,19 @@
         var selectedCheckIds = Object.keys(VcfCheckUI.checkSelectionState).filter(function (checkId) {
             return VcfCheckUI.checkSelectionState[checkId];
         });
+        var catalogCheckIds = [];
+        Object.keys(VcfCheckUI.checksByArea).forEach(function (area) {
+            (VcfCheckUI.checksByArea[area] || []).forEach(function (check) { catalogCheckIds.push(check.id); });
+        });
 
-        VcfCheckUI.postJson("/api/settings", { defaultCheckIds: selectedCheckIds, defaultAreaIds: selectedAreaIds }).then(function () {
+        VcfCheckUI.postJson("/api/settings", {
+            defaultCheckIds: selectedCheckIds,
+            defaultAreaIds: selectedAreaIds,
+            defaultCheckCatalogIds: catalogCheckIds,
+        }).then(function () {
             VcfCheckUI.savedDefaultCheckIds = selectedCheckIds;
             VcfCheckUI.savedDefaultAreaIds = selectedAreaIds;
+            VcfCheckUI.savedDefaultCheckCatalogIds = catalogCheckIds;
             document.getElementById("checks-card-custom-defaults-hint").classList.toggle("hidden", selectedCheckIds.length >= totalCheckCount());
             var originalText = button.textContent;
             button.textContent = "Saved!";

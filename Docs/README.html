@@ -963,7 +963,7 @@ export.</li>
 </ul>
 <h2 id="check-details">Check Details</h2>
 <ul>
-<li>96 checks total</li>
+<li>97 checks total</li>
 </ul>
 <h3 id="aria">Aria</h3>
 <ul>
@@ -2250,7 +2250,7 @@ for vsantraces, 75% for others).</li>
 </ul>
 <h3 id="vsan">vSAN</h3>
 <ul>
-<li><strong>Number of checks:</strong> 5</li>
+<li><strong>Number of checks:</strong> 6</li>
 </ul>
 <h4 id="vsan-cluster-health">vSAN Cluster Health</h4>
 <ul>
@@ -2286,6 +2286,56 @@ policy-noncompliant status across every vCenter attached to SDDC
 Manager, pointing to the affected cluster and a KB for remediation.</li>
 <li><strong>Blocks upgrade?</strong> No</li>
 <li><strong>Informational only check?</strong> No</li>
+</ul>
+<h4 id="vsan-hardware-compatibility-list-hcl-check">vSAN Hardware
+Compatibility List (HCL) Check</h4>
+<ul>
+<li><strong>Purpose:</strong> Matches every ESX host's storage
+controller, NIC, and drive PCI identity (and, for NICs, driver/firmware
+combination) against Broadcom's published vSAN Hardware Compatibility
+List for the target ESX upgrade release.</li>
+<li><strong>Blocks upgrade?</strong> Yes</li>
+<li><strong>Informational only check?</strong> No</li>
+<li><strong>Notes:</strong>
+<ul>
+<li>Only hardware currently in use by vSAN can fail this check. A
+storage controller, NIC, or drive not currently backing vSAN is still
+shown in the report (in a collapsed "All Components Not Used By vSAN"
+table) for visibility, but a compatibility or firmware issue on it never
+fails the check or counts towards its status.</li>
+</ul></li>
+<li>Uses a packaged, offline, up-to-date version of the HCL, rather than
+requiring that a user update their vCenters. The packaged snapshot
+carries ESX 8.0/8.0 Un and 9.0/9.1 release data, so a device certified
+only on an older ESX release can be distinguished from one with no
+certification data at all.</li>
+<li>Collects up to 10 hosts per vCenter concurrently (configurable via
+<code>-MaxConcurrentHosts</code> on
+<code>Test-VcfVsanHclCompliance</code>) to keep large-fleet scans fast,
+since each host's storage controller/NIC/drive collection is an
+independent esxcli round trip. The sub-progress line during a run (e.g.
+"Scanning N/Total hosts") still counts accurately with concurrent
+collection, but names whichever host most recently finished rather than
+advancing host-by-host in order.</li>
+<li><strong>Per-device status meanings:</strong>
+<ul>
+<li><code>Compatible</code> — certified on the VMware Compatibility
+Guide for the target ESX release.</li>
+<li><code>FirmwareUnsupported</code> — listed on the VMware
+Compatibility Guide, but the driver/firmware combination in use is not a
+certified combination for the target ESX release.</li>
+<li><code>IncompatibleWithTargetRelease</code> — listed on the VMware
+Compatibility Guide, but only certified through an ESX release older
+than the target — not supported on the target ESX release. Check with
+the vendor before upgrading. <strong>This fails the check</strong> when
+the affected hardware is currently in use by vSAN.</li>
+<li><code>NotListed</code> — not found on the VMware Compatibility Guide
+for any shipped ESX release — may be genuinely unsupported, or newer
+than this tool's HCL snapshot. Verify on the VCG directly.</li>
+<li><code>Unknown</code> — could not be evaluated against the VMware
+Compatibility Guide (missing device identity, or no HCL data for this
+device on any shipped ESX release). Does not fail the check.</li>
+</ul></li>
 </ul>
 <h4 id="vsan-witness-host-version">vSAN Witness Host Version</h4>
 <ul>

@@ -113,7 +113,7 @@ function Test-VcfEsxHardwareDetails {
                     $hostIndex++
                     Write-VcfCheckSubProgress -Context $Context -Current $hostIndex -Total $hosts.Count -Label $_.Name
                     $hostStartedAt = Get-Date
-                    $hostDetail = Get-VcfCheckEsxHostHardwareDetail -VMHost $_ -EsxDestinationVersion $EsxDestinationVersion
+                    $hostDetail = Get-VcfCheckEsxHostHardwareDetail -VMHost $_ -Context $Context -EsxDestinationVersion $EsxDestinationVersion
                     $hostMs = ((Get-Date) - $hostStartedAt).TotalMilliseconds
                     Write-LogMessage -Type DEBUG -Message "[$vcenterFqdn] Host `"$($_.Name)`" hardware detail collected in $(Format-VcfCheckDuration -Milliseconds $hostMs)."
                     $hostDetail
@@ -207,6 +207,10 @@ function Get-VcfCheckEsxHostHardwareDetail {
         .PARAMETER VMHost
         A VMHost inventory object retrieved via Get-VcfCheckVMHostInventory.
 
+        .PARAMETER Context
+        The VcfCheck.Context object, used to share the per-host network/storage adapter
+        collection with other checks via Get-VcfCheckCachedHostHardwareDetail.
+
         .PARAMETER EsxDestinationVersion
         The ESX release family to flag CPU compatibility against, e.g. '9.0' or '9.1'.
 
@@ -221,6 +225,7 @@ function Get-VcfCheckEsxHostHardwareDetail {
     [OutputType([PSObject])]
     Param (
         [Parameter(Mandatory = $true)] [PSObject]$VMHost,
+        [Parameter(Mandatory = $true)] [PSObject]$Context,
         [Parameter(Mandatory = $false)] [ValidateNotNullOrEmpty()] [String]$EsxDestinationVersion = '9.1'
     )
 
@@ -256,20 +261,21 @@ function Get-VcfCheckEsxHostHardwareDetail {
         $bootMode = 'Unknown'
     }
 
-    $networkStartedAt = Get-Date
-    $networkAdapters = @(Get-VcfCheckVMHostNetworkDevices -VMHost $VMHost -ErrorAction SilentlyContinue | ForEach-Object {
+    $deviceDetailStartedAt = Get-Date
+    $cachedDeviceDetail = Get-VcfCheckCachedHostHardwareDetail -Context $Context -VMHost $VMHost
+    $networkAdapters = @($cachedDeviceDetail.NetworkAdapters | ForEach-Object {
         [PSCustomObject]@{ Name = $_.Name; Vendor = $_.Vendor; Model = $_.Model }
     })
-    $networkMs = ((Get-Date) - $networkStartedAt).TotalMilliseconds
+    $networkMs = ((Get-Date) - $deviceDetailStartedAt).TotalMilliseconds
 
     $storageAdaptersStartedAt = Get-Date
-    $storageAdapters = @(Get-VcfCheckVMHostStorageAdapters -VMHost $VMHost -ErrorAction SilentlyContinue | ForEach-Object {
+    $storageAdapters = @($cachedDeviceDetail.StorageAdapters | ForEach-Object {
         [PSCustomObject]@{ Name = $_.Name; Vendor = $_.Vendor; Model = $_.Model; Type = $_.Type }
     })
     $storageAdaptersMs = ((Get-Date) - $storageAdaptersStartedAt).TotalMilliseconds
 
     $scsiStartedAt = Get-Date
-    $storageDevices = @(Get-VcfCheckVMHostScsiDevices -VMHost $VMHost -ErrorAction SilentlyContinue | ForEach-Object {
+    $storageDevices = @($cachedDeviceDetail.Drives | ForEach-Object {
         [PSCustomObject]@{ Name = $_.Name; Vendor = $_.Vendor; Model = $_.Model; Type = $_.Type; CapacityGB = $_.Capacity }
     })
     $scsiMs = ((Get-Date) - $scsiStartedAt).TotalMilliseconds

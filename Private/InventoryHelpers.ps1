@@ -381,6 +381,144 @@ function Get-VcfCheckVsanStorageListForHost {
         $EsxCli.vsan.storage.list.Invoke()
     }
 }
+function Get-VcfCheckVsanControllerListForHost {
+    <#
+        .SYNOPSIS
+        Thin, mockable wrapper around Get-EsxCli -V2 | vsan.debug.controller.list.Invoke() (see file
+        header for why this wrapper exists).
+
+        .DESCRIPTION
+        Reads the vsan.debug.controller.list esxcli namespace filtered to controllers currently
+        used by vSAN (the esxcli equivalent of `esxcli vsan debug controller list --used-by-vsan`) -
+        no PowerCLI SDK cmdlet exposes this, since Get-VMHostHba has no vSAN-usage property.
+
+        .PARAMETER VMHost
+        The host to query (as returned by Get-VcfCheckVMHostInventory).
+
+        .PARAMETER TimeoutSeconds
+        Maximum time to wait for the esxcli round trip before giving up on this host (see
+        Invoke-VcfCheckWithTimeout for why this call needs a hard timeout).
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost,
+        [Parameter(Mandatory = $false)] [Int]$TimeoutSeconds = 30
+    )
+    $esxcli = Get-EsxCli -VMHost $VMHost -V2 -ErrorAction Stop
+    return Invoke-VcfCheckWithTimeout -TimeoutSeconds $TimeoutSeconds -ArgumentList $esxcli -ScriptBlock {
+        param($EsxCli)
+        $EsxCli.vsan.debug.controller.list.Invoke(@{ usedbyvsan = $true })
+    }
+}
+function Get-VcfCheckVsanNetworkListForHost {
+    <#
+        .SYNOPSIS
+        Thin, mockable wrapper around Get-EsxCli -V2 | vsan.network.list.Invoke() (see file header
+        for why this wrapper exists).
+
+        .DESCRIPTION
+        Reads the vsan.network.list esxcli namespace, reporting the VMkernel network adapter(s)
+        currently carrying vSAN traffic on this host - no PowerCLI SDK cmdlet exposes this.
+
+        .PARAMETER VMHost
+        The host to query (as returned by Get-VcfCheckVMHostInventory).
+
+        .PARAMETER TimeoutSeconds
+        Maximum time to wait for the esxcli round trip before giving up on this host (see
+        Invoke-VcfCheckWithTimeout for why this call needs a hard timeout).
+    #>
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost,
+        [Parameter(Mandatory = $false)] [Int]$TimeoutSeconds = 30
+    )
+    $esxcli = Get-EsxCli -VMHost $VMHost -V2 -ErrorAction Stop
+    return Invoke-VcfCheckWithTimeout -TimeoutSeconds $TimeoutSeconds -ArgumentList $esxcli -ScriptBlock {
+        param($EsxCli)
+        $EsxCli.vsan.network.list.Invoke()
+    }
+}
+function Get-VcfCheckVMHostVmkNicPortGroupName {
+    <#
+        .SYNOPSIS
+        Thin, mockable wrapper around Get-VMHostNetworkAdapter -VMKernel (see file header for why
+        this wrapper exists).
+
+        .PARAMETER VMHost
+        The host to query (as returned by Get-VcfCheckVMHostInventory).
+
+        .PARAMETER Name
+        The VMkernel adapter's device name (e.g. "vmk1").
+
+        .OUTPUTS
+        [String] the adapter's port group name.
+    #>
+    [CmdletBinding()]
+    [OutputType([String])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost,
+        [Parameter(Mandatory = $true)] [String]$Name
+    )
+    $vmkNic = Get-VMHostNetworkAdapter -VMHost $VMHost -VMKernel -Name $Name -ErrorAction Stop
+    return $vmkNic.PortGroupName
+}
+function Get-VcfCheckStandardPortGroupTeamingNicNames {
+    <#
+        .SYNOPSIS
+        Thin, mockable wrapper around Get-VirtualPortGroup -Standard | Get-NicTeamingPolicy (see
+        file header for why this wrapper exists).
+
+        .PARAMETER VMHost
+        The host to query (as returned by Get-VcfCheckVMHostInventory).
+
+        .PARAMETER PortGroupName
+        The standard vSwitch port group name to resolve teaming NICs for.
+
+        .OUTPUTS
+        [String[]] active and standby physical NIC device names.
+    #>
+    [CmdletBinding()]
+    [OutputType([String[]])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost,
+        [Parameter(Mandatory = $true)] [String]$PortGroupName
+    )
+    $teamingPolicy = Get-VirtualPortGroup -VMHost $VMHost -Standard -Name $PortGroupName -ErrorAction Stop | Get-NicTeamingPolicy -ErrorAction Stop
+    return @(@($teamingPolicy.ActiveNic) + @($teamingPolicy.StandbyNic) | Where-Object { -not [String]::IsNullOrEmpty($_) })
+}
+function Get-VcfCheckDistributedPortGroupUplinkNames {
+    <#
+        .SYNOPSIS
+        Thin, mockable wrapper resolving a distributed port group's owning switch to that switch's
+        physical uplink device names on a host (see file header for why this wrapper exists).
+
+        .DESCRIPTION
+        No PowerCLI cmdlet reports a distributed port group's active uplinks directly, so this
+        returns every physical uplink of the port group's owning distributed switch instead - a
+        best-effort superset, not the exact active-teaming subset.
+
+        .PARAMETER VMHost
+        The host to query (as returned by Get-VcfCheckVMHostInventory).
+
+        .PARAMETER PortGroupName
+        The distributed port group name to resolve uplinks for.
+
+        .OUTPUTS
+        [String[]] physical NIC device names, or an empty array if PortGroupName is not a
+        distributed port group on this host.
+    #>
+    [CmdletBinding()]
+    [OutputType([String[]])]
+    Param (
+        [Parameter(Mandatory = $true)] [PSObject]$VMHost,
+        [Parameter(Mandatory = $true)] [String]$PortGroupName
+    )
+    $distributedSwitch = Get-VDSwitch -VMHost $VMHost -ErrorAction Stop |
+        Where-Object { @(Get-VDPortgroup -VDSwitch $_ -ErrorAction Stop).Name -contains $PortGroupName } |
+        Select-Object -First 1
+    if (-not $distributedSwitch) { return @() }
+    return @(Get-VMHostNetworkAdapter -VMHost $VMHost -Physical -DistributedSwitch $distributedSwitch -ErrorAction Stop | ForEach-Object { $_.Name })
+}
 function Get-VcfCheckEsxImageProfileForHost {
     <#
         .SYNOPSIS

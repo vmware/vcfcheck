@@ -256,6 +256,8 @@
             .replace(/'/g, "&#39;");
     }
 
+    // TEST-EXTRACT-ROWSTATUSCLASS-START (see Tests/vcf-check-ui.row-status-class.test.js -
+    // keep this marker in sync if rowStatusClass or its class maps move or are renamed)
     // Same convention as the static HTML report's Format-VcfCheckHtmlRowsTable: a Rows cell
     // whose trimmed value case-insensitively matches a known status word gets the matching
     // color class, reusing the --pass/--warning/--fail/--error/--skipped variables.
@@ -267,10 +269,58 @@
         SKIPPED: "cell-skipped"
     };
 
-    VcfCheckUI.rowStatusClass = function (value) {
+    // vSAN HCL device Status values (Compatible/FirmwareUnsupported/IncompatibleWithTargetRelease/
+    // NotListed/Unknown) share the "Status" column header with other non-status text in the same
+    // rows-table (e.g. Vendor's own "Unknown" value), so these only apply when the column is
+    // literally "Status" - unlike ROW_STATUS_CLASSES above, which is safe to match against any
+    // column's value. IncompatibleWithTargetRelease is a confirmed HCL certification for an older ESX
+    // release only, so it is colored as a failure, unlike NotListed/Unknown which are uncertain.
+    VcfCheckUI.HCL_STATUS_ROW_CLASSES = {
+        COMPATIBLE: "cell-pass",
+        FIRMWAREUNSUPPORTED: "cell-warning", NOTLISTED: "cell-warning", UNKNOWN: "cell-warning",
+        INCOMPATIBLEWITHTARGETRELEASE: "cell-fail"
+    };
+
+    // One-line explanations shown as a tooltip on vSAN HCL status badges (hcl-status-badge) and,
+    // via VcfCheckUI.hclStatusTooltip, wherever a bare HCL Status value is rendered - these exist
+    // because "NotListed" and "Unknown" look interchangeable to a reader without this context.
+    VcfCheckUI.HCL_STATUS_TOOLTIPS = {
+        Compatible: "Certified on the VMware Compatibility Guide for the target ESX release.",
+        FirmwareUnsupported: "Listed on the VMware Compatibility Guide, but the driver/firmware combination in use is not a certified combination for the target ESX release.",
+        IncompatibleWithTargetRelease: "Listed on the VMware Compatibility Guide, but only certified through an ESX release older than the target - not supported on the target ESX release. Check with the vendor before upgrading.",
+        NotListed: "Not found on the VMware Compatibility Guide for any shipped ESX release - may be genuinely unsupported, or newer than this tool's HCL snapshot. Verify on the VCG directly.",
+        Unknown: "Could not be evaluated against the VMware Compatibility Guide (missing device identity, or no HCL data for this device on any shipped ESX release)."
+    };
+    VcfCheckUI.hclStatusTooltip = function (status) {
+        return VcfCheckUI.HCL_STATUS_TOOLTIPS[status] || null;
+    };
+
+    // The ESX Hardware Summary and CPU Compatibility Check's fleet-wide CPU series summary shares
+    // "Compatible" with the HCL Status values above but needs a different color (Deprecated is a
+    // warning, not a pass), so this only applies to a column literally named "Compatibility".
+    VcfCheckUI.CPU_COMPATIBILITY_ROW_CLASSES = {
+        COMPATIBLE: "cell-pass", DEPRECATED: "cell-warning", UNSUPPORTED: "cell-fail"
+    };
+
+    // The vSAN HCL device table's "LatestCompatibleRelease" column holds an ESX major.minor family
+    // (e.g. "8.0", "9.0", "9.1"), not a status word, so it can't use a fixed word-to-class map like
+    // the ones above - it's colored red only when the family is older than 9.0, the first release
+    // family this check's shipped HCL data covers.
+    VcfCheckUI.isLatestCompatibleReleaseBelowNine = function (value) {
+        var match = /^(\d+)\.(\d+)/.exec(String(value).trim());
+        if (!match) return false;
+        return parseInt(match[1], 10) < 9;
+    };
+
+    VcfCheckUI.rowStatusClass = function (value, column) {
         if (value === undefined || value === null) return null;
-        return VcfCheckUI.ROW_STATUS_CLASSES[String(value).trim().toUpperCase()] || null;
+        var key = String(value).trim().toUpperCase();
+        if (column === "Status" && VcfCheckUI.HCL_STATUS_ROW_CLASSES[key]) return VcfCheckUI.HCL_STATUS_ROW_CLASSES[key];
+        if (column === "Compatibility" && VcfCheckUI.CPU_COMPATIBILITY_ROW_CLASSES[key]) return VcfCheckUI.CPU_COMPATIBILITY_ROW_CLASSES[key];
+        if (column === "LatestCompatibleRelease" && VcfCheckUI.isLatestCompatibleReleaseBelowNine(value)) return "cell-fail";
+        return VcfCheckUI.ROW_STATUS_CLASSES[key] || null;
     }
+    // TEST-EXTRACT-ROWSTATUSCLASS-END
 
     // Column headers come from the first row's own key order - every subsequent row reads that
     // same fixed key list (a row missing one of those keys renders an empty cell) rather than
@@ -282,12 +332,26 @@
     // character ("0","1",...), rendering the string exploded across dozens of single-character
     // columns instead of as text. Guard here so a row that isn't a plain object degrades to a
     // single "Value" column instead.
+    // TEST-EXTRACT-ROWSTABLECOLUMNS-START (see Tests/vcf-check-ui.rows-table-columns.test.js -
+    // keep this marker in sync if rowsTableColumns/moveHclStatusColumnLast move or are renamed)
     VcfCheckUI.rowsTableColumns = function (rows) {
         if (!rows || !rows.length) return [];
         var first = rows[0];
         if (first === null || typeof first !== "object") return ["Value"];
-        return Object.keys(first);
+        var columns = Object.keys(first);
+        return VcfCheckUI.moveHclStatusColumnLast(columns);
     }
+
+    // The vSAN HCL Compliance check's per-host Components rows carry CurrentlyUsedByvSAN, and
+    // list Status ahead of it in property order (matching Get-VcfCheckVsanHclHostDetail), but the
+    // report reads better with Status as the rightmost column on that specific table - move it
+    // there only when CurrentlyUsedByvSAN is present, so unrelated tables that happen to have a
+    // Status column keep their normal property order.
+    VcfCheckUI.moveHclStatusColumnLast = function (columns) {
+        if (columns.indexOf("CurrentlyUsedByvSAN") === -1 || columns.indexOf("Status") === -1) return columns;
+        return columns.filter(function (column) { return column !== "Status"; }).concat(["Status"]);
+    }
+    // TEST-EXTRACT-ROWSTABLECOLUMNS-END
 
     // Rank used to sort a rows-table that has both a Severity and a Count column (e.g. an
     // alarm/event summary): ERROR first, then CRITICAL, HIGH, MEDIUM, LOW, WARNING, INFO, with
@@ -403,8 +467,9 @@
             columns.forEach(function (column) {
                 var td = document.createElement("td");
                 var value = VcfCheckUI.normalizeExpiryCellValue(column, VcfCheckUI.rowsTableCellValue(row, column));
-                var statusClass = VcfCheckUI.rowStatusClass(value);
-                if (statusClass) td.className = statusClass;
+                var statusClass = VcfCheckUI.rowStatusClass(value, column);
+                var classNames = [statusClass, column === "Devices" ? "cell-devices" : null].filter(Boolean);
+                if (classNames.length) td.className = classNames.join(" ");
                 if (column === "Error") {
                     VcfCheckUI.renderErrorCell(td, value);
                 } else {
@@ -426,8 +491,9 @@
         var body = sortedRows.map(function (row) {
             return "<tr>" + columns.map(function (column) {
                 var value = VcfCheckUI.normalizeExpiryCellValue(column, VcfCheckUI.rowsTableCellValue(row, column));
-                var statusClass = VcfCheckUI.rowStatusClass(value);
-                var classAttr = statusClass ? " class=\"" + statusClass + "\"" : "";
+                var statusClass = VcfCheckUI.rowStatusClass(value, column);
+                var classNames = [statusClass, column === "Devices" ? "cell-devices" : null].filter(Boolean);
+                var classAttr = classNames.length ? " class=\"" + classNames.join(" ") + "\"" : "";
                 if (column === "Error") {
                     var groups = VcfCheckUI.groupErrorMessages(value);
                     if (groups) {
@@ -448,8 +514,28 @@
         if (fieldName === "CpuCompatibility") {
             return "VCF 9.1 CPU Compatibility";
         }
+        if (fieldName === "ComponentsInUseByVsan") {
+            return "All Components In Use By vSAN";
+        }
+        if (fieldName === "ComponentsNotUsedByVsan") {
+            return "All Components Not Used By vSAN";
+        }
         return fieldName.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\bCpu\b/g, "CPU");
     }
+
+    // The vSAN HCL Compliance check's per-host Components array carries CurrentlyUsedByvSAN on
+    // every row; splitting it into two sub-tables here (rather than at the PowerShell layer)
+    // keeps Get-VcfCheckVsanHclHostDetail's HostDetails shape generic for every other consumer.
+    VcfCheckUI.splitComponentsByVsanUsage = function (components) {
+        var inUse = components.filter(function (component) { return !!component.CurrentlyUsedByvSAN; });
+        var notUsed = components.filter(function (component) { return !component.CurrentlyUsedByvSAN; });
+        return [["ComponentsInUseByVsan", inUse], ["ComponentsNotUsedByVsan", notUsed]];
+    }
+
+    // A sub-table field name that should start collapsed rather than expanded. Only the
+    // vSAN HCL Compliance check's "not used by vSAN" table defaults closed; every other
+    // array-valued field on a host detail card defaults open.
+    VcfCheckUI.COLLAPSED_HOST_DETAIL_FIELDS = { ComponentsNotUsedByVsan: true };
 
     // CpuCompatibility's and CpuDeprecationStatus' raw enum values, and CpuCompatibilityMatchedSeries'/
     // CpuDeprecationMatchedSeries' "no match" case, all need friendlier display text than the raw
@@ -473,7 +559,11 @@
         Object.keys(host).forEach(function (key) {
             if (key === "HostName" || key === "ClusterName") return;
             if (Array.isArray(host[key])) {
-                arrayFields.push([key, host[key]]);
+                if (key === "Components" && host[key].length && host[key][0].CurrentlyUsedByvSAN !== undefined) {
+                    arrayFields = arrayFields.concat(VcfCheckUI.splitComponentsByVsanUsage(host[key]));
+                } else {
+                    arrayFields.push([key, host[key]]);
+                }
             } else {
                 summaryFields.push([key, host[key]]);
             }
@@ -543,6 +633,14 @@
         if (cpuStatus) {
             summary.appendChild(VcfCheckUI.el("span", "cpu-status-badge " + cpuStatus, VcfCheckUI.CPU_STATUS_LABEL[cpuStatus]));
         }
+        var hclCounts = VcfCheckUI.hostHclStatusCounts(host);
+        VcfCheckUI.HCL_DEVICE_STATUSES.forEach(function (status) {
+            if (!hclCounts[status]) return;
+            var hclBadge = VcfCheckUI.el("span", "hcl-status-badge " + status, hclCounts[status] + " " + status + " Device Models");
+            var hclTooltip = VcfCheckUI.hclStatusTooltip(status);
+            if (hclTooltip) hclBadge.setAttribute("data-tooltip", hclTooltip);
+            summary.appendChild(hclBadge);
+        });
         details.appendChild(summary);
 
         var body = VcfCheckUI.el("div", "host-details-body");
@@ -562,8 +660,12 @@
         fields.arrayFields.forEach(function (pair) {
             var subTable = VcfCheckUI.renderRowsTable(pair[1]);
             if (subTable) {
-                body.appendChild(VcfCheckUI.el("h4", null, VcfCheckUI.hostDetailFieldLabel(pair[0])));
-                body.appendChild(subTable);
+                var fieldDetails = document.createElement("details");
+                fieldDetails.className = "host-detail-field";
+                fieldDetails.open = !VcfCheckUI.COLLAPSED_HOST_DETAIL_FIELDS[pair[0]];
+                fieldDetails.appendChild(VcfCheckUI.el("summary", null, VcfCheckUI.hostDetailFieldLabel(pair[0])));
+                fieldDetails.appendChild(subTable);
+                body.appendChild(fieldDetails);
             }
         });
 
@@ -586,6 +688,48 @@
         }
         return null;
     }
+
+    // Counts vSAN HCL device statuses for a host's summary badges. Components rows are already
+    // grouped by DeviceType/Vendor/Model/Status (Group-VcfCheckVsanHclComponentsByModel), so each
+    // row is one unique DeviceType/Vendor/Model/Status combination on this host and adds one to
+    // its status bucket - a row's comma-joined Devices count is the physical device count behind
+    // that combination (shown as TotalDeviceCount in the per-row tables), not a second "unique
+    // devices" tally, so it is not summed here. This keeps the unit identical to
+    // clusterHclStatusCounts, which counts the same kind of combination across the whole cluster.
+    // Only components currently in use by vSAN count towards these badges - hardware that isn't
+    // backing vSAN today can't cause a vSAN upgrade problem, so it's tracked in the "not used"
+    // table but never bubbled up here.
+    // TEST-EXTRACT-HCLSTATUSCOUNTS-START (see Tests/vcf-check-ui.hcl-status-counts.test.js -
+    // keep this marker in sync if hostHclStatusCounts moves or is renamed)
+    VcfCheckUI.HCL_DEVICE_STATUSES = ["Compatible", "FirmwareUnsupported", "IncompatibleWithTargetRelease", "NotListed", "Unknown"];
+    VcfCheckUI.hostHclStatusCounts = function (host) {
+        var counts = { Compatible: 0, FirmwareUnsupported: 0, IncompatibleWithTargetRelease: 0, NotListed: 0, Unknown: 0 };
+        (host.Components || []).forEach(function (component) {
+            if (!component.CurrentlyUsedByvSAN) return;
+            var status = component.Status;
+            if (counts[status] === undefined) return;
+            counts[status]++;
+        });
+        return counts;
+    }
+    // TEST-EXTRACT-HCLSTATUSCOUNTS-END
+
+    // Rolls up a cluster's unique vSAN HCL device/status combinations (aggregateVsanHclDeviceSummary,
+    // already deduped by DeviceType/Vendor/Model/Status across the cluster's hosts) into a count per
+    // Status, one per combination, so the cluster badge counts the same unit as hostHclStatusCounts
+    // (unique combinations, not physical device instances) - a host's per-status combination count
+    // can never exceed its cluster's, matching the container/member relationship.
+    // TEST-EXTRACT-CLUSTERHCLSTATUSCOUNTS-START (see Tests/vcf-check-ui.cluster-hcl-status-counts.test.js -
+    // keep this marker in sync if clusterHclStatusCounts moves or is renamed)
+    VcfCheckUI.clusterHclStatusCounts = function (hosts) {
+        var counts = { Compatible: 0, FirmwareUnsupported: 0, IncompatibleWithTargetRelease: 0, NotListed: 0, Unknown: 0 };
+        VcfCheckUI.aggregateVsanHclDeviceSummary(hosts).forEach(function (row) {
+            if (counts[row.Status] === undefined) return;
+            counts[row.Status]++;
+        });
+        return counts;
+    }
+    // TEST-EXTRACT-CLUSTERHCLSTATUSCOUNTS-END
 
     VcfCheckUI.clusterCpuStatusCounts = function (hosts) {
         var counts = { compatible: 0, deprecated: 0, unsupported: 0 };
@@ -619,6 +763,104 @@
         return worst;
     }
 
+    // TEST-EXTRACT-VSANHCLMETASUMMARY-START (see Tests/vcf-check-ui.vsan-hcl-meta-summary.test.js -
+    // keep this marker in sync if aggregateVsanHclDeviceSummary moves or is renamed)
+    // The vSAN HCL Compliance check's per-host Components rows are already grouped by
+    // DeviceType/Vendor/Model/Status/Devices within a single host (Group-VcfCheckVsanHclComponentsByModel),
+    // but a fleet of dozens of otherwise-identical hosts still repeats the same combination once per
+    // host. Re-grouping across every host into one row per distinct combination (restricted to
+    // CurrentlyUsedByvSAN, since hardware not backing vSAN can't affect the check) gives a single
+    // table showing the actual remediation surface - e.g. "3 unique unsupported combinations" instead
+    // of scrolling 74 per-host cards to find them.
+    VcfCheckUI.aggregateVsanHclDeviceSummary = function (hostDetails) {
+        var groups = {};
+        var order = [];
+        hostDetails.forEach(function (host) {
+            (host.Components || []).forEach(function (component) {
+                if (!component.CurrentlyUsedByvSAN) return;
+                var key = [component.DeviceType, component.Vendor, component.Model, component.Status].join("|");
+                if (!groups[key]) {
+                    groups[key] = { "Device Type": component.DeviceType, Vendor: component.Vendor, Model: component.Model, TotalDeviceCount: 0, Status: component.Status };
+                    order.push(key);
+                }
+                groups[key].TotalDeviceCount += component.Devices ? String(component.Devices).split(",").length : 1;
+            });
+        });
+        return order.map(function (key) { return groups[key]; }).sort(function (a, b) {
+            if (a.Status !== b.Status) return a.Status.localeCompare(b.Status);
+            if (a["Device Type"] !== b["Device Type"]) return a["Device Type"].localeCompare(b["Device Type"]);
+            if (a.Vendor !== b.Vendor) return a.Vendor.localeCompare(b.Vendor);
+            return String(a.Model).localeCompare(String(b.Model));
+        });
+    }
+    // TEST-EXTRACT-VSANHCLMETASUMMARY-END
+
+    VcfCheckUI.renderVsanHclDeviceMetaSummary = function (hostDetails) {
+        var hasComponents = hostDetails.some(function (host) {
+            return Array.isArray(host.Components) && host.Components.length && host.Components[0].CurrentlyUsedByvSAN !== undefined;
+        });
+        if (!hasComponents) return null;
+        var rows = VcfCheckUI.aggregateVsanHclDeviceSummary(hostDetails);
+        var table = VcfCheckUI.renderRowsTable(rows);
+        if (!table) return null;
+
+        var details = document.createElement("details");
+        details.className = "host-detail-field vsan-hcl-meta-summary";
+        details.open = true;
+        details.appendChild(VcfCheckUI.el("summary", null, "Unique Devices In Use By vSAN (" + rows.length + ")"));
+        details.appendChild(table);
+        return details;
+    }
+
+    // TEST-EXTRACT-CPUCOMPATSUMMARY-START (see Tests/vcf-check-ui.cpu-compatibility-summary.test.js -
+    // keep this marker in sync if aggregateCpuCompatibilitySummary moves or is renamed)
+    // The ESX Hardware Summary and CPU Compatibility Check's per-host CpuSeries/hostCpuStatus is
+    // already surfaced on each host's own card, but a fleet of dozens of otherwise-identical
+    // hosts still repeats the same CPU series once per host. Re-grouping across every host into
+    // one row per distinct CpuSeries/Compatibility combination, with a count of the hosts
+    // matching it, gives a single table showing the actual remediation surface at a glance.
+    VcfCheckUI.CPU_COMPATIBILITY_SORT_RANK = { Unsupported: 0, Deprecated: 1, Compatible: 2 };
+    VcfCheckUI.aggregateCpuCompatibilitySummary = function (hostDetails) {
+        var groups = {};
+        var order = [];
+        hostDetails.forEach(function (host) {
+            // hostCpuStatus() returns lowercase ("compatible") for its CSS class name; this
+            // table's Compatibility column instead shows the capitalized word, matching the
+            // per-host cpu-status-badge label and Reporting.ps1's Get-VcfCheckHtmlHostCpuStatus.
+            var rawStatus = VcfCheckUI.hostCpuStatus(host);
+            if (!rawStatus) return;
+            var compatibility = rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+            var cpuSeries = host.CpuSeries || "Unknown";
+            var key = cpuSeries + "|" + compatibility;
+            if (!groups[key]) {
+                groups[key] = { "CPU Series": cpuSeries, Compatibility: compatibility, "Host Count": 0 };
+                order.push(key);
+            }
+            groups[key]["Host Count"]++;
+        });
+        return order.map(function (key) { return groups[key]; }).sort(function (a, b) {
+            var rankDiff = VcfCheckUI.CPU_COMPATIBILITY_SORT_RANK[a.Compatibility] - VcfCheckUI.CPU_COMPATIBILITY_SORT_RANK[b.Compatibility];
+            if (rankDiff !== 0) return rankDiff;
+            return a["CPU Series"].localeCompare(b["CPU Series"]);
+        });
+    }
+    // TEST-EXTRACT-CPUCOMPATSUMMARY-END
+
+    VcfCheckUI.renderCpuCompatibilitySummary = function (hostDetails) {
+        var hasCpuData = hostDetails.some(function (host) { return host.CpuCompatibility !== undefined; });
+        if (!hasCpuData) return null;
+        var rows = VcfCheckUI.aggregateCpuCompatibilitySummary(hostDetails);
+        var table = VcfCheckUI.renderRowsTable(rows);
+        if (!table) return null;
+
+        var details = document.createElement("details");
+        details.className = "host-detail-field cpu-compatibility-summary";
+        details.open = true;
+        details.appendChild(VcfCheckUI.el("summary", null, "Unique CPU Series (" + rows.length + ")"));
+        details.appendChild(table);
+        return details;
+    }
+
     VcfCheckUI.renderHostSummaryBar = function (hostDetails, label) {
         var summaryBar = VcfCheckUI.el("div", "host-summary-bar");
         summaryBar.appendChild(VcfCheckUI.el("span", "host-summary-label", label));
@@ -637,6 +879,12 @@
         var wrap = document.createDocumentFragment();
         wrap.appendChild(VcfCheckUI.renderHostSummaryBar(hostDetails, hostDetailsLabel));
 
+        var metaSummary = VcfCheckUI.renderVsanHclDeviceMetaSummary(hostDetails);
+        if (metaSummary) wrap.appendChild(metaSummary);
+
+        var cpuCompatSummary = VcfCheckUI.renderCpuCompatibilitySummary(hostDetails);
+        if (cpuCompatSummary) wrap.appendChild(cpuCompatSummary);
+
         VcfCheckUI.groupHostDetailsByCluster(hostDetails).forEach(function (group) {
             var clusterKey = resultKey + "|cluster|" + group.clusterName;
             var clusterDetails = document.createElement("details");
@@ -654,6 +902,15 @@
             var hasCpuCounts = cpuCounts.compatible + cpuCounts.deprecated + cpuCounts.unsupported > 0;
             summary.appendChild(document.createTextNode(" "));
             summary.appendChild(VcfCheckUI.el("span", "cluster-badge" + (hasCpuCounts ? " neutral" : ""), VcfCheckUI.pluralizeUnitLabel(hostDetailsLabel, group.hosts.length)));
+            var clusterHclCounts = VcfCheckUI.clusterHclStatusCounts(group.hosts);
+            VcfCheckUI.HCL_DEVICE_STATUSES.forEach(function (status) {
+                if (!clusterHclCounts[status]) return;
+                summary.appendChild(document.createTextNode(" "));
+                var clusterHclBadge = VcfCheckUI.el("span", "hcl-status-badge " + status, clusterHclCounts[status] + " " + status + " Device Models");
+                var clusterHclTooltip = VcfCheckUI.hclStatusTooltip(status);
+                if (clusterHclTooltip) clusterHclBadge.setAttribute("data-tooltip", clusterHclTooltip);
+                summary.appendChild(clusterHclBadge);
+            });
             ["compatible", "deprecated", "unsupported"].forEach(function (status) {
                 if (!cpuCounts[status]) return;
                 summary.appendChild(document.createTextNode(" "));
@@ -695,7 +952,9 @@
         }).join("");
         var arrayHtml = fields.arrayFields.map(function (pair) {
             var subTable = VcfCheckUI.rowsToHtml(pair[1]);
-            return subTable ? "<h4>" + VcfCheckUI.escapeHtml(VcfCheckUI.hostDetailFieldLabel(pair[0])) + "</h4>" + subTable : "";
+            if (!subTable) return "";
+            var openAttr = VcfCheckUI.COLLAPSED_HOST_DETAIL_FIELDS[pair[0]] ? "" : " open";
+            return "<details class=\"host-detail-field\"" + openAttr + "><summary>" + VcfCheckUI.escapeHtml(VcfCheckUI.hostDetailFieldLabel(pair[0])) + "</summary>" + subTable + "</details>";
         }).join("");
         var statusBadgeHtml = host.Status ? "<span class=\"badge " + VcfCheckUI.escapeHtml(host.Status) + "\">" + VcfCheckUI.escapeHtml(host.Status) + "</span>" : "";
         var cpuStatus = VcfCheckUI.hostCpuStatus(host);

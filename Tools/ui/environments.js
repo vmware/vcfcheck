@@ -266,6 +266,7 @@
     // save here catches the gap before it reaches Run Scan instead of after.
     function ariaGuestOsVCenterError(guestOsEnabled, shared, sharedFqdn, sharedUsername, integrations) {
         if (!guestOsEnabled) return "";
+        if ((integrations || []).length === 0) return "";
         if (shared) {
             if (!String(sharedFqdn || "").trim() || !String(sharedUsername || "").trim()) {
                 return "Enter the Aria Components vCenter FQDN and username, or disable \"Component GuestOS-based checks\".";
@@ -292,6 +293,10 @@
         var guestOsEnabled = document.getElementById("env-form-root-checks").checked;
         if (!guestOsEnabled) {
             container.appendChild(VcfCheckUI.el("div", "chk-count", "Enable \"Component GuestOS-based checks\" above to also run guestOS checks against Aria components' vCenters."));
+            return;
+        }
+        if (formIntegrations.length === 0) {
+            container.appendChild(VcfCheckUI.el("div", "chk-count", "Add an Aria component below to configure the vCenter used for its guestOS checks."));
             return;
         }
 
@@ -374,6 +379,7 @@
             removeIntegrationButton.textContent = "Remove";
             removeIntegrationButton.addEventListener("click", function () {
                 formIntegrations.splice(integrationIndex, 1);
+                renderAriaGuestOsControls();
                 renderIntegrationsEditor();
             });
             var actions = VcfCheckUI.el("div", "env-row-actions");

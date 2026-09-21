@@ -345,6 +345,7 @@
     .rows-table .cell-fail, .host-detail-summary .cell-fail { color: var(--fail); }
     .rows-table .cell-error, .host-detail-summary .cell-error { color: var(--error); }
     .rows-table .cell-skipped, .host-detail-summary .cell-skipped { color: var(--skipped); }
+    .rows-table .cell-devices { max-width: 320px; white-space: normal; word-break: break-word; }
     .error-message-list { margin: 0; padding-left: 18px; }
     .error-message-list li { margin: 2px 0; }
     .host-details { border: 1px solid var(--border); border-radius: 6px; margin: 8px 0; }
@@ -353,6 +354,9 @@
     .host-details[open] summary { border-bottom: 1px solid var(--border); }
     .host-details .host-details-body { padding: 4px 14px 12px; }
     .host-details h4 { margin: 14px 0 4px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .host-detail-field { margin: 14px 0 4px; }
+    .host-detail-field summary { cursor: pointer; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+    .host-detail-field .rows-table { margin-top: 6px; }
     .host-detail-summary { width: 100%; border-collapse: collapse; font-size: 12.5px; }
     .host-detail-summary th, .host-detail-summary td { padding: 4px 8px; border-bottom: 1px solid var(--border); }
     .host-detail-summary th { text-align: left; color: var(--muted); font-weight: 600; }
@@ -362,6 +366,45 @@
     .cluster-badge.compatible, .cpu-status-badge.compatible { background-color: rgba(51, 193, 122, 0.15); color: var(--pass-text); border-color: var(--pass); }
     .cluster-badge.deprecated, .cpu-status-badge.deprecated { background-color: rgba(224, 161, 58, 0.15); color: var(--warning-text); border-color: var(--warning); }
     .cluster-badge.unsupported, .cpu-status-badge.unsupported { background-color: rgba(224, 71, 62, 0.15); color: var(--fail); border-color: var(--fail); }
+    .hcl-status-badge { position: relative; display: inline-block; margin-left: 8px; padding: 4px 10px; font-size: 12px; font-weight: 600; border-radius: 16px; border: 1px solid var(--pass); background-color: rgba(51, 193, 122, 0.15); color: var(--pass-text); }
+    .hcl-status-badge[data-tooltip]::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 6px;
+        width: max-content;
+        max-width: 320px;
+        background: #eceef1;
+        color: #14161a;
+        font-size: 12px;
+        font-weight: 400;
+        text-transform: none;
+        line-height: 1.4;
+        padding: 0;
+        border-radius: 4px;
+        white-space: normal;
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        max-height: 0;
+        overflow: hidden;
+        transition: opacity 100ms ease 80ms;
+        pointer-events: none;
+    }
+    .hcl-status-badge[data-tooltip]:hover::after,
+    .hcl-status-badge[data-tooltip]:focus-visible::after {
+        padding: 6px 10px;
+        opacity: 1;
+        visibility: visible;
+        max-height: none;
+        overflow: visible;
+    }
+    .hcl-status-badge.Compatible { background-color: rgba(51, 193, 122, 0.15); color: var(--pass-text); border-color: var(--pass); }
+    .hcl-status-badge.FirmwareUnsupported { background-color: rgba(224, 161, 58, 0.15); color: var(--warning-text); border-color: var(--warning); }
+    .hcl-status-badge.NotListed { background-color: rgba(224, 71, 62, 0.15); color: var(--fail); border-color: var(--fail); }
+    .hcl-status-badge.Unknown { background-color: rgba(154, 161, 172, 0.15); color: var(--muted); border-color: var(--muted); }
+    .hcl-status-badge.IncompatibleWithTargetRelease { background-color: rgba(224, 71, 62, 0.15); color: var(--fail); border-color: var(--fail); }
     .host-summary-bar { display: flex; align-items: center; margin: 8px 0 12px; }
     .host-summary-label { font-weight: 600; font-size: 13px; }
     .host-cluster-group { border: 1px solid var(--border); border-radius: 6px; margin: 8px 0; }
@@ -1085,7 +1128,7 @@
                     </div>
                     <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
                         <div class="chk-search-row">
-                            <h3 style="margin:0;flex:1;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;">Aria Components (optional)<span class="result-info-icon" id="env-form-integrations-info-icon" tabindex="0" data-tooltip="Note: These checks connect directly to each Aria Component's API are independent of Aria Lifecycle Manager. Add an endpoint here to run its checks; leave it out to skip them."></span></h3>
+                            <h3 style="margin:0;flex:1;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0.05em;">Aria Components (optional)<span class="result-info-icon" id="env-form-integrations-info-icon" tabindex="0" data-tooltip="Note: These checks connect directly to each Aria Component's API are independent of Aria Lifecycle Manager. Add an endpoint here to run its checks; leave it out to skip them."></span></h3>
                         </div>
                         <div style="font-size:13px;color:var(--muted);font-style:italic;margin:8px 0;">Note: These checks connect directly to each Aria component's API and are independent of Aria Lifecycle Manager (vRSLCM).</div>
                         <div id="env-form-aria-guestos-controls"></div>
@@ -1495,7 +1538,7 @@
                         <div class="checkbox-group" id="component-checkboxes"></div>
                     </div>
                     <div class="chk-search-row">
-                        <input type="text" class="search-input" id="check-search-input" placeholder="Search checks by name or area...">
+                        <input type="text" class="search-input" id="check-search-input" placeholder="Search checks by name, area, or description...">
                         <button type="button" class="filter-chip" id="select-blocking-chip" aria-pressed="false" title="Select only checks whose failure will block a VCF 9.x upgrade"><span class="chk-tag chk-tag-blocking" aria-hidden="true">B</span> Select Blocking Only Checks</button>
                         <button type="button" class="filter-chip" id="filter-root-chip" aria-pressed="false" title="These checks rely on VMware Tools and user-provided credentials to collect internal system details not exposed by the native vSphere API. They do not utilize SSH."><span class="chk-tag chk-tag-root" aria-hidden="true">G</span> Show GuestOS-based Checks</button>
                         <button type="button" class="filter-chip" id="save-check-defaults-button" title="Save the current component and check selection as your default for future sessions">Save Defaults</button>
