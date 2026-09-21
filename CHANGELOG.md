@@ -1,7 +1,5 @@
 # VCF Check
 
-# VCF Check
-
 ## 2.0.0.1009
 
 ### Release Date : 2026-09-20
